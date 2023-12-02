@@ -1,5 +1,5 @@
 # Configuration file for the Sphinx documentation builder.
-from gpm.version import version
+from ..gpm.version import version
 # -- Project information
 
 project = 'GPM'
