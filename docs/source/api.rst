@@ -1,7 +1,7 @@
 API
 ===
 
-.. autosummary::
+.. autosummary:: gpm
    :toctree: generated
 
    gpm
