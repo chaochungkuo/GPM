@@ -3,6 +3,7 @@ import os
 import sys
 from gpm.helper import load_gpm_config
 from gpm.version import version
+from gpm import GPM
 
 help_messages = {"demultiplex_raw": "Define the folder of BCL files as the "
                  "raw input for demultiplexing.",
@@ -50,3 +51,9 @@ def demultiplex(method, raw, output):
         sys.exit()
 
     # TODO: generate
+    pm = GPM()
+    
+    # Update profile
+    pm.profile["Raw data"]["bcl_path"] = raw
+    
+    

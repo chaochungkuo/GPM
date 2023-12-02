@@ -1,0 +1,13 @@
+[Header]
+EMFileVersion,4
+Investigator Name,
+Date,
+Workflow,GenerateFASTQ
+Application,NextSeq FASTQ Only
+Instrument Type,NextSeq
+Description,nextseq sample sheet
+Chemistry,Default
+
+[Data]
+Lane,Sample_ID,index,index2,Sample_Project
+,Sample1_A,AAAAAAAA,CCCCCCCC,YYMMDD_Provider_PI_Institute_RNAseq

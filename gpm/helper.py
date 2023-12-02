@@ -19,8 +19,8 @@ def load_gpm_config():
     Return the config from GPMDATA/gpm.config as a dictionary
     """
     gpmdata_path = get_gpmdata_path()
-    Config = configparser.ConfigParser()
-    Config.read(path.join(gpmdata_path, "gpm.config"))
+    config = configparser.ConfigParser()
+    config.read(path.join(gpmdata_path, "gpm.config"))
     # Retrieve values from the configuration file
     section = config['Section']
     key1 = section.get('key1')
