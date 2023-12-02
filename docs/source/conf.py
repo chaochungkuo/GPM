@@ -1,13 +1,12 @@
 # Configuration file for the Sphinx documentation builder.
-
+from gpm.version import version
 # -- Project information
 
-project = 'Lumache'
-copyright = '2021, Graziella'
-author = 'Graziella'
+project = 'GPM'
+copyright = '2023, Chao-Chung Kuo'
+author = 'Chao-Chung Kuo'
 
-release = '0.1'
-version = '0.1.0'
+release = ".".join(version.split(".")[0:1])
 
 # -- General configuration
 
