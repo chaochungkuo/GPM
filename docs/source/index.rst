@@ -14,6 +14,6 @@ Contents
 --------
 
 .. toctree::
-
+   concept
    usage
    api
