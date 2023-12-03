@@ -3,7 +3,7 @@ from os import path, makedirs, listdir
 from gpm.version import version
 from gpm.helper import get_gpmdata_path
 from glob import glob
-import shutil
+from shutil import copyfile, copytree, ignore_patterns, rmtree
 import sys
 
 #############################################################
@@ -23,14 +23,18 @@ if not path.exists(gpm_data_location):
 config_dir = path.join(path.dirname(__file__), "config")
 for file in listdir(config_dir):
     fn = path.basename(file)
-    shutil.copyfile(path.join(config_dir, fn),
-                    path.join(gpm_data_location, fn))
+    copyfile(path.join(config_dir, fn),
+             path.join(gpm_data_location, fn))
     # User defined Configs
     # userconfig = open(path.join(gpm_data_location,fn+".user"), "w")
     # with open(path.join(config_dir,fn)) as f1:
     #     for line in f1.readlines():
     #         print("# "+line, file=userconfig, end="")
     # userconfig.close()
+
+
+if path.exists('gpm/demultiplex'):
+    rmtree('gpm/demultiplex')
 
 #############################################################
 # Setup function
@@ -63,6 +67,9 @@ setup(
     },
     data_files=[
         ('gpm/config', glob('config/*')),
+        ('gpm/demultiplex', copytree('demultiplex',
+                                     'gpm/demultiplex',
+                                     ignore=ignore_patterns('*'))),
         ('gpm/analysis', glob('analysis/*')),
     ],
     classifiers=[

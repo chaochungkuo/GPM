@@ -26,4 +26,7 @@ def get_gpm_config(section, item):
 
     config = configparser.ConfigParser()
     config.read(gpm_config)
-    return gpm_config
+    res = config[section][item]
+    if "," in res:
+        res = [x.strip() for x in res.split(",")]
+    return res

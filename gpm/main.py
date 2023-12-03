@@ -1,6 +1,5 @@
 import click
 import os
-import sys
 from gpm.helper import get_gpm_config
 from gpm.version import version
 from gpm.gpm import GPM
@@ -36,23 +35,11 @@ def demultiplex(method, raw, output):
     GPM offers various ways for demultiplexing according to different kits or
     sequencers.
     """
-    # Check output directory
-    if not os.path.exists(output):
-        click.echo("Output directory doesn't exist.")
-        sys.exit()
-    # Check existed folder
-    raw_name = os.path.basename(raw)
-    if os.path.exists(os.path.join(output, raw_name)):
-        click.echo("This run exists in the output directory.")
-        click.echo(os.path.join(output, raw_name))
-        sys.exit()
-
-    # TODO: generate
     pm = GPM()
-
-    # Update profile
-    pm.profile["Raw data"]["bcl_path"] = raw
-    print("test")
+    pm.demultiplex(method, raw, output)
+    pm.update_log()
+    config_path = os.path.join(output, "project.ini")
+    pm.write_project_config_file(config_path)
 
 
 if __name__ == '__main__':
