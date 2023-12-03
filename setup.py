@@ -1,8 +1,10 @@
 from setuptools import setup, find_packages
-from os import path, getenv, makedirs, listdir, environ
+from os import path, makedirs, listdir
 from gpm.version import version
+from gpm.helper import get_gpmdata_path
 from glob import glob
 import shutil
+import sys
 
 #############################################################
 # Creating Data Path
@@ -10,11 +12,9 @@ import shutil
 
 # if the environment variable is set, use it;
 # otherwise use the home directory as a default
-if environ.get('GPMDATA'):
-    gpm_data_location = path.expanduser(getenv("GPMDATA"))
-else:
-    gpm_data_location = path.expanduser(path.join(getenv("HOME"), "gpmdata"))
+gpm_data_location = get_gpmdata_path()
 print("GPMDATA folder: "+gpm_data_location)
+sys.stdout.flush()
 
 # Creating Data Path
 if not path.exists(gpm_data_location):
@@ -36,7 +36,7 @@ for file in listdir(config_dir):
 # Setup function
 #############################################################
 
-with open("README.md", "r") as fh:
+with open("README.rst", "r") as fh:
     long_description = fh.read()
 
 short_description = 'The Genomic Project Manager is a powerful tool designed '

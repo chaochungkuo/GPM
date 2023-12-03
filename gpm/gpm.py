@@ -1,9 +1,5 @@
-"""
-GPM - Python library for managing genomics projects.
-"""
-from collection import OrderedDict
+from collections import OrderedDict
 import configparser
-from gpm.helper import get_gpmdata_path
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                      "application"]),
@@ -93,12 +89,3 @@ class GPM():
                         if tag.upper() in line:
                             line = line.replace(tag.upper(), value)
                 output_file.write(line)
-
-    def load_gpm_config(self):
-        """
-        Read the GPM config file (gpm.config or gpm.config.user)
-
-        :return: None
-        """
-        gpmdata = get_gpmdata_path()
-        

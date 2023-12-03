@@ -14,29 +14,16 @@ def get_gpmdata_path():
     return gpm_data_location
 
 
-def load_gpm_config():
+def get_gpm_config(section, item):
     """
-    Return the config from GPMDATA/gpm.config as a dictionary
+    Return the config from GPMDATA/gpm.config as a dictionary.
+    User-defined config (gpm.config.user) has a higher priority
+    than default one (gpm.config).
     """
-    gpmdata_path = get_gpmdata_path()
+    gpm_config = path.join(get_gpmdata_path(), "gpm.config.user")
+    if not path.exists(gpm_config):
+        gpm_config = path.join(get_gpmdata_path(), "gpm.config")
+
     config = configparser.ConfigParser()
-    config.read(path.join(gpmdata_path, "gpm.config"))
-    # Retrieve values from the configuration file
-    section = config['Section']
-    key1 = section.get('key1')
-    key2 = section.getint('key2')  # Convert to int
-    key3 = section.getboolean('key3')  # Convert to boolean
-    
-    # Parse list from a comma-separated string
-    list_key = section.get('list_key').split(', ')
-    
-    # Return a dictionary with the loaded values
-    config_values = {
-        'key1': key1,
-        'key2': key2,
-        'key3': key3,
-        'list_key': list_key,
-    }
-    
-    return config_values
-    return Config
+    config.read(gpm_config)
+    return gpm_config

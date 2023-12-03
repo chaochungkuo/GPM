@@ -1,17 +1,14 @@
 import click
 import os
 import sys
-from gpm.helper import load_gpm_config
+from gpm.helper import get_gpm_config
 from gpm.version import version
-from gpm import GPM
+from gpm.gpm import GPM
 
 help_messages = {"demultiplex_raw": "Define the folder of BCL files as the "
                  "raw input for demultiplexing.",
                  "demultiplex_output": "Define the output directory where a "
                  "new folder with the same name as raw data will be created."}
-
-gpm_config = load_gpm_config()
-print(gpm_config["GPM"]["DEMULTIPLEX_METHODS"])
 
 
 @click.group()
@@ -32,7 +29,7 @@ def main():
 @click.option('-o', '--output',
               help=help_messages["demultiplex_output"], required=True)
 @click.option('-m', '--method',
-              type=click.Choice(gpm_config["GPM"]["DEMULTIPLEX_METHODS"],
+              type=click.Choice(get_gpm_config("GPM", "DEMULTIPLEX_METHODS"),
                                 case_sensitive=False))
 def demultiplex(method, raw, output):
     """
@@ -52,8 +49,11 @@ def demultiplex(method, raw, output):
 
     # TODO: generate
     pm = GPM()
-    
+
     # Update profile
     pm.profile["Raw data"]["bcl_path"] = raw
-    
-    
+    print("test")
+
+
+if __name__ == '__main__':
+    main()
