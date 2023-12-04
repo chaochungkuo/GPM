@@ -1,8 +1,9 @@
 API
 ===
 
-.. autosummary:: gpm.gpm
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-module-template.rst
+   :recursive:
 
+   gpm
