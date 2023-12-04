@@ -4,6 +4,7 @@ import click
 from collections import OrderedDict
 import configparser
 from datetime import datetime
+from gpm.helper import remove_end_slash
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                      "application"]),
@@ -107,6 +108,8 @@ class GPM():
         :type target: str
         :return: None
         """
+        print(source)
+        print(target)
         with open(source, 'r') as input_file, open(target, 'w') as output_file:
             for line in input_file:
                 for section, options in self.profile.items():
@@ -127,6 +130,8 @@ class GPM():
         :type output: str
         :return: None
         """
+        raw = remove_end_slash(raw)
+        output = remove_end_slash(output)
         # Check path for raw data
         if os.path.exists(raw):
             self.profile["Raw data"]["bcl_path"] = raw
@@ -136,6 +141,7 @@ class GPM():
             sys.exit()
         # Check path for output path
         raw_name = os.path.basename(raw)
+        print(raw_name)
         if os.path.basename(output) == raw_name:
             click.echo("Please don't repeat the basename of the folder.")
             click.echo("Instead of this:")
@@ -147,9 +153,10 @@ class GPM():
             click.echo("This run exists in the output directory.")
             click.echo(os.path.join(output, raw_name))
             sys.exit()
-
-        source_dir = os.path.dirname(os.path.dirname(__file__))
-        source_dir = os.path.join(source_dir, "demultiplex", method)
+        else:
+            os.mkdir(os.path.join(output, raw_name))
+        source_dir = os.path.dirname(__file__)
+        source_dir = os.path.join(source_dir, "data/demultiplex", method)
         for filename in os.listdir(source_dir):
             file_path = os.path.join(source_dir, filename)
             target_file = os.path.join(output, filename)

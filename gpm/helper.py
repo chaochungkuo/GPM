@@ -30,3 +30,17 @@ def get_gpm_config(section, item):
     if "," in res:
         res = [x.strip() for x in res.split(",")]
     return res
+
+
+def remove_end_slash(path):
+    """
+    Remove the ending slash in the given path.
+
+    :param path: A path.
+    :type path: str
+    :return: the modified path
+    :rtype: str
+    """
+    if path.endswith("/"):
+        path = path.rstrip("/")
+    return path
