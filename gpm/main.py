@@ -1,5 +1,4 @@
 import click
-import os
 from gpm.helper import get_gpm_config
 from gpm.version import version
 from gpm.gpm import GPM
@@ -37,9 +36,6 @@ def demultiplex(method, raw, output):
     """
     pm = GPM()
     pm.demultiplex(method, raw, output)
-    pm.update_log()
-    config_path = os.path.join(output, "project.ini")
-    pm.write_project_config_file(config_path)
 
 
 if __name__ == '__main__':

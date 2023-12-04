@@ -5,6 +5,7 @@ from collections import OrderedDict
 import configparser
 from datetime import datetime
 from gpm.helper import remove_end_slash
+from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                      "application"]),
@@ -18,8 +19,7 @@ tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                       "analysis_types"]),
                         ("Export", ["export_URL",
                                     "export_user",
-                                    "export_password"]),
-                        ("Logs", [""])])
+                                    "export_password"])])
 
 
 class GPM():
@@ -35,7 +35,7 @@ class GPM():
             self.profile[section] = OrderedDict()
             for tag in tags_GPM[section]:
                 self.profile[section][tag] = ""
-        self.profile["Logs"] = []
+        self.logs = []
 
     def load_project_config_file(self, filepath):
         """
@@ -53,7 +53,7 @@ class GPM():
                 for option in config.options(section):
                     if not config.has_option(section, option):
                         value = config.get(section, option)
-                        self.profile[section].append(value)
+                        self.logs.append(value)
             else:
                 section_dict = config[section]
                 for tag in tags_GPM[section]:
@@ -74,16 +74,15 @@ class GPM():
         """
         config = configparser.ConfigParser()
         for section, options in self.profile.items():
-            if section == "Logs":
-                for entry in self.profile[section]:
-                    config.set(section, entry, entry)
-            else:
-                config.add_section(section)
-                for key, value in options.items():
-                    config.set(section, key, str(value))
+            config.add_section(section)
+            for key, value in options.items():
+                config.set(section, key, str(value))
         # Write the configuration to the file
         with open(filepath, 'w') as config_file:
             config.write(config_file)
+            print("[Logs]", file=config_file)
+            for entry in self.logs:
+                print(entry, file=config_file)
 
     def update_log(self):
         """
@@ -96,7 +95,7 @@ class GPM():
         current_datetime = datetime.now()
         formatted_timestamp = current_datetime.strftime('%y%m%d %H:%M')
         new_entry = formatted_timestamp + ": " + full_command
-        self.profile["Logs"].append(new_entry)
+        self.logs.append(new_entry)
 
     def copy_file(self, source, target):
         """
@@ -113,9 +112,10 @@ class GPM():
         with open(source, 'r') as input_file, open(target, 'w') as output_file:
             for line in input_file:
                 for section, options in self.profile.items():
-                    for tag, value in options.items():
-                        if tag.upper() in line:
-                            line = line.replace(tag.upper(), value)
+                    if section != "Logs":
+                        for tag, value in options.items():
+                            if tag.upper() in line:
+                                line = line.replace(tag.upper(), value)
                 output_file.write(line)
 
     def demultiplex(self, method, raw, output):
@@ -131,7 +131,9 @@ class GPM():
         :return: None
         """
         raw = remove_end_slash(raw)
+        raw = os.path.abspath(raw)
         output = remove_end_slash(output)
+        output = os.path.abspath(output)
         # Check path for raw data
         if os.path.exists(raw):
             self.profile["Raw data"]["bcl_path"] = raw
@@ -141,7 +143,7 @@ class GPM():
             sys.exit()
         # Check path for output path
         raw_name = os.path.basename(raw)
-        print(raw_name)
+        # If run name is repeated
         if os.path.basename(output) == raw_name:
             click.echo("Please don't repeat the basename of the folder.")
             click.echo("Instead of this:")
@@ -149,6 +151,7 @@ class GPM():
             click.echo("Please use this:")
             click.echo(os.path.dirname(output))
             sys.exit()
+        # If the run exists, otherwise create a new folder
         if os.path.exists(os.path.join(output, raw_name)):
             click.echo("This run exists in the output directory.")
             click.echo(os.path.join(output, raw_name))
@@ -159,8 +162,13 @@ class GPM():
         source_dir = os.path.join(source_dir, "data/demultiplex", method)
         for filename in os.listdir(source_dir):
             file_path = os.path.join(source_dir, filename)
-            target_file = os.path.join(output, filename)
+            target_file = os.path.join(output, raw_name, filename)
             if os.path.isfile(file_path):
                 self.copy_file(source=file_path, target=target_file)
         # Update profile
         self.profile["Demultiplexing"]["fastq_path"] = output
+        # Update log
+        self.update_log()
+        # Write project.ini
+        config_path = os.path.join(output, raw_name, PROJECT_INI_FILE)
+        self.write_project_config_file(config_path)

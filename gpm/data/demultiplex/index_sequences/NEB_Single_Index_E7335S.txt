@@ -1,0 +1,31 @@
+NEBNext® Multiplex Oligos for Illumina® (Index Primers Set 1)
+NEB #E7335S/L
+https://www.neb.com/-/media/nebus/files/manuals/manuale7335.pdf?rev=45002200f625434a9217d46599a1cbe2&hash=8E487370E8C5B063CC1F9304C35286F3#:~:text=Applications-,The%20NEBNext%20Multiplex%20Oligos%20for%20Illumina%20(Index%20Primers%20Set%201,(Illumina%2C%20Inc.).
+Index 1 ATCACG
+Index 2 CGATGT
+Index 3 TTAGGC
+Index 4 TGACCA
+Index 5 ACAGTG
+Index 6 GCCAAT
+Index 7 CAGATC
+Index 8 ACTTGA
+Index 9 GATCAG
+Index 10 TAGCTT
+Index 11 GGCTAC
+Index 12 CTTGTA
+
+NEBNext® Multiplex Oligos for Illumina® (Index Primers Set 2)
+NEB #E7500S/L
+https://www.neb.com/en-nz/-/media/nebus/files/manuals/manuale7500.pdf?rev=da42f3c9416b4934a1a2711140ddcce0&hash=640C9AEE15A1A22A47BE2EA20218E3DD#:~:text=Applications-,The%20NEBNext%20Multiplex%20Oligos%20for%20Illumina%20(Index%20Primers%20Set%202,(Illumina%2C%20Inc.).
+Index 13 AGTCAA
+Index 14 AGTTCC
+Index 15 ATGTCA
+Index 16 CCGTCC
+Index 18 GTCCGC
+Index 19 GTGAAA
+Index 20 GTGGCC
+Index 21 GTTTCG
+Index 22 CGTACG
+Index 23 GAGTGG
+Index 25 ACTGAT
+Index 27 ATTCCT
