@@ -4,5 +4,7 @@ API
 .. autosummary:: gpm
    :toctree: generated
 
-   gpm
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
