@@ -40,6 +40,7 @@ def demultiplex(method, raw, output):
     """
     pm = GPM()
     pm.demultiplex(method, raw, output)
+    pm.update_log()
     pm.write_project_config_file()
 
 
@@ -49,7 +50,7 @@ def demultiplex(method, raw, output):
               help=help_messages["init_fastq"], required=True)
 @click.option('-n', '--name',
               help=help_messages["init_name"], required=True)
-@click.option('-p', '--processing',
+@click.option('-p', '--processing', required=False,
               type=click.Choice(get_gpm_config("GPM", "PROCESSING_METHODS"),
                                 case_sensitive=False))
 def init(project_config, fastq, name, processing):
@@ -60,7 +61,27 @@ def init(project_config, fastq, name, processing):
     pm = GPM()
     pm.load_project_config_file(project_config)
     pm.init_project(name)
+    if processing:
+        pm.processing(processing, fastq)
+    pm.update_log()
+    pm.write_project_config_file()
+
+
+@main.command()
+@click.argument('project_config')
+@click.option('-fq', '--fastq',
+              help=help_messages["init_fastq"], required=True)
+@click.option('-p', '--processing',
+              type=click.Choice(get_gpm_config("GPM", "PROCESSING_METHODS"),
+                                case_sensitive=False))
+def processing(project_config, fastq, processing):
+    """
+    Add additional processing methods in an existed project.
+    """
+    pm = GPM()
+    pm.load_project_config_file(project_config)
     pm.processing(processing, fastq)
+    pm.update_log()
     pm.write_project_config_file()
 
 

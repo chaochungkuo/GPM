@@ -8,11 +8,12 @@ from gpm.helper import remove_end_slash
 from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
-                                     "application", "project.ini"]),
+                                     "application", "project.ini",
+                                     "project_path"]),
                         ("Raw data", ["bcl_path"]),
                         ("Demultiplexing", ["fastq_path", "fastq_qc_path",
                                             "demultiplex_method"]),
-                        ("Processing", ["project_path",
+                        ("Processing", ["processing_path",
                                         "processing_method",
                                         "processing_qc_path"]),
                         ("Analyses", ["analysis_path",
@@ -170,8 +171,6 @@ class GPM():
         self.profile["Demultiplexing"]["fastq_path"] = output
         config_path = os.path.join(output, raw_name, PROJECT_INI_FILE)
         self.profile["Project"]["project.ini"] = config_path
-        # Update log
-        self.update_log()
 
     def init_project(self, name):
         """
@@ -203,10 +202,9 @@ class GPM():
         else:
             os.mkdir(project_path)
         # Update project.ini
-        self.profile["Processing"]["project_path"] = project_path
+        self.profile["Project"]["project_path"] = project_path
+        config_path = os.path.join(project_path, PROJECT_INI_FILE)
         self.profile["Project"]["project.ini"] = config_path
-        # Update log
-        self.update_log()
 
     def processing(self, method, fastq):
         """
@@ -218,11 +216,22 @@ class GPM():
         :type fastq: str
         :return: None
         """
+        # Create processing folder
+        processing_path = os.path.join(self.profile["Project"]["project_path"],
+                                       method)
+        if os.path.exists(processing_path):
+            click.echo("The folder exists already:")
+            click.echo(processing_path)
+        else:
+            os.mkdir(processing_path)
         # Copy the method
         source_dir = os.path.dirname(__file__)
         source_dir = os.path.join(source_dir, "data/processing", method)
         for filename in os.listdir(source_dir):
             file_path = os.path.join(source_dir, filename)
-            target_file = os.path.join(output, raw_name, filename)
+            target_file = os.path.join(processing_path, filename)
             if os.path.isfile(file_path):
                 self.copy_file(source=file_path, target=target_file)
+        # Update project.ini
+        self.profile["Processing"]["processing_path"] = processing_path
+        self.profile["Processing"]["processing_method"] = method

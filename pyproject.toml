@@ -1,27 +1,4 @@
 [build-system]
-requires = ["poetry_core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.poetry.scripts]
-pre-build = "gpm.prebuild:prebuild_script"
-gpm = 'gpm.main:main'
-
-[tool.poetry]
-name = "gpm"
-version = "0.1.0"
-description = "The Genomic Project Manager is a powerful tool designed to streamline and automate bioinformatic workflows within a core facility."
-authors = ["Chao-Chung Kuo <chao-chung.kuo@rwth-aachen.de>"]
-readme = "README.rst"
-repository = "https://github.com/chaochungkuo/GPM"
-documentation = "https://gpm.readthedocs.io/"
-keywords = ["bioinformatic", "genomic", "python"]
-packages = [
-    { include = "gpm" },
-]
-
-[tool.poetry.dependencies]
-python = "^3.6"
-click = "*"
-
-[tool.poetry.extras]
-dev = ["pytest"]
