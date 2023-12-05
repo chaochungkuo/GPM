@@ -4,17 +4,17 @@
 # bash run_bcl2fastq.sh
 
 # Please execute this command in the directory OUTPUT_DIR
-bcl2fastq \
+PATH_BCL2FASTQ \
   --no-lane-splitting \
   --runfolder-dir BCL_PATH \
   --output-dir . \
   --interop-dir ./InterOp/ \
   --sample-sheet ./samplesheet_bcl2fastq.csv \
-  --processing-threads 30
+  --processing-threads N_CORES
 
 ###### Running FASTQC ######################################
 mkdir -p ./fastqc
-find * -maxdepth 1 -name "*.fastq.gz" | parallel -j 30 "fastqc {} -o ./fastqc"
+find * -maxdepth 1 -name "*.fastq.gz" | parallel -j N_CORES "fastqc {} -o ./fastqc"
 
 ###### Running MultiQC #####################################
 mkdir -p multiqc

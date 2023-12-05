@@ -3,9 +3,9 @@ EMFileVersion,4
 Investigator Name,
 Date,
 Workflow,GenerateFASTQ
-Application,NextSeq FASTQ Only
-Instrument Type,NextSeq
-Description,nextseq sample sheet
+Application, FASTQ Only
+Instrument Type,
+Description, sample sheet
 Chemistry,Default
 
 [Data]

@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.abspath('../..'))
-from gpm.version import version
+from gpm.__version__ import version
 
 # Configuration file for the Sphinx documentation builder.
 # -- Project information

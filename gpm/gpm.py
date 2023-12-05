@@ -4,7 +4,8 @@ import click
 from collections import OrderedDict
 import configparser
 from datetime import datetime
-from gpm.helper import remove_end_slash
+from gpm.helper import remove_end_slash, get_gpmdata_path, \
+                       get_dict_from_configs, replace_variables_by_dict
 from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
@@ -108,15 +109,17 @@ class GPM():
         :type target: str
         :return: None
         """
-        print(source)
-        print(target)
+        config_dict = get_dict_from_configs()
         with open(source, 'r') as input_file, open(target, 'w') as output_file:
             for line in input_file:
+                # project.ini
                 for section, options in self.profile.items():
                     if section != "Logs":
                         for tag, value in options.items():
                             if tag.upper() in line:
                                 line = line.replace(tag.upper(), value)
+                # configs
+                line = replace_variables_by_dict(line, config_dict)
                 output_file.write(line)
 
     def demultiplex(self, method, raw, output):
@@ -160,15 +163,15 @@ class GPM():
         else:
             os.mkdir(os.path.join(output, raw_name))
         # Copy the method
-        source_dir = os.path.dirname(__file__)
-        source_dir = os.path.join(source_dir, "data/demultiplex", method)
+        source_dir = os.path.join(get_gpmdata_path(), "demultiplex", method)
         for filename in os.listdir(source_dir):
             file_path = os.path.join(source_dir, filename)
             target_file = os.path.join(output, raw_name, filename)
             if os.path.isfile(file_path):
                 self.copy_file(source=file_path, target=target_file)
         # Update profile
-        self.profile["Demultiplexing"]["fastq_path"] = output
+        self.profile["Demultiplexing"]["fastq_path"] = os.path.join(output,
+                                                                    raw_name)
         config_path = os.path.join(output, raw_name, PROJECT_INI_FILE)
         self.profile["Project"]["project.ini"] = config_path
 

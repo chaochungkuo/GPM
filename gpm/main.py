@@ -1,6 +1,6 @@
 import click
 from gpm.helper import get_gpm_config
-from gpm.version import version
+from gpm.__version__ import __version__
 from gpm.gpm import GPM
 
 help_messages = {"demultiplex_raw": "Define the folder of BCL files as the "
@@ -14,7 +14,7 @@ help_messages = {"demultiplex_raw": "Define the folder of BCL files as the "
 
 
 @click.group()
-@click.version_option(version)
+@click.version_option(__version__)
 def main():
     """The Genomic Project Manager is a powerful tool designed
        to streamline and automate bioinformatic workflows within a
