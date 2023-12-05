@@ -1,5 +1,5 @@
 import click
-from gpm.helper import get_gpm_config
+from gpm.helper import get_gpm_config, generate_samples
 from gpm.__version__ import __version__
 from gpm.gpm import GPM
 
@@ -10,7 +10,20 @@ help_messages = {"demultiplex_raw": "Define the folder of BCL files as the "
                  "init_fastq": "Define the path to the FASTQ files for "
                  "initiating a new project.",
                  "init_name": "Define the name of the project in GPM in the "
-                 "format of YYMMDD_Name1_Name2_Institute_Application."}
+                 "format of YYMMDD_Name1_Name2_Institute_Application.",
+                 "samplesheet_st": "Value for 'strandedness' in samplesheet. "
+                 "Must be one of 'unstranded', 'forward', 'reverse'.",
+                 "samplesheet_se": "Single-end information will be "
+                 "auto-detected but this option forces paired-end FastQ files "
+                 "to be treated as single-end so only read 1 information is "
+                 "included in the samplesheet.",
+                 "samplesheet_sn": "Whether to further sanitise FastQ file "
+                 "name to get sample id. Used in conjunction with "
+                 "--sanitise_name_delimiter and --sanitise_name_index.",
+                 "samplesheet_si": "After splitting FastQ file name by "
+                 "--sanitise_name_delimiter all elements before this index "
+                 "(1-based) will be joined to create final sample name."
+                 }
 
 
 @click.group()
@@ -83,6 +96,29 @@ def processing(project_config, fastq, processing):
     pm.processing(processing, fastq)
     pm.update_log()
     pm.write_project_config_file()
+
+
+@main.command()
+@click.argument('samplesheet')
+@click.argument('fastq_dir')
+@click.option('-st', default="unstranded", show_default=True,
+              help=help_messages["samplesheet_st"])
+@click.option('-r1', default="_R1_001.fastq.gz", show_default=True,
+              help="File extension for read 1.")
+@click.option('-r2', default="_R2_001.fastq.gz", show_default=True,
+              help="File extension for read 2.")
+@click.option('-se', default=False, show_default=True,
+              help=help_messages["samplesheet_se"])
+@click.option('-sn', default=False, show_default=True,
+              help=help_messages["samplesheet_sn"])
+@click.option('-sd', default="_", show_default=True,
+              help="Delimiter to use to sanitise sample name.")
+@click.option('-si', default=1, show_default=True,
+              help=help_messages["samplesheet_si"])
+def samplesheet_rnaseq(samplesheet, fastq_dir, st, r1, r2, se, sn, sd, si):
+    """Generate sample sheet for nf-core RNAseq pipeline."""
+    generate_samples(st, fastq_dir, samplesheet,
+                     r1, r2, se, sn, sd, si)
 
 
 if __name__ == '__main__':
