@@ -4,7 +4,7 @@
 # bash run_cellranger-atac_mkfastq.sh
 
 # Please execute this command in the directory OUTPUT_DIR
-cellranger-atac mkfastq --id=mkfastq --localcores=30 \
+cellranger-atac mkfastq --id=mkfastq --localcores=N_CORES \
                    --run=BCL_PATH \
                    --csv=./samplesheet.csv
 

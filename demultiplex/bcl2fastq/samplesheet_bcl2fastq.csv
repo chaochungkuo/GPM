@@ -3,9 +3,9 @@ EMFileVersion,4
 Investigator Name,
 Date,
 Workflow,GenerateFASTQ
-Application, FASTQ Only
+Application,FASTQ Only
 Instrument Type,
-Description, sample sheet
+Description,sample sheet
 Chemistry,Default
 
 [Data]
