@@ -6,7 +6,11 @@ from gpm.gpm import GPM
 help_messages = {"demultiplex_raw": "Define the folder of BCL files as the "
                  "raw input for demultiplexing.",
                  "demultiplex_output": "Define the output directory where a "
-                 "new folder with the same name as raw data will be created."}
+                 "new folder with the same name as raw data will be created.",
+                 "init_fastq": "Define the path to the FASTQ files for "
+                 "initiating a new project.",
+                 "init_name": "Define the name of the project in GPM in the "
+                 "format of YYMMDD_Name1_Name2_Institute_Application."}
 
 
 @click.group()
@@ -36,6 +40,28 @@ def demultiplex(method, raw, output):
     """
     pm = GPM()
     pm.demultiplex(method, raw, output)
+    pm.write_project_config_file()
+
+
+@main.command()
+@click.argument('project_config')
+@click.option('-fq', '--fastq',
+              help=help_messages["init_fastq"], required=True)
+@click.option('-n', '--name',
+              help=help_messages["init_name"], required=True)
+@click.option('-p', '--processing',
+              type=click.Choice(get_gpm_config("GPM", "PROCESSING_METHODS"),
+                                case_sensitive=False))
+def init(project_config, fastq, name, processing):
+    """
+    Initiate a project with GPM by inheriting project.ini for further
+    processing and analysis.
+    """
+    pm = GPM()
+    pm.load_project_config_file(project_config)
+    pm.init_project(name)
+    pm.processing(processing, fastq)
+    pm.write_project_config_file()
 
 
 if __name__ == '__main__':

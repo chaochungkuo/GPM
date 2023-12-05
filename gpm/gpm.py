@@ -8,7 +8,7 @@ from gpm.helper import remove_end_slash
 from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
-                                     "application"]),
+                                     "application", "project.ini"]),
                         ("Raw data", ["bcl_path"]),
                         ("Demultiplexing", ["fastq_path", "fastq_qc_path",
                                             "demultiplex_method"]),
@@ -64,7 +64,7 @@ class GPM():
                         continue
                     self.profile[section][tag] = value
 
-    def write_project_config_file(self, filepath):
+    def write_project_config_file(self):
         """
         Write a project config file (project.ini)
 
@@ -78,7 +78,7 @@ class GPM():
             for key, value in options.items():
                 config.set(section, key, str(value))
         # Write the configuration to the file
-        with open(filepath, 'w') as config_file:
+        with open(self.profile["Project"]["project.ini"], 'w') as config_file:
             config.write(config_file)
             print("[Logs]", file=config_file)
             for entry in self.logs:
@@ -158,6 +158,7 @@ class GPM():
             sys.exit()
         else:
             os.mkdir(os.path.join(output, raw_name))
+        # Copy the method
         source_dir = os.path.dirname(__file__)
         source_dir = os.path.join(source_dir, "data/demultiplex", method)
         for filename in os.listdir(source_dir):
@@ -167,8 +168,61 @@ class GPM():
                 self.copy_file(source=file_path, target=target_file)
         # Update profile
         self.profile["Demultiplexing"]["fastq_path"] = output
+        config_path = os.path.join(output, raw_name, PROJECT_INI_FILE)
+        self.profile["Project"]["project.ini"] = config_path
         # Update log
         self.update_log()
-        # Write project.ini
-        config_path = os.path.join(output, raw_name, PROJECT_INI_FILE)
-        self.write_project_config_file(config_path)
+
+    def init_project(self, name):
+        """
+        Initiate a project by creating a new folder, load the project.ini,
+        and populate the files for further processing.
+
+        :param name: Name for the project with the pattern
+        YYMMDD_Name1_Name2_Institute_Application
+        :type name: str
+        :return: None
+        """
+        # Check name
+        if len(name.split("_")) == 5:
+            names = name.split("_")
+            self.profile["Project"]["date"] = names[0]
+            self.profile["Project"]["name1"] = names[1]
+            self.profile["Project"]["name2"] = names[2]
+            self.profile["Project"]["institute"] = names[3]
+            self.profile["Project"]["application"] = names[4]
+        else:
+            print("Please make sure the name following the pattern below:")
+            print("YYMMDD_Name1_Name2_Institute_Application")
+        # Create project folder
+        current_dir = os.getcwd()
+        project_path = os.path.join(current_dir, name)
+        if os.path.exist(project_path):
+            print("The given project path exists already:")
+            print(project_path)
+        else:
+            os.mkdir(project_path)
+        # Update project.ini
+        self.profile["Processing"]["project_path"] = project_path
+        self.profile["Project"]["project.ini"] = config_path
+        # Update log
+        self.update_log()
+
+    def processing(self, method, fastq):
+        """
+        Copy the files for processing according to the given method.
+
+        :param method: One of the methods defined in gpm.config.
+        :type method: str
+        :param fastq: Path of the FASTQ folder.
+        :type fastq: str
+        :return: None
+        """
+        # Copy the method
+        source_dir = os.path.dirname(__file__)
+        source_dir = os.path.join(source_dir, "data/processing", method)
+        for filename in os.listdir(source_dir):
+            file_path = os.path.join(source_dir, filename)
+            target_file = os.path.join(output, raw_name, filename)
+            if os.path.isfile(file_path):
+                self.copy_file(source=file_path, target=target_file)
