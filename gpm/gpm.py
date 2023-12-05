@@ -201,7 +201,7 @@ class GPM():
         # Create project folder
         current_dir = os.getcwd()
         project_path = os.path.join(current_dir, name)
-        if os.path.exist(project_path):
+        if os.path.exists(project_path):
             print("The given project path exists already:")
             print(project_path)
         else:
@@ -230,8 +230,7 @@ class GPM():
         else:
             os.mkdir(processing_path)
         # Copy the method
-        source_dir = os.path.dirname(__file__)
-        source_dir = os.path.join(source_dir, "data/processing", method)
+        source_dir = os.path.join(get_gpmdata_path(), "processing", method)
         for filename in os.listdir(source_dir):
             file_path = os.path.join(source_dir, filename)
             target_file = os.path.join(processing_path, filename)

@@ -22,7 +22,8 @@ help_messages = {"demultiplex_raw": "Define the folder of BCL files as the "
                  "--sanitise_name_delimiter and --sanitise_name_index.",
                  "samplesheet_si": "After splitting FastQ file name by "
                  "--sanitise_name_delimiter all elements before this index "
-                 "(1-based) will be joined to create final sample name."
+                 "(1-based) will be joined to create final sample name.",
+                 "from-config": "Define the project.ini to inherit from."
                  }
 
 
@@ -58,21 +59,24 @@ def demultiplex(method, raw, output):
 
 
 @main.command()
-@click.argument('project_config')
+@click.option('-fc', '--from-config', required=False,
+              help=help_messages["from-config"])
 @click.option('-fq', '--fastq',
-              help=help_messages["init_fastq"], required=True)
+              help=help_messages["init_fastq"], required=False)
 @click.option('-n', '--name',
               help=help_messages["init_name"], required=True)
 @click.option('-p', '--processing', required=False,
               type=click.Choice(get_gpm_config("GPM", "PROCESSING_METHODS"),
-                                case_sensitive=False))
-def init(project_config, fastq, name, processing):
+                                case_sensitive=False),
+              help="Define the pipeline for this project.")
+def init(from_config, fastq, name, processing):
     """
     Initiate a project with GPM by inheriting project.ini for further
     processing and analysis.
     """
     pm = GPM()
-    pm.load_project_config_file(project_config)
+    if from_config:
+        pm.load_project_config_file(from_config)
     pm.init_project(name)
     if processing:
         pm.processing(processing, fastq)
@@ -86,7 +90,8 @@ def init(project_config, fastq, name, processing):
               help=help_messages["init_fastq"], required=True)
 @click.option('-p', '--processing',
               type=click.Choice(get_gpm_config("GPM", "PROCESSING_METHODS"),
-                                case_sensitive=False))
+                                case_sensitive=False),
+              help="Define the pipeline for this project.")
 def processing(project_config, fastq, processing):
     """
     Add additional processing methods in an existed project.
