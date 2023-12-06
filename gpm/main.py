@@ -1,5 +1,6 @@
 import click
-from gpm.helper import get_gpm_config, generate_samples
+from gpm.helper import get_gpm_config
+from gpm.samplesheet import generate_samples
 from gpm.__version__ import __version__
 from gpm.gpm import GPM
 
