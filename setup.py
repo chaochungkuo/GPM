@@ -70,7 +70,7 @@ for copy_folder in data_folders:
 # Setup function
 #############################################################
 
-with open("README.rst", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 short_description = 'The Genomic Project Manager is a powerful tool designed '
