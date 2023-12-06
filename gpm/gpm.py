@@ -5,7 +5,8 @@ from collections import OrderedDict
 import configparser
 from datetime import datetime
 from gpm.helper import remove_end_slash, get_gpmdata_path, \
-                       get_dict_from_configs, replace_variables_by_dict
+                       check_project_name
+from gpm.configs import get_dict_from_configs, replace_variables_by_dict
 from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
@@ -188,16 +189,13 @@ class GPM():
         :return: None
         """
         # Check name
-        if len(name.split("_")) == 5:
-            names = name.split("_")
-            self.profile["Project"]["date"] = names[0]
-            self.profile["Project"]["name1"] = names[1]
-            self.profile["Project"]["name2"] = names[2]
-            self.profile["Project"]["institute"] = names[3]
-            self.profile["Project"]["application"] = names[4]
-        else:
-            print("Please make sure the name following the pattern below:")
-            print("YYMMDD_Name1_Name2_Institute_Application")
+        check_project_name(name)
+        names = name.split("_")
+        self.profile["Project"]["date"] = names[0]
+        self.profile["Project"]["name1"] = names[1]
+        self.profile["Project"]["name2"] = names[2]
+        self.profile["Project"]["institute"] = names[3]
+        self.profile["Project"]["application"] = names[4]
         # Create project folder
         current_dir = os.getcwd()
         project_path = os.path.join(current_dir, name)
