@@ -5,8 +5,8 @@ from collections import OrderedDict
 import configparser
 from datetime import datetime
 from gpm.helper import remove_end_slash, get_gpmdata_path, \
-                       check_project_name
-from gpm.configs import get_dict_from_configs, replace_variables_by_dict
+                       check_project_name, get_dict_from_configs, \
+                       replace_variables_by_dict
 from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
