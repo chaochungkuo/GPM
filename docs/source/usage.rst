@@ -1,35 +1,23 @@
-Usage
+Installation
 =====
 
 .. _installation:
 
-Installation
-------------
-
-To use Lumache, first install it using pip:
+To use GPM, first install it using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install lumache
+   (.venv) $ pip install genomicspm
 
-Creating recipes
-----------------
+By default, some template data will be copied under ``~/gpmdata/``. If you want to change this behavior, please define ``GPMDATA``:
 
-To retrieve a list of random ingredients,
-you can use the ``lumache.get_random_ingredients()`` function:
+.. code-block:: console
 
-.. autofunction:: lumache.get_random_ingredients
+   (.venv) $ export GPMDATA=/preferred/for/gpmdata
+   (.venv) $ pip install genomicspm
 
-The ``kind`` parameter should be either ``"meat"``, ``"fish"``,
-or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
-will raise an exception.
+You can test your installation by:
 
-.. autoexception:: lumache.InvalidKindError
+.. code-block:: console
 
-For example:
-
-
->>> import lumache
->>> lumache.get_random_ingredients()
-['shells', 'gorgonzola', 'parsley']
-
+   (.venv) $ gpm --help

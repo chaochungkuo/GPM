@@ -1,35 +1,17 @@
 Concept
 =====
 
-.. _installation:
-
-Installation
-------------
-
-To use Lumache, first install it using pip:
-
-.. code-block:: console
-
-   (.venv) $ pip install lumache
-
-Creating recipes
+One project.ini Across All Phases
 ----------------
 
-To retrieve a list of random ingredients,
-you can use the ``lumache.get_random_ingredients()`` function:
+In the lifecycle of a project, spanning demultiplexing, processing, analyses, exporting, and archiving, GPM ensures consistent project management by maintaining a single project.ini file across all stages. This file serves as a common thread inherited by subsequent steps, fostering traceability and repeatability for every file and operation.
 
-.. autofunction:: lumache.get_random_ingredients
+Keeping Everything in Projects for Repeatability
+----------------
 
-The ``kind`` parameter should be either ``"meat"``, ``"fish"``,
-or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
-will raise an exception.
+Rather than executing functions directly for a project, GPM's approach involves populating the necessary files and scripts specific to defined tasks. Every file within the project guarantees that analyses remain repeatable, even in the absence of GPM.
 
-.. autoexception:: lumache.InvalidKindError
+Flexible Addition of Methods in Any Phase
+----------------
 
-For example:
-
-
->>> import lumache
->>> lumache.get_random_ingredients()
-['shells', 'gorgonzola', 'parsley']
-
+GPM is designed to offer flexibility in seamlessly incorporating new methods. Whether it's integrating a demultiplexing method for a new kit, using a custom pipeline for data processing instead of nfcore or cellranger, or adding an R Markdown or Jupyter notebook for future analyses, GPM empowers users to adapt effortlessly to evolving project requirements.

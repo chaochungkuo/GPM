@@ -73,9 +73,9 @@ for copy_folder in data_folders:
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-short_description = 'The Genomic Project Manager is a powerful tool designed '
-'to streamline and automate bioinformatic workflows within a '
-'core facility.'
+short_description = 'GPM (Genomic Project Manager) is a versatile '
+'command-line tool designed for managing and automating bioinformatic '
+'workflows.'
 
 setup(
     name='gpm',
