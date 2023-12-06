@@ -1,7 +1,7 @@
 ################## test script ##################
-# nextflow run nf-core/atacseq -profile test,docker
+# PATH_NEXTFLOW run nf-core/atacseq -profile test,docker
 
-nextflow run nf-core/atacseq -profile docker \
+PATH_NEXTFLOW run nf-core/atacseq -profile docker \
      --input design.csv \
      --single_end \
      --genome gencode_hg38 \ # Please define the genome ID: hg38, mm10

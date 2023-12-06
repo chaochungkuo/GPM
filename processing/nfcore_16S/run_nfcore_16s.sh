@@ -1,7 +1,7 @@
 ################## test script ##################
-# nextflow run nf-core/ampliseq -profile test,docker --outdir ./results
+# PATH_NEXTFLOW run nf-core/ampliseq -profile test,docker --outdir ./results
 
-nextflow run nf-core/ampliseq  -profile docker \
+PATH_NEXTFLOW run nf-core/ampliseq  -profile docker \
     --input samplesheet.csv \
     --metadata metadata.tsv \
     --FW_primer "YYYRYGRDDBVCWSCA" \

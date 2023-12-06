@@ -1,7 +1,7 @@
 ################## test script ##################
-# nextflow run nf-core/clipseq -profile test, docker
+# PATH_NEXTFLOW run nf-core/clipseq -profile test, docker
 
-nextflow run goodwright/clipseq -latest -profile docker \
+PATH_NEXTFLOW run goodwright/clipseq -latest -profile docker \
      --samplesheet samples.csv --outdir results \
      --genome GENCODE_GRCm38_v25 --fasta '/data/genomes/GRCm38/GRCm38.p6.genome.fa' \
      --gtf '/data/genomes/GRCm38/gencode.vM25.annotation.gtf' \

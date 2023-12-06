@@ -1,7 +1,7 @@
 ################## test script ##################
-# nextflow run nf-core/chipseq -profile test,docker
+# PATH_NEXTFLOW run nf-core/chipseq -profile test,docker
 
-nextflow run nf-core/chipseq -profile docker \
+PATH_NEXTFLOW run nf-core/chipseq -profile docker \
      --input design.csv \
      --single_end \
      --genome gencode_hg38 --macs_gsize 2.7e9 \ # Please define the genome ID: hg38, mm10

@@ -1,5 +1,5 @@
 ################## test script ##################
-# nextflow run nf-core/rnaseq -profile test,docker
+# PATH_NEXTFLOW run nf-core/rnaseq -profile test,docker
 
 # mkdir -p FASTQ_DIR/UMI_trimmed
 # for FASTQ in FASTQ_DIR/*.fastq.gz
@@ -14,7 +14,7 @@
 ################## GPM samplesheet #####################
 # gpm samplesheet -st 'forward' samplesheet.csv FASTQ_DIR/UMI_trimmed
 
-nextflow run nf-core/smrnaseq -r 2.0.0 -profile docker \
+PATH_NEXTFLOW run nf-core/smrnaseq -r 2.0.0 -profile docker \
      --input samplesheet.csv --outdir results --mirtrace_species hsa --mirtrace_protocol qiaseq \
      --three_prime_adapter AACTGTAGGCACCATCAAT --protocol qiaseq \
      --genome GRCh38 \

@@ -1,8 +1,8 @@
 ################## test script ##################
-# nextflow run nf-core/bacass -profile test,docker
+# PATH_NEXTFLOW run nf-core/bacass -profile test,docker
 # https://nf-co.re/bacass/2.0.0/usage
 
-nextflow run nf-core/bacass -r 2.0.0 -profile docker \
+PATH_NEXTFLOW run nf-core/bacass -r 2.0.0 -profile docker \
      --input samplesheet.csv
 
 # samplesheet.csv

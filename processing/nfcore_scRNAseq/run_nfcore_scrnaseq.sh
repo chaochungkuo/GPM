@@ -1,8 +1,8 @@
 ################## test script ##################
-# nextflow run nf-core/scrnaseq -profile test,docker
+# PATH_NEXTFLOW run nf-core/scrnaseq -profile test,docker
 
 
-nextflow run nf-core/scrnaseq -profile docker \
+PATH_NEXTFLOW run nf-core/scrnaseq -profile docker \
     --input samplesheet.csv \
     --outdir results \
     --genome GRCh38 \
