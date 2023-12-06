@@ -1,12 +1,3 @@
-import sys
-import os
-
-# Add the root project directory to sys.path
-sys.path.insert(0, os.path.abspath('../../'))
-
-# Now you can import your module and retrieve the version
-from gpm.__version__ import version
-
 # Configuration file for the Sphinx documentation builder.
 # -- Project information
 
@@ -14,7 +5,7 @@ project = 'GPM'
 copyright = '2023, Chao-Chung Kuo'
 author = 'Chao-Chung Kuo'
 
-release = version
+release = "0.5.4"
 
 # -- General configuration
 
