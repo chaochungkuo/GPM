@@ -121,12 +121,14 @@ def analysis(project_config, report, show_list, add_template):
     """
     pm = GPM()
     pm.load_project_config_file(project_config)
+    import sys
+    sys.exit()
     pm.add_analysis_dir()
     if show_list:
         pm.show_analysis_list()
     else:
         if report:
-            pm.add_analysis_report()
+            pm.add_analysis_report(report)
         if add_template:
             pm.add_analysis_template(add_template)
         pm.update_log()

@@ -54,20 +54,31 @@ class GPM():
         config.read(filepath)
         # Retrieve values from the configuration file
         for section in tags_GPM.keys():
-            if section == "Logs":
-                for option in config.options(section):
-                    if not config.has_option(section, option):
-                        value = config.get(section, option)
-                        self.logs.append(value)
-            else:
-                section_dict = config[section]
-                for tag in tags_GPM[section]:
-                    value = section_dict.get(tag)
-                    if "," in value:
-                        value = [x.strip() for x in value.split(",")]
-                    elif value == "":
-                        continue
-                    self.profile[section][tag] = value
+            # print(section)
+            # if section == "Logs":
+            #     print(config.options(section))
+            #     for option in config.options(section):
+            #         print(option)
+            #         if not config.has_option(section, option):
+            #             value = config.get(section, option)
+            #             print([value, option])
+            #             self.logs.append(value)
+            # else:
+            section_dict = config[section]
+            for tag in tags_GPM[section]:
+                value = section_dict.get(tag)
+                if "," in value:
+                    value = [x.strip() for x in value.split(",")]
+                elif value == "":
+                    continue
+                self.profile[section][tag] = value
+        with open(filepath) as f:
+            is_log = False
+            for line in f:
+                if is_log:
+                    self.logs.append(line.strip())
+                if line.strip() == "[Logs]":
+                    is_log = True
 
     def write_project_config_file(self):
         """
@@ -95,11 +106,15 @@ class GPM():
 
         :return: None
         """
-        ctx = click.get_current_context()
-        full_command = " ".join(ctx.command_path.split())
+        # ctx = click.get_current_context()
+        full_command = sys.argv
+        if full_command[0].endswith("/gpm"):
+            full_command[0] = "gpm"
+        # full_command = " ".join(ctx.command_path.split() + click.get_os_args())
+        full_command = " ".join(full_command)
         current_datetime = datetime.now()
         formatted_timestamp = current_datetime.strftime('%y%m%d %H:%M')
-        new_entry = formatted_timestamp + ": " + full_command
+        new_entry = formatted_timestamp + " >>> " + full_command
         self.logs.append(new_entry)
 
     def copy_file(self, source, target):
@@ -271,10 +286,15 @@ class GPM():
         analysis_dict = self.load_analysis_config()
         for group in analysis_dict.keys():
             click.echo(click.style(group, fg='bright_green'))
-            for label in self.analysis_dict[group].keys():
-                click.echo("  <<< " + label + " >>>")
-                for file in self.analysis_dict[group][label]:
-                    click.echo("    " + file.split("/")[2])
+            for label in analysis_dict[group].keys():
+                # click.echo("  <<< " + label + " >>>")
+                for i, file in enumerate(analysis_dict[group][label]):
+                    if i == 0:
+                        click.echo("{:<25} {:<}".format(label,
+                                                        file.split("/")[2]))
+                    else:
+                        click.echo("{:<25} {:<}".format("",
+                                                        file.split("/")[2]))
             click.echo("")
 
     def load_analysis_config(self):
@@ -297,6 +317,7 @@ class GPM():
                     if x_list[1] not in analysis_dict[x_list[0]]:
                         analysis_dict[x_list[0]][x_list[1]] = []
                     analysis_dict[x_list[0]][x_list[1]].append(x_list[2])
+        return analysis_dict
 
     def add_analysis_template(self, analysis_name):
         """
