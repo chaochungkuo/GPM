@@ -130,3 +130,13 @@ def replace_variables_by_dict(line, input_dict):
         if key.upper() in line:
             line = line.replace(key.upper(), value)
     return line
+
+
+def check_analysis_name(analysis_dict, analysis_name):
+    all_names = []
+    for k, g in analysis_dict.items():
+        all_names.append(list(g.keys()))
+    if analysis_name not in all_names:
+        click.echo("Please choose an analysis from the list below")
+        click.echo(all_names)
+        sys.exit()

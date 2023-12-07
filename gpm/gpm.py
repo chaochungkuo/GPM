@@ -6,7 +6,7 @@ import configparser
 from datetime import datetime
 from gpm.helper import remove_end_slash, get_gpmdata_path, \
                        check_project_name, get_dict_from_configs, \
-                       replace_variables_by_dict
+                       replace_variables_by_dict, check_analysis_name
 from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
@@ -20,7 +20,7 @@ tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                         "processing_qc_path",
                                         "organism",
                                         "genome_assembly"]),
-                        ("Analyses", ["analysis_path",
+                        ("Analysis", ["analysis_path",
                                       "analysis_types"]),
                         ("Export", ["export_URL",
                                     "export_user",
@@ -237,3 +237,86 @@ class GPM():
         # Update project.ini
         self.profile["Processing"]["processing_path"] = processing_path
         self.profile["Processing"]["processing_method"] = method
+
+    def add_analysis_dir(self):
+        """
+        Add the analysis folder and update project profile.
+
+        :return: None
+        """
+        analysis_dir = os.path.join(self.profile["Project"]["project_path"],
+                                    "analysis")
+        if not os.path.exists(analysis_dir):
+            os.mkdir(analysis_dir)
+        self.profile["Analysis"]["analysis_path"] = analysis_dir
+
+    def add_analysis_report(self, application):
+        """
+        Add the Rmd report according to application type.
+
+        :return: None
+        """
+        source_file = os.path.join(get_gpmdata_path(), "analysis",
+                                   "Analysis_Report_"+application+".Rmd")
+        target_file = os.path.join(self.profile["Analysis"]["analysis_path"],
+                                   "Analysis_Report_"+application+".Rmd")
+        self.copy_file(source_file, target_file)
+
+    def show_analysis_list(self):
+        """
+        Show the list of analysis templates available.
+
+        :return: None
+        """
+        analysis_dict = self.load_analysis_config()
+        for group in analysis_dict.keys():
+            click.echo(click.style(group, fg='bright_green'))
+            for label in self.analysis_dict[group].keys():
+                click.echo("  <<< " + label + " >>>")
+                for file in self.analysis_dict[group][label]:
+                    click.echo("    " + file.split("/")[2])
+            click.echo("")
+
+    def load_analysis_config(self):
+        """
+        Load the analysis config file from GPM into a dictionary.
+
+        :return: A dictionary for analysis:file
+        """
+        analysis_config = os.path.join(get_gpmdata_path(), "config",
+                                       "analysis.config")
+        analysis_dict = OrderedDict()
+        with open(analysis_config) as f:
+            for line in f:
+                if line.startswith("#"):
+                    continue
+                elif len(line.split(",")) == 3:
+                    x_list = [x.strip() for x in line.split(",")]
+                    if x_list[0] not in analysis_dict:
+                        analysis_dict[x_list[0]] = OrderedDict()
+                    if x_list[1] not in analysis_dict[x_list[0]]:
+                        analysis_dict[x_list[0]][x_list[1]] = []
+                    analysis_dict[x_list[0]][x_list[1]].append(x_list[2])
+
+    def add_analysis_template(self, analysis_name):
+        """
+        Add the files of the defined analysis into analysis folder.
+
+        :return: None
+        """
+        analysis_dict = self.load_analysis_config()
+        check_analysis_name(analysis_dict, analysis_name)
+        source_dir = get_gpmdata_path()
+        target_dir = self.profile["Analysis"]["analysis_path"]
+        for group in analysis_dict.keys():
+            for label in analysis_dict[group].keys():
+                if label == analysis_name:
+                    group_dir = os.path.join(target_dir, group)
+                    if not os.path.exists(group_dir):
+                        os.makedirs(group_dir)
+                    for template in analysis_dict[group][label]:
+                        click.echo("  "+template)
+                        source_file = os.path.join(source_dir, template)
+                        target_file = os.path.join(group_dir,
+                                                   os.path.basename(template))
+                        self.copy_file(source_file, target_file)

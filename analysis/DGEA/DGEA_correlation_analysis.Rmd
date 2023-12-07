@@ -1,0 +1,82 @@
+---
+title: "DGEA Correlation Analysis"
+author:
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library(data.table)
+require(dplyr)
+require(DT)
+library(ggplot2)
+library(ggpubr)
+library(pheatmap)
+library(tidyr)
+options(warn = -1)
+
+source("functions.R")
+
+load("data.RData")
+
+Tag_this_analysis <- "DGEA_Correlation_analysis"
+
+corr_figure <- function(title, xlab, ylab) {
+  xdata <- fread(paste0("DGEA_", xlab, "_genes_stats.csv"))[, c("gene_id","gene_name","log2FoldChange")]
+  ydata <- fread(paste0("DGEA_", ylab, "_genes_stats.csv"))[, c("gene_id","gene_name","log2FoldChange")]
+  
+  merged_table <- merge(xdata, ydata, 
+                        by=c("gene_id","gene_name"), suffixes = c(".xlab", ".ylab"))
+  yrange <- abs(max(ydata$log2FoldChange)-min(ydata$log2FoldChange))
+  statcor_y <- max(ydata$log2FoldChange)
+  statregline_y <- max(ydata$log2FoldChange)-0.05 * yrange
+  fig <- ggplot(merged_table, aes(log2FoldChange.xlab, log2FoldChange.ylab)) +
+         geom_point(size=1, color="royalblue", alpha=0.2) + theme_bw() +
+         ggtitle(title) + theme(plot.title = element_text(hjust = 0.5)) +
+         geom_smooth(method = "lm", color="gray", alpha=0.1) +
+         xlab(xlab) + ylab(ylab) +
+         stat_cor(label.y = statcor_y)+ #this means at 35th unit in the y axis, the r squared and p value will be shown
+         stat_regline_equation(label.y = statregline_y) #this means at 30th unit regresion line equation will be shown
+  
+  fig
+}
+```
+
+### [Back to front page](Analysis_Report_RNAseq.html)
+
+If there is a need to modify the figures to fit your particular need (style or color), additional service for customized visualization is needed. The main focus of this report is to present the analysis result to the clients. Any requests beyond this purpose is regarded another service. 
+
+# Correlation of the effect of IL10 and LPS {.tabset}
+
+## WT
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=4, fig.height=4}
+corr_figure("Correlation of IL10 and LPS", "IL10_vs_Control_in_WT", "LPS_vs_Control_in_WT")
+```
+
+## KO
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=4, fig.height=4}
+corr_figure("Correlation of IL10 and LPS", "IL10_vs_Control_in_KO", "LPS_vs_Control_in_KO")
+```
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

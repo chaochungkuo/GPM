@@ -1,0 +1,103 @@
+---
+title: "GPM_PROJECTNAME"
+author:
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library(stringr)
+library("readr")
+# library(tidyr)
+# library(data.table)
+options(warn = -1)
+options(knitr.duplicate.label = "allow")
+
+################# File paths #####################################################
+DIR_base <- "GPM_DIR_BASE/"
+DIR_project <- paste0(DIR_base, "analysis/")
+DIR_nfcore <- paste0(DIR_base, "nfcore/")
+DIR_count <- paste0(DIR_nfcore, "results/cellranger/count/")
+DIR_count_published <- "GPM_URL_2_Processed_data/cellranger/count/"
+```
+
+![](RWTH_IZKF_GF_Logo_rgb.png)
+
+This document is the summary of the bioinformatic analysis done by Genomic Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration. If these results are used in any poster or publications, please acknowledge our core facility with the text below:
+
+> This work was supported by the Genomics Facility, a core facility of the Interdisciplinary Center for Clinical Research (IZKF) Aachen within the Faculty of Medicine at RWTH Aachen University.
+
+Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
+
+
+***
+
+# Download/Browse the files
+
+1. [Raw Data](GPM_URL_1_Raw_data): 
+    * BCL files from the sequencer
+    * FASTQ files after demultiplexing
+2. [Processed Data](GPM_URL_2_Processed_data): 
+    * BAM and bai files after alignment
+    * raw feature bc count matrix 
+    * filtered feature bc count matrix
+    * cloupe file for browsing in Loupe browser
+3. [Reports](GPM_URL_3_Reports):
+    * [MultiQC reports](GPM_URL_3_Reports/multiqc/multiqc_report.html) for the quality check
+    * Basic analysis of the Genomics Facility (This report)
+4. [Compressed files for download](GPM_URL_TAR):
+    * Three tar files are available for download the above three folders.
+
+In the command line environment, you can also download everything by the commands below with the given username and password from us:
+
+```
+wget -r -nH -np -nd -P --user USERNAME --password PASSWORD -A '*.tar' GPM_URL_TAR -P GPM_TITLE_NAME 
+```
+
+Please make sure that you store these data in a lab-wise level. Genomics Facility won't store your data forever and these data should still be accessible even after someone leaves your lab. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
+
+\textcolor{red}{Your data will be deleted according to this policy automatically. Please download everything.}
+
+# Method description
+
+FASTQ files were generated using cellranger mkfastq (10x Genomics). The generated FASTQ files are analyzed by nfcore/scrnaseq pipeline (version 2.1.0) with cellranger aligner. This report was generated using custom scripts in R version 4.2.2. 
+
+# Reports of cellranger
+
+```{r load, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+samples <- list.dirs(path = DIR_count, full.names = F, recursive = F)
+summaryFiles <- vector(mode="list", length=length(samples))
+names(summaryFiles) <- samples
+for (i in 1:length(samples)) {
+  summaryFiles[[i]] <- paste0(DIR_count_published,samples[[i]],"/outs/web_summary.html")
+}
+```
+
+```{r, echo=FALSE, results="asis"}
+for( i in 1:length(samples)){
+  cat("\n")
+  cat("## ", "[",samples[[i]],"]","(",summaryFiles[[i]],")\n", sep="") # Create links to the
+  cat("\n")
+}
+```
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r info, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

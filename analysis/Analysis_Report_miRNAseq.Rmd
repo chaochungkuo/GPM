@@ -1,0 +1,160 @@
+---
+title: "GPM_PROJECTNAME"
+author: 
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library("heatmaply")
+library("readr")
+library(tidyr)
+library(dplyr)
+library(openxlsx)
+library(data.table)
+options(warn = -1)
+
+################# File paths #####################################################
+DIR_base <- "GPM_DIR_BASE/"
+DIR_project <- paste0(DIR_base, "analysis/")
+DIR_edger <- paste0(DIR_base, "nfcore/results/edger/")
+
+FILE_counts_hairpin <- paste0(DIR_edger, "hairpin_counts.csv")
+FILE_counts_mature <- paste0(DIR_edger, "mature_counts.csv")
+FILE_CPM_hairpin <- paste0(DIR_edger, "hairpin_normalized_CPM.txt")
+FILE_CPM_mature <- paste0(DIR_edger, "mature_normalized_CPM.txt")
+
+source(paste0(DIR_project, "functions.R"))
+
+################# Parameters #####################################################
+Fig_width <- 600
+Fig_height <- 400
+CUTOFF_Quantification <- 20
+CUTOFF_ADJP <- 0.05
+# spikein_ERCC <- TRUE
+# spikein_ERCC <- FALSE
+
+################# Loading samples ################################################
+## Load sample sheets from nf-core configuration
+samples <- read.table(file.path(DIR_base,"/nfcore/samplesheet.csv"), header=TRUE, sep = ",")
+rownames(samples) <- samples$sample
+
+# labels_group <- c("GLP2", "CTRL", "GLP2", "Sham", "GLP2", "Sham", "GLP2", "CTRL", "Sham",
+#                   "GLP2", "CTRL", "CTRL", "GLP2", "Sham", "GLP2", "CTRL", "Sham")
+# samples$group <- labels_group
+# d <- samples %>% separate(sample, c("cell", "rest"))
+# samples$cell <- d$cell
+# samples$rename <- paste0(samples$group, "_", samples$sample)
+
+```
+
+
+![](https://www.medizin.rwth-aachen.de/global/show_document.asp?id=aaaaaaaaaawfyoe)
+
+This document is the summary of the bioinformatic analysis done by Genomic Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration. If these results are used in any poster or publications, please acknowledge our core facility with the text below:
+
+> This work was supported by the Genomics Facility, a core facility of the Interdisciplinary Center for Clinical Research (IZKF) Aachen within the Faculty of Medicine at RWTH Aachen University.
+
+Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
+
+
+***
+
+In this report, you are able to:
+
+* Browse and download the files and reports in an intuitive folder structure.
+* Read the QC reports or bioinformatics reports online.
+* Explore the results by the interactive figures in this report. You are able to search, select, zoom in or export the image.
+* Export any tables in this report for gene lists or statistics in various format you want.
+* Get the summary of the method description and citation.
+
+After deliverying this report, we can schedule a short meeting to discuss the result, otherwise, we will close this project with this basic analysis. If you have further request and questions, please don't hestitate to contact us. 
+
+***
+
+# Download/Browse the files
+
+Please click the hyperlinked list below:
+
+1. [Raw Data](GPM_URL_1_Raw_data): 
+    * BCL files from the sequencer
+    * FASTQ files after demultiplexing
+2. [Processed Data](GPM_URL_2_Processed_data): 
+    * BAM files after alignment
+    * BigWig files after normalization
+    * Quantification tables from the counts of reads or quantification of the expressions
+3. [Reports](GPM_URL_3_Reports):
+    * [MultiQC reports](GPM_URL_2_Processed_data/nfcore_smrnaseq_results/multiqc/multiqc_report.html) for the quality check
+    * Basic analysis of the Genomics Facility (This report)
+4. [Compressed files for download](GPM_URL_TAR):
+    * Three tar files are available for download for the above three folders.
+  
+In the command line environment, you can also download everything by the commands below with the given username and password from us:
+
+```
+wget -r -nH -np -nd -P --user USERNAME --password PASSWORD -A '*.tar' GPM_URL_TAR -P GPM_TITLE_NAME 
+```
+
+Please make sure that you store these data in a lab-wise level. Genomics Facility won't store your data forever and these data should still be accessible even after someone leaves your lab. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
+
+```{r, echo=FALSE}
+# Function to run a command and capture its output
+run_command <- function(command) {
+  output <- system(command, intern = TRUE)
+  return(output)
+}
+
+version_yaml_path = '../nfcore/results/pipeline_info/software_versions.yml'
+yaml_data <- yaml::yaml.load_file(version_yaml_path)
+
+r_version <- R.Version()$version.string
+DESeq2_version <- yaml_data$DESEQ2_QC_STAR_SALMON$`bioconductor-deseq2`  # 'v.1.38.0'
+multiMiR_version <- '1.22.0'
+clusterProfiler_version <- yaml_data$SEQCLUSTER_SEQUENCES$seqcluster # '3.17'
+docker_version <- run_command("docker -v") # '24.0.2'
+nf_core_smRNAse_version <-  yaml_data$Workflow$`nf-core/smrnaseq`  # '2.2.1'
+nextflow_version <- yaml_data$Workflow$Nextflow  # '23.04.1'
+```
+
+# Method description
+
+In this study, the analysis of small RNA sequencing data was performed using a standardized and reproducible workflow. The FASTQ files, obtained from the Illumina bcl2fastq software, served as the input data for downstream analysis. The analysis pipeline utilized the nf-core/smRNAseq pipeline version `r nf_core_smRNAse_version`  implemented in Nextflow `r nextflow_version` , executed using Docker `r docker_version`.
+Differential expression analysis was conducted using the DESeq2 `r DESeq2_version` framework. miRNA targets were predicted using R package multiMiR (version `r multiMiR_version`) with the option for validated targets. The predicted targets were further analyzed for gene ontology using R package clusterProfiler (version `r clusterProfiler_version`).
+
+# Differential Expression Analysis
+
+```{r saveobjects, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+save(DIR_base,DIR_project,DIR_edger,
+     FILE_counts_hairpin, FILE_counts_mature,
+     FILE_CPM_hairpin, FILE_CPM_mature,
+     Fig_width,Fig_height,
+     CUTOFF_Quantification, CUTOFF_ADJP, spikein_ERCC,
+     samples, file = paste0(DIR_project, "data.RData"))
+
+rmarkdown::render('DEA_miRNA_Tumor_vs_Healthy.Rmd', output_format = 'html_document',
+                  output_file = "DEA_miRNA_Tumor_vs_Healthy.html")
+```
+
+## [Tumor vs Healthy](DEA_miRNA_Tumor_vs_Healthy.html)
+
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r info, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

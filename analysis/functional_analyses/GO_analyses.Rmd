@@ -1,0 +1,169 @@
+---
+title: "Gene Ontology Analysis"
+author:
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Tag_this_analysis <- "GO"
+pvalueCutoff_GO <- 0.01
+
+load("data.RData")
+
+library(gprofiler2)
+library(clusterProfiler)
+library(enrichplot)
+library(DOSE)
+library(curl)
+library(DT)
+library(kableExtra)
+
+if (organism == "hsapiens") {
+  library(org.Hs.eg.db)
+  OrgDb = org.Hs.eg.db
+} else if (organism == "mmusculus") {
+  library(org.Mm.eg.db)
+  OrgDb = org.Mm.eg.db
+} else if (organism == "rnorvegicus") {
+  library(org.Rn.eg.db)
+  OrgDb = org.Rn.eg.db
+}
+
+table_gostres <- function(gostres_table) {
+  tt <- as.data.frame(gostres_table)
+  # For single query
+  # tt <- tt[, c("source", "term_id", "term_name","significant","p_value","term_size","query_size","intersection_size",
+  #              "precision","recall","effective_domain_size","source_order","parents")]
+  # For multi queries with TRUE
+  # tt <- tt[, c("source","term_id","term_name","p_values","significant","term_size", "query_sizes","intersection_sizes",
+  #              "effective_domain_size","source_order","parents")]
+  # For multi queries with FALSE
+  tt <- tt[, c("source", "term_id", "term_name", "p_value", "significant", "term_size", "query",
+               "query_size","intersection_size","precision","recall","effective_domain_size","source_order","parents")]
+     
+  DT::datatable( tt,
+             extensions = c("FixedColumns"),
+             filter = 'top',
+             options = list( autoWidth = TRUE ,
+                             dom = 'Blftip',
+                             pageLength = 10,
+                             searchHighlight = FALSE,
+                             scrollX = TRUE,
+                             fixedColumns = list(leftColumns = 3),
+                             order = list(list(6))
+                             ),
+             class = c('compact cell-border stripe hover') ,
+             rownames = FALSE) %>% formatRound(c("p_value", "precision", "recall"), 4)
+}
+
+```
+
+### [Back to front page](Analysis_Report_RNAseq.html)
+
+Interpretation of gene lists is a key step in numerous biological data analysis workflows, such as differential gene expression analysis and co-expression clustering of RNA-seq data. Usually this involves associating these gene lists with previous knowledge from well curated data sources of biological processes and pathways.
+
+# Method
+
+```{r, echo=FALSE}
+# Function to run a command and capture its output
+run_command <- function(command) {
+  output <- system(command, intern = TRUE)
+  return(output)
+}
+
+version_yaml_path <- "../nfcore/results/pipeline_info/software_versions.yml"
+yaml_data <- yaml::yaml.load_file(version_yaml_path)
+r_version <- R.Version()$version.string
+docker_version <-  run_command("docker -v")  # '24.0.2'
+nextflow_version <- yaml_data$Workflow$Nextflow  # '23.04.1'
+trimgalore_version <- yaml_data$TRIMGALORE$trimgalore  # '0.6.7'
+salmon_version <- yaml_data$SALMON_QUANT$salmon  # 'v1.5.2'
+star_version <- yaml_data$STAR_ALIGN$star # '2.7.10a'
+DESeq2_version <- yaml_data$DESEQ2_QC_STAR_SALMON$`bioconductor-deseq2`  # 'v.1.32.0'
+nfcore_version <-  yaml_data$Workflow$`nf-core/rnaseq`  # '3.8.1'
+```
+
+* [clusterProfiler](https://github.com/YuLab-SMU/clusterProfiler)
+
+<!-- intersection size (intersection between gene set vs. a number of genes in a term) > 3; and precision (intersection size divided by gene set) >0.03 -->
+
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}	
+run_GO <- function(label, direction) {
+  GENE_LIST <- paste0("DGEA_", label, "_genes_stats.csv")
+  # reading in input from deseq2
+  df = read.csv(GENE_LIST, header=TRUE)
+  df <- df[df$padj < CUTOFF_ADJP,]
+  # de_gene_list <- gsub("\\.[0-9]*$", "", df$gene_id[(df$padj < pvalueCutoff)])
+  if (direction == "up") {
+    gene_list <- gsub("\\.[0-9]*$", "", df$gene_id[(df$padj < CUTOFF_ADJP)&(df$log2FoldChange>0)])
+  } else {
+    gene_list <- gsub("\\.[0-9]*$", "", df$gene_id[(df$padj < CUTOFF_ADJP)&(df$log2FoldChange<0)])
+  }
+
+  ego <- enrichGO(gene = gene_list,	
+                  # universe = names(geneList),
+                  keyType = "ENSEMBL",
+                  OrgDb = OrgDb,
+                  ont = "ALL",
+                  pAdjustMethod = "fdr",
+                  pvalueCutoff = pvalueCutoff_GO,
+                  qvalueCutoff = 0.05, readable = TRUE)
+
+                  # sources=c("GO", "KEGG", "REAC", "MIRNA", "HP", "HPA", "WP"))	
+  # gostplot(gostres, capped = FALSE, interactive = TRUE)	
+  # p1 <- gostplot(gostres, capped = TRUE, interactive = FALSE)	
+  # publish_gostplot(p1, highlight_terms = gostres_de$result$term_id)	
+  write.table(ego, file = paste0(Tag_this_analysis, "_", label,"_",direction,"_res.csv"))	
+  return(ego)
+}
+
+
+fnames <- list.files(pattern = "*genes_stats.csv")
+fnames <- fnames[fnames !="DGEA_All_samples_genes_stats.csv"]
+labels <- gsub("DGEA_", "", fnames)
+labels <- gsub("_genes_stats.csv", "", labels)
+
+```
+
+<!-- # GO analysis among treatments {.tabset} -->
+
+<!-- ```{r,echo=FALSE, results='asis', warning=FALSE, message=FALSE} -->
+<!-- for (lab in labels) { -->
+<!--   cat("\n## ",  lab, "\n") -->
+<!--   gostres <- run_GO(label=lab) -->
+<!--   gostplot(gostres, capped = FALSE, interactive = TRUE) -->
+<!--   cat("\n") -->
+<!-- } -->
+<!-- ``` -->
+
+		
+# GROUP_COMPARISON_POINTER	
+
+
+# Resources
+
+* [Gene Ontology overview](http://geneontology.org/docs/ontology-documentation/)
+* [clusterProfiler](https://github.com/YuLab-SMU/clusterProfiler)
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

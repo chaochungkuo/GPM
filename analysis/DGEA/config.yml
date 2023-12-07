@@ -1,0 +1,22 @@
+default:
+  spikein_ERCC: FALSE  # Choose either TRUE or FALSE
+  organism: "hsapiens"  # Choose one of "hsapiens", "mmusculus", or "rnorvegicus"
+  genome_assembly: "" # GRCh38 GRCm39 GRCm38 mRatBN7
+  GO_analysis: FALSE # Choose either TRUE or FALSE to include GO analysis report
+  GSEA_analysis: FALSE # Choose either TRUE or FALSE to include GSEA analysis report
+
+RNAseq:
+  countsFromAbundance: "lengthScaledTPM"
+  lengthcorrection: TRUE
+
+totalRNAseq:
+  countsFromAbundance: "lengthScaledTPM"
+  lengthcorrection: TRUE
+
+mRNAseq:
+  countsFromAbundance: "lengthScaledTPM"
+  lengthcorrection: TRUE
+
+3mRNAseq:
+  countsFromAbundance: "no"
+  lengthcorrection: FALSE

@@ -1,0 +1,137 @@
+---
+title: "GPM_PROJECTNAME"
+author: 
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library("heatmaply")
+library("readr")
+options(warn = -1)
+
+DIR_base <- "GPM_DIR_BASE/"
+DIR_project <- paste0(DIR_base, "analysis/")
+DIR_salmon <- paste0(DIR_base, "nfcore/results/star_salmon/")
+FILE_scaled_ct <- paste0(DIR_salmon, "salmon.merged.gene_counts_scaled.tsv")
+# FILE_scaled_ct <- paste0(DIR_salmon, "salmon.merged.gene_counts.tsv")
+
+source(paste0(DIR_project, "functions.R"))
+
+FILE_tx2gene <- "/data/genomes/tx2gene/gencode.v38.annotation.tx2gene.csv"
+
+Fig_width <- 600
+Fig_height <- 400
+
+CUTOFF_Quantification <- 20
+CUTOFF_ADJP <- 0.05
+
+## Load sample sheets from nf-core configuration
+samples <- read.table(file.path(DIR_base,"/nfcore/samplesheet.csv"), header=TRUE, sep = ",")
+rownames(samples) <- samples$sample
+```
+
+
+![](https://www.medizin.rwth-aachen.de/global/show_document.asp?id=aaaaaaaaaawfyoe)
+
+This document is the summary of the bioinformatic analysis done by Genomic Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration. If these results are used in any poster or publications, please acknowledge our core facility with the text below:
+
+> This work was supported by the Genomics Facility, a core facility of the Interdisciplinary Center for Clinical Research (IZKF) Aachen within the Faculty of Medicine at RWTH Aachen University.
+
+Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
+
+
+***
+
+In this report, you are able to:
+
+* Browse and download the files and reports in an intuitive folder structure.
+* Read the QC reports or bioinformatics reports online.
+* Explore the results by the interactive figures in this report. You are able to search, select, zoom in or export the image.
+* Export any tables in this report for gene lists or statistics in various format you want.
+* Get the summary of the method description and citation.
+
+After deliverying this report, we can schedule a short meeting to discuss the result, otherwise, we will close this project with this basic analysis. If you have further request and questions, please don't hestitate to contact us. 
+
+***
+
+# Download/Browse the files
+
+Please click the hyperlinked list below:
+
+1. [Raw Data](GPM_URL_1_Raw_data): 
+    * BCL files from the sequencer
+    * FASTQ files after demultiplexing
+2. [Processed Data](GPM_URL_2_Processed_data): 
+    * BAM files after alignment
+    * BigWig files after normalization
+    * Quantification tables from the counts of reads or quantification of the expressions
+3. [Reports](GPM_URL_3_Reports):
+    * [MultiQC reports](GPM_URL_3_Reports/multiqc/multiqc_report.html) for the quality check
+    * Basic analysis of the Genomics Facility (This report)
+4. [Compressed files for download](GPM_URL_TAR):
+    * Three tar files are available for download for the above three folders.
+  
+In the command line environment, you can also download everything by the commands below with the given username and password from us:
+
+```
+wget -r --user USERNAME --password PASSWORD -A '*.tar' GPM_URL_TAR
+```
+
+Please make sure that you store these data in a lab-wise level. Genomics Facility won't store your data forever and these data should still be accessible even after someone leaves your lab. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
+
+# Method description
+
+FASTQ files were generated using bcl2fastq (Illumina). To facilitate reproducible analysis, samples were processed using the publicly available nf-core/ChIP-Seq pipeline version 1.2.2 [@ewels2020nf] implemented in Nextflow 21.04.0 [@di2017nextflow] using Docker 20.10.8 [@merkel2014docker] with the minimal command. In brief, lane-level reads were trimmed using Trim Galore 0.6.7 [@felix_krueger_2021_5127899] and aligned to the human genome (GRCh38.p13) using BWA 0.7.17 [@li2010fast]. Peaking calling was performed by MACS2 [@zhang2008model]. All analysis was performed using custom scripts in R version 4.1.1. 
+
+
+# Correlation
+
+```{r load, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+scaled_ct <- read_tsv(FILE_scaled_ct)
+scaled_ct2 <- aggregate(x=scaled_ct[, c(-1,-2)], by=list(scaled_ct$gene_name), FUN=mean)
+colnames(scaled_ct2)[1] <- "Gene_symbol"
+```
+
+```{r correlation, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+fig <- heatmaply_cor(cor(scaled_ct[,c(-1,-2)]), width = Fig_width, height = Fig_height,
+                     main = "Correlation of all genes",
+                     key.title = "Correlation")
+fig
+```
+
+
+# Differential expression analysis
+
+```{r saveobjects, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+save(DIR_base,DIR_project,DIR_salmon,
+     FILE_scaled_ct,FILE_tx2gene,Fig_width,Fig_height,CUTOFF_Quantification,CUTOFF_ADJP,
+     samples, scaled_ct, scaled_ct2, file = paste0(DIR_project, "data.RData"))
+
+rmarkdown::render('diffexp_comparison_1.Rmd', output_format = 'html_document',
+                  output_file = "diffexp_comparison_1.html")
+```
+
+## [Comparison 1](diffexp_comparison_1.html) 
+
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r info, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

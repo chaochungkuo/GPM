@@ -1,0 +1,97 @@
+---
+title: "Integration of Gene Ontology Analyses"
+author:
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Tag_this_analysis <- "GO_Integration"
+pvalueCutoff <- 0.05
+
+load("data.RData")
+
+library(data.table)
+library(pheatmap)
+library(openxlsx)
+library(DT)
+```
+
+### [Back to front page](Analysis_Report_RNAseq.html)
+
+# Integrated analysis
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+load_table <- function(fname, merged_table=NA, merging=FALSE) {
+  # label <- "AP2_vs_Control"
+  # res <- fread(paste0("GO_", label, "_res.csv"))
+  label <- gsub("GO_", "", fname)
+  label <- gsub("_res.csv", "", label)
+  res <- fread(fname)
+  res <- res[,c("query","p_value","term_id","term_name")]
+  res <- reshape(res, idvar = c("term_id", "term_name"), timevar = "query", direction = "wide")
+
+  if (length(colnames(res)<4)) {
+    if (!("p_value.Up" %in% colnames(res))) {res$p_value.Up <- NA}
+    if (!("p_value.Down" %in% colnames(res))) {res$p_value.Down <- NA}
+  }
+  res <- res[,c("term_id", "term_name","p_value.Up","p_value.Down")]
+  colnames(res) <- c("term_id", "term_name",
+                     paste0(label,".Up"), paste0(label,".Down"))
+  if (merging==FALSE) {
+    print("no merging")
+  } else {
+    res <- merge(merged_table, res, by=c("term_id", "term_name"), all = T)
+  }
+  return(res)
+}
+
+fnames <- list.files(pattern = "*res.csv")
+# fnames <- c()
+for (i in 1:length(fnames)) {
+  print(fnames[i])
+  # print(dim(merged_table))
+    if (i==1) {
+        merged_table <- load_table(fnames[i])
+        } else {
+        merged_table <- load_table(fnames[i], merged_table=merged_table, merging=TRUE)
+    }
+}
+ 
+# gofilter <- unlist(read.csv("possible_GO_keywords.txt", header = F))
+# res <- res[grep(paste(gofilter,collapse="|"), res$term_name),]
+write.xlsx(merged_table, file = paste0(Tag_this_analysis, "_table.xlsx"), colNames = TRUE, rowNames=FALSE)
+```
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE, fig.width=15, fig.height=20, dpi=600}
+hp <- -log10(merged_table[,c(-1,-2)])
+sel_sig <- apply(hp, 1, function(x) any(x> 12, na.rm = T))
+hp <- hp[sel_sig,]
+hp[is.na(hp)] <- 0
+# rownames(hp) <- res$term_id
+
+save_pheatmap_pdf <- function(x, filename, width=15, height=30) {
+    stopifnot(!missing(x))
+    stopifnot(!missing(filename))
+    pdf(filename, width=width, height=height)
+    grid::grid.newpage()
+    grid::grid.draw(x$gtable)
+    dev.off()
+}
+
+hpobj <- pheatmap(hp,main = "P-values of GO terms (-log10)", cluster_cols=F,
+                  na_col = "grey", show_rownames = T, labels_row = merged_table$term_name[sel_sig], 
+                  border_color=NA)
+# hpobj
+save_pheatmap_pdf(hpobj, paste0(Tag_this_analysis, "_heatmap.pdf"))
+```

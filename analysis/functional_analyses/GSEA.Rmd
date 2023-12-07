@@ -1,0 +1,147 @@
+---
+title: "Gene Set Enrichment Analysis (GSEA)"
+author:
+GPM_AUTHORS
+	date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Tag_this_analysis <- "GSEA"
+pvalueCutoff_GO <- 0.01
+load("data.RData")
+
+library(clusterProfiler)
+library(enrichplot)
+library(DOSE)
+library(curl)
+library(DT)
+library(ggplot2)
+library('openxlsx')
+
+if (organism == "hsapiens") {
+  library(org.Hs.eg.db)
+  organism <- org.Hs.eg.db
+} else if (organism == "mmusculus") {
+  library(org.Mm.eg.db)
+  organism <- org.Mm.eg.db
+} else if (organism == "rnorvegicus") {
+  library(org.Rn.eg.db)
+  organism <- org.Rn.eg.db
+}
+
+table_GSEAres <- function(gostres_table) {
+  tt <- as.data.frame(gostres_table)
+  tt <- tt[, c("source", "term_id", "term_name", "p_value", "significant", "term_size", "query",
+               "query_size","intersection_size","precision","recall","effective_domain_size","source_order","parents")]
+
+  DT::datatable( tt,
+             extensions = c("FixedColumns"),
+             filter = 'top',
+             options = list( autoWidth = TRUE ,
+                             dom = 'Blftip',
+                             pageLength = 10,
+                             searchHighlight = FALSE,
+                             scrollX = TRUE,
+                             fixedColumns = list(leftColumns = 3),
+                             order = list(list(6))
+                             ),
+             class = c('compact cell-border stripe hover') ,
+             rownames = FALSE) %>% formatRound(c("p_value", "precision", "recall"), 4)
+}
+
+```
+
+### [Back to front page](Analysis_Report_RNAseq.html)
+
+GSEA[@subramanian2005gene] is a computational method used in genomics to reveal the biological significance of gene expression data. Unlike traditional methods that analyze single genes, GSEA assesses groups of genes, often organized by biological function or pathway. It identifies whether these gene sets exhibit coordinated changes in expression between experimental conditions. This approach is especially valuable for detecting subtle but meaningful shifts in gene activity. Unlike Gene Ontology (GO) analysis, which categorizes genes based on functional terms, GSEA focuses on the collective behavior of predefined gene sets, making it a powerful tool for uncovering hidden insights in large-scale gene expression datasets.
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+run_GSEA <- function(label) {
+  GENE_LIST <- paste0("DGEA_", label, "_genes_stats.csv")
+  # reading in input from deseq2
+  df = read.csv(GENE_LIST, header=TRUE)
+  geneList <- df$log2FoldChange
+  names(geneList) <- df$gene_id
+  geneList <- na.omit(geneList)
+  geneList <- sort(geneList, decreasing = TRUE)
+
+  gse <- gseGO(geneList=geneList, 
+               ont ="ALL", 
+               keyType = "ENSEMBL", 
+               nPerm = 10000, 
+               minGSSize = 3, 
+               maxGSSize = 800, 
+               pvalueCutoff = 0.05, 
+               verbose = TRUE, 
+               OrgDb = organism, 
+               pAdjustMethod = "none")
+
+  write.table(gse, file = paste0(Tag_this_analysis, "_", label,"_res.csv"))
+  wb <- createWorkbook()
+  addWorksheet(wb, "GSEA_stats")
+  writeData(wb, "GSEA_stats", gse)
+  saveWorkbook(wb, file = paste0(Tag_this_analysis, "_", label,"_res.xlsx"), overwrite = TRUE)
+  return(gse)
+}
+
+fnames <- list.files(pattern = "*genes_stats.csv")
+fnames <- fnames[fnames !="DGEA_All_Samples_genes_stats.csv"]
+labels <- gsub("DGEA_", "", fnames)
+labels <- gsub("_genes_stats.csv", "", labels)
+
+```
+
+<!-- # GO analysis among treatments {.tabset} -->
+<!-- ```{r,echo=FALSE, results='asis', warning=FALSE, message=FALSE} -->
+<!-- for (lab in labels) { -->
+<!--   cat("\n## ",  lab, "\n") -->
+<!--   gostres <- run_GO(label=lab) -->
+<!--   gostplot(gostres, capped = FALSE, interactive = TRUE) -->
+<!--   cat("\n") -->
+<!-- } -->
+<!-- ``` -->
+
+
+# GROUP_COMPARISON_POINTER
+
+
+# GSEA Plot of top gene sets {.tabset}
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+for (i in 1:10) {
+  cat("\n## ",  GSEAres$Description[i], "\n")
+  p <- gseaplot(GSEAres, by = "all", title = GSEAres$Description[i], geneSetID = i)
+  print(p)
+  cat("\n")
+}
+```
+
+<!-- # PubMed trend of enriched terms -->
+<!-- ```{r, echo=FALSE, results='markup', warning=FALSE, message=FALSE} -->
+<!-- terms <- GSEAres$Description[1:5] -->
+<!-- pmcplot(terms, 2010:2018, proportion=FALSE) -->
+<!-- ``` -->
+
+
+# Resources
+
+* [clusterProfiler](https://github.com/YuLab-SMU/clusterProfiler)
+
+# References
+
+<div id="refs"></div>
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

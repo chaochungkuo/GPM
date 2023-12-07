@@ -1,0 +1,180 @@
+---
+title: "Differential Expression Analysis for miRNAseq in "
+author:
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library("heatmaply")
+require(dplyr)
+require(DT)
+library(ggplot2)
+library(DESeq2)
+library("tximport")
+library("readr")
+library("tximportData")
+library(stringr)
+library(tidyr)
+library(data.table)
+library('openxlsx')
+library(AnnotationDbi, warn.conflicts = FALSE)
+options(warn = -1)
+
+DIR_base <- "GPM_DIR_BASE/"
+DIR_project <- paste0(DIR_base, "analysis/")
+
+source(paste0(DIR_project, "functions.R"))
+
+load(paste0(DIR_project, "data.RData"))
+
+Tag_this_analysis <- "Tumor_vs_Healthy"
+File_stats <- paste0('DEA_miRNA_',Tag_this_analysis,'_miRNA_stats.csv')
+File_norm_expression <- paste0('DEA_miRNA_',Tag_this_analysis,'_norm_exp_quant.csv')
+File_xlsx_res <- paste0('DEA_miRNA_',Tag_this_analysis,'_res.xlsx')
+
+## Please assign the groups for comparison into labels_group variable and confirm the direction of comparison by level parameter in the function factor, here is just an example
+# Manually define the grouping
+labels_group <- c("control","control",
+                  FALSE,FALSE,
+                  FALSE,FALSE,
+                  "knockdown","knockdown",
+                  FALSE,FALSE,
+                  FALSE,FALSE)
+samples$group <- factor(labels_group, levels = c("control","knockdown"))
+# Select by columns
+# samples <- samples[samples$macrophages=="M0",]
+# samples$group <- factor(samples$genotype, levels = c("WT","KO"))
+samples2 <- samples[!(is.na(samples$group)),]
+```
+
+### [Back to front page](Analysis_Report_miRNAseq.html)
+
+If there is a need to modify the figures to fit your particular need (style or color), additional service for customized visualization is needed. The main focus of this report is to present the analysis result to the clients. Any requests beyond this purpose is regarded another service. 
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+res_miRNA <- miRNAseq_deseq2(FILE_counts_mature, FILE_counts_hairpin, samples2)
+```
+
+# Interactive Figures {.tabset}
+
+## PCA
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+miRNAseq_PCA_plotly(res_miRNA$norm_counts, samples2)
+```
+
+## 3D-PCA
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+miRNAseq_3D_PCA_plotly(deseq_output$norm_count, filtered_samples)
+```
+
+## Volcano plot
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+miRNAseq_volcano_plotly(res_miRNA$res)
+```
+
+## MA plot
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+miRNAseq_maplot_plotly(res_miRNA$res)
+```
+
+`r if(spikein_ERCC){"## MA plot of spike in"}`
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=spikein_ERCC}
+MA_plot_ERCC(res_miRNA$res)
+```
+
+## Heatmap
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+miRNAseq_heatmap_plotly(res_miRNA$res_combined)
+```
+
+# Static Figures {.tabset}
+
+## PCA
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+miRNAseq_PCA_ggplot2(res_miRNA, samples2)
+```
+
+## Volcano plot
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+miRNAseq_volcano_ggplot2(res_miRNA)
+```
+
+## MA plot
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+miRNAseq_maplot_ggplot2(res_miRNA)
+```
+
+## Heatmap
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+miRNAseq_heatmap_ggplot2(res_miRNA)
+```
+
+# Tables {.tabset}
+
+## Sig. genes
+
+```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+table_sig_genes(res_miRNA$res_sig)
+```
+
+## Up genes
+
+```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+table_sig_genes(res_miRNA$res_sig[res_miRNA$res_sig$log2FoldChange > 0,])
+```
+
+## Down genes
+
+```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+table_sig_genes(res_miRNA$res_sig[res_miRNA$res_sig$log2FoldChange < 0,])
+```
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+wb <- createWorkbook()
+addWorksheet(wb, "miRNA_stats")
+writeData(wb, "miRNA_stats", res_miRNA$res, rowNames = TRUE)
+addWorksheet(wb, "miRNA_stats_norm_counts")
+writeData(wb, "miRNA_stats_norm_counts", res_miRNA$norm_counts, , rowNames = TRUE)
+## Save workbook to working directory
+saveWorkbook(wb, file = File_xlsx_res, overwrite = TRUE)
+```
+
+
+# Download statistics
+
+* Download xlsx file for all results: [`r File_xlsx_res`](`r File_xlsx_res`)
+<!-- * Download CSV file for the statistics of all valid genes in differential expression analysis (ENSEMBL ID, Gene Symbol and Gene name are included): [`r File_stats`](`r File_stats`)
+* Download CSV file for the expression quantification of all genes: [`r File_norm_expression`](`r File_norm_expression`) -->
+
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

@@ -105,6 +105,35 @@ def processing(project_config, fastq, processing):
 
 
 @main.command()
+@click.argument('project_config')
+@click.option('-r', '--report',
+              type=click.Choice(get_gpm_config("GPM", "APPLICATIONS"),
+                                case_sensitive=False),
+              help="Define the kind of report for this project.")
+@click.option('-ls', '--list', "show_list", required=False, default=False,
+              is_flag=True,
+              help="List all the available analysis templates.")
+@click.option('-a', '--add', "add_template", required=False, default="",
+              help="Add the defined analysis template into the project.")
+def analysis(project_config, report, show_list, add_template):
+    """
+    Initiate analyses and reports in an existed project.
+    """
+    pm = GPM()
+    pm.load_project_config_file(project_config)
+    pm.add_analysis_dir()
+    if show_list:
+        pm.show_analysis_list()
+    else:
+        if report:
+            pm.add_analysis_report()
+        if add_template:
+            pm.add_analysis_template(add_template)
+        pm.update_log()
+        pm.write_project_config_file()
+
+
+@main.command()
 @click.argument('samplesheet')
 @click.argument('fastq_dir')
 @click.option('-st', default="unstranded", show_default=True,

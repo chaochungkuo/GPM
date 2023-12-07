@@ -1,0 +1,123 @@
+---
+title: "GPM_PROJECTNAME"
+author:
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library("heatmaply")
+library("readr")
+require("tidyr")
+options(warn = -1)
+
+DIR_base <- "/data/projects/220311_Brandt_Berres_MiedIII_scCITEseq/"
+DIR_project <- paste0(DIR_base, "analysis/")
+DIR_data <- "/data/fastq/220311_NB501289_0601_AHM7KMBGXK/HM7KMBGXK/"
+
+DIR_count <- paste0(DIR_project,"CITE_count/")
+DIR_qc <- paste0(DIR_data,"QC/")
+
+URL_base <- "https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/"
+
+
+```
+
+
+![](https://www.medizin.rwth-aachen.de/global/show_document.asp?id=aaaaaaaaaawfyoe)
+
+This document is the summary of the bioinformatic analysis done by Genomic Core Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration. If these results are used in any poster or publications, please acknowledge our core facility with the text below:
+
+> This work was supported by the Genomics Facility, a core facility of the Interdisciplinary Center for Clinical Research (IZKF) Aachen within the Faculty of Medicine at RWTH Aachen University.
+
+Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
+
+
+***
+
+In this report, you are able to:
+
+* Browse and download the files and reports in an intuitive folder structure.
+* Read the QC reports and cellranger count summary reports online.
+* Get the summary of the method description and citation.
+
+After delivery this report, we can schedule a short meeting to discuss the result, otherwise, we will close this project with this basic analysis. If you have further request and questions, please don't hesitate to contact us.
+
+***
+
+# Download/Browse the files
+
+Please click the hyperlinked list below:
+
+1. [Raw Data](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/1_Raw_data):
+    * BCL files from the sequencer
+    * FASTQ files after demultiplexing
+2. [Processed Data](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/2_Processed_data):
+    * BAM and bai files after alignment
+    * raw feature bc count matrix 
+    * filtered feature bc count matrix
+    * cloupe file for browsing in Loupe browser
+    * summary for the results
+3. [Reports](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/3_Reports):
+    * [MultiQC reports](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/3_Reports/Multiqc/Genomics-Facility-IZKF-Aachen-sequencing-quality-report_multiqc_report.html) for the quality check
+    * Basic analysis of the Genomics Facility (This report)
+4. [Compressed files for download](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/compressed_tars):
+    * Two tar files are available for download for the Raw and processed data folders.
+
+In the command line environment, you can also download everything by the commands below with the given username and password from us:
+
+```
+wget -r --user USERNAME --password PASSWORD https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/compressed_tars/_1_Raw_data.tar.gz
+
+wget -r --user USERNAME --password PASSWORD https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/compressed_tars/_2_Processed_data.tar.gz
+```
+
+Please make sure that you store these data in a lab-wise level. Genomics Facility won't store your data forever and these data should still be accessible even after someone leaves your lab. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
+
+# Method description
+
+FASTQ files from both gene expression and antibody capture libraries were generated using cellranger mkfastq (10x Genomics). The generated fastq files are then analyzed by the cellranger count using the feature reference of antibodies. This report was generated using custom scripts in R version 4.1.1. 
+
+
+# summaries of the basic analysis result
+
+
+
+```{r load, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+
+samples <- list.dirs(path = DIR_count, full.names = F, recursive = F)
+
+summaryFiles <- vector(mode="list", length=length(samples))
+names(summaryFiles) <- samples
+
+for (i in 1:length(samples)) {
+  summaryFiles[[i]] <- paste0(URL_base,"2_Processed_data/",samples[i],"/web_summary.html")
+}
+
+```
+
+## Result for `r samples[1]`
+
+[Summary](`r summaryFiles[[1]]`)`r samples[1]` 
+
+## Result for `r samples[2]`
+
+[Summary](`r summaryFiles[[2]]`)`r samples[2]`
+
+## Result for `r samples[3]`
+
+[Summary](`r summaryFiles[[3]]`)`r samples[3]`
+
+## Result for `r samples[4]`
+
+[Summary](`r summaryFiles[[4]]`)`r samples[4]`

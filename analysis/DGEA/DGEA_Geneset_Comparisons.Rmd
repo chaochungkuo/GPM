@@ -1,0 +1,94 @@
+---
+title: "DGEA Geneset Comparisons"
+author:
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library(data.table)
+library(ggplot2)
+library(ggpubr)
+library(eulerr)
+options(warn = -1)
+
+source("functions.R")
+
+load("data.RData")
+
+Tag_this_analysis <- "DGEA_Geneset_Comparisons"
+
+extract_de_genes <- function(filename, direction=FALSE) {
+  degenes <- fread(filename)[, c("gene_name","log2FoldChange","padj")]
+  
+  if (direction=="up") {
+    degenes <- degenes[degenes$log2FoldChange > 0]
+  } else if (direction=="down") {
+    degenes <- degenes[degenes$log2FoldChange < 0]
+  }
+  return(unique(unlist(degenes$gene_name[degenes$padj < CUTOFF_ADJP])))
+}
+
+generate_venn <- function(label1, label2, direction=FALSE) {
+  genes <- list(
+            label1 = extract_de_genes(paste0("DGEA_", label1, "_genes_stats.csv"), direction=direction),
+            label2 = extract_de_genes(paste0("DGEA_", label2, "_genes_stats.csv"), direction=direction))
+  # names(genes) <- c(gsub("_", "", label1),
+  #                   gsub("_", "", label2))
+  names(genes) <- c(label1, label2)
+  plot(euler(genes), quantities = TRUE)
+}
+
+generate_venn3 <- function(label1, label2, label3, direction=FALSE) {
+  genes <- list(
+            label1 = extract_de_genes(paste0("DGEA_", label1, "_genes_stats.csv"), direction=direction),
+            label2 = extract_de_genes(paste0("DGEA_", label2, "_genes_stats.csv"), direction=direction),
+            label3 = extract_de_genes(paste0("DGEA_", label3, "_genes_stats.csv"), direction=direction))
+  # names(genes) <- c(gsub("_", "", label1),
+  #                   gsub("_", "", label2))
+  names(genes) <- c(label1, label2, label3)
+  plot(euler(genes), quantities = TRUE)
+}
+```
+
+### [Back to front page](Analysis_Report_RNAseq.html)
+
+## All DE genes
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK")
+```
+
+## Up genes
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction="up")
+```
+
+## Down genes
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction="down")
+```
+
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

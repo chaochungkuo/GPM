@@ -1,0 +1,261 @@
+---
+title: "GPM_PROJECTNAME"
+author: 
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+# rmarkdown::render('Analysis_Report_RNAseq.Rmd', output_format = 'html_document', output_file ='Analysis_Report_RNAseq.html')
+library(knitr)
+library(kableExtra)
+library(stringr)
+library("readr")
+library(tidyr)
+library(dplyr)
+library(openxlsx)
+library(data.table)
+library(yaml)
+library(DESeq2)
+library("tximport")
+library("tximportData")
+library(plotly)
+# library(ggrepel)
+# set.seed(42)
+options(warn = -1)
+options(knitr.duplicate.label = "allow")
+
+################# File paths #####################################################
+DIR_base <- "GPM_DIR_BASE/"
+DIR_project <- paste0(DIR_base, "analysis/")
+DIR_salmon <- paste0(DIR_base, "nfcore/results/star_salmon/")
+
+FILE_tx2gene <- paste0(DIR_salmon, "salmon_tx2gene.tsv")
+source(paste0(DIR_project, "functions.R"))
+source(paste0(DIR_project, "DGEA/DGEA_RNAseq_functions.R"))
+
+################# Parameters #####################################################
+Fig_width <- 600
+Fig_height <- 400
+CUTOFF_Quantification <- 20
+CUTOFF_ADJP <- 0.05
+
+project_name <- strsplit(DIR_base, "/")[[1]]
+project_name <- project_name[length(project_name)]
+rna_seq_type <- strsplit(project_name, "_")[[1]]
+rna_seq_type <- rna_seq_type[length(rna_seq_type)]
+
+config <- yaml::yaml.load_file(file.path(DIR_base,"/analysis/DGEA/config.yml"))
+
+spikein_ERCC <- config$default$spikein_ERCC
+organism <- config$default$organism
+genome_assembly <- config$default$genome_assembly
+
+countsFromAbundance <- config[[rna_seq_type]]$countsFromAbundance
+lengthcorrection <- config[[rna_seq_type]]$lengthcorrection
+
+method_des <- organism2method_des(organism) 
+spikein_method <- spikein_ERCC2method(spikein_ERCC)
+
+execute_go_analyses <- config$default$GO_analysis
+execute_gsea_integration <- config$default$GSEA_analysis
+
+render_sub_reports <- TRUE
+```
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+################# Loading samples ################################################
+## Load sample sheets (originated from the nf-core pipeline run configuration)
+samples <- read.table(file.path(DIR_base,"/analysis/DGEA/samplesheet.csv"), header=TRUE, sep = ",")
+rownames(samples) <- samples$sample
+# samples$VARIABLE <- labels_group
+# d <- samples %>% separate(sample, c("group", "batch"), sep = "_")
+# samples$cell <- d$cell
+# samples$rename <- paste0(samples$VARIABLE, "_", samples$sample)
+```
+
+![](RWTH_IZKF_GF_Logo_rgb.png)
+
+This document is the summary of the bioinformatic analysis done by Genomic Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration. If these results are used in any poster or publications, please acknowledge our core facility with the text below:
+
+> This work was supported by the Genomics Facility, a core facility of the Interdisciplinary Center for Clinical Research (IZKF) Aachen within the Faculty of Medicine at RWTH Aachen University.
+
+Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
+
+***
+
+# Download/Browse the files
+
+1. [Raw Data](GPM_URL_1_Raw_data): 
+    * BCL files from the sequencer
+    * FASTQ files after demultiplexing
+2. [Processed Data](GPM_URL_2_Processed_data): 
+    * BAM files after alignment
+    * BigWig files after normalization
+    * Quantification tables from the counts of reads or quantification of the expressions
+3. [Reports](GPM_URL_3_Reports):
+    * [MultiQC reports](GPM_URL_3_Reports/multiqc/multiqc_report.html) for the quality check
+    * Basic analysis of the Genomics Facility (This report)
+    `r if (spikein_ERCC) "* [ERCC Spike-in Analysis](ERCC.html)" else ""`
+4. [Compressed files for download](GPM_URL_TAR):
+    * Three tar files are available for download the above three folders.
+  
+In the command line environment, you can also download everything by the commands below with the given username and password from us:
+
+```
+wget -r -nH -np -nd -P --user USERNAME --password PASSWORD -A '*.tar' GPM_URL_TAR -P GPM_TITLE_NAME 
+```
+
+Please make sure that you store these data in a lab-wise level. Genomics Facility won't store your data forever and these data should still be accessible even after someone leaves your lab. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
+
+\textcolor{red}{Your data will be deleted according to this policy automatically. Please download everything.}
+
+```{r, echo=FALSE}
+# Function to run a command and capture its output
+run_command <- function(command) {
+  output <- system(command, intern = TRUE)
+  return(output)
+}
+
+version_yaml_path = '../nfcore/results/pipeline_info/software_versions.yml'
+yaml_data <- yaml::yaml.load_file(version_yaml_path)
+
+r_version <- R.Version()$version.string
+docker_version <-  run_command("docker -v")  # '24.0.2'
+nextflow_version <- yaml_data$Workflow$Nextflow  # '23.04.1'
+trimgalore_version <- yaml_data$TRIMGALORE$trimgalore  # '0.6.7'
+salmon_version <- yaml_data$SALMON_QUANT$salmon  # 'v1.5.2'
+star_version <- yaml_data$STAR_ALIGN$star # '2.7.10a'
+DESeq2_version <- yaml_data$DESEQ2_QC_STAR_SALMON$`bioconductor-deseq2`  # 'v.1.32.0'
+nfcore_version <-  yaml_data$Workflow$`nf-core/rnaseq`  # '3.8.1'
+```
+
+# Method description
+
+FASTQ files were generated using bcl2fastq (Illumina). To facilitate reproducible analysis, samples were processed using the publicly available nf-core/RNA-seq pipeline version `r nfcore_version`  (Ewels et al. 2020) implemented in Nextflow `r nextflow_version` (Di Tommaso et al. 2017) using `r docker_version` (Merkel 2014) with the minimal command. In brief, lane-level reads were trimmed using Trim Galore `r trimgalore_version` (Krueger et al. 2021) and aligned to the `r organism` genome: `r genome_assembly`, using STAR `r star_version` (Dobin et al. 2013). Gene-level and transcript-level quantification was done by Salmon `r salmon_version` (Patro et al. 2017). All analysis was performed using custom scripts in R version `r r_version` using the DESeq2 `r DESeq2_version` framework (Love, Huber, and Anders 2014) with default parameters.
+
+```{r saveobjects, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+save(DIR_base,DIR_project,DIR_salmon,
+     FILE_tx2gene,
+     organism,
+     Fig_width,Fig_height,
+     countsFromAbundance,lengthcorrection,
+     CUTOFF_Quantification, CUTOFF_ADJP, spikein_ERCC,
+     samples, file = paste0(DIR_project, "data.RData"))
+```
+
+
+# Differential Gene Expression Analysis
+
+### All Samples 3d PCA plot
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+description <- "All samples"
+filtered_samples <- samples[complete.cases(samples$group),]
+
+deseq_output <- run_deseq_salmon(filtered_samples, spikein=spikein_ERCC, paired=FALSE,
+                                 countsFromAbundance=countsFromAbundance,
+                                 lengthcorrection=lengthcorrection)
+RNAseq_3D_PCA_plotly(deseq_output$norm_count, filtered_samples)
+```
+
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+library(org.Hs.eg.db)
+library(org.Mm.eg.db)
+library(org.Rn.eg.db)
+
+Tag_this_analysis <- "All_Samples"
+File_stats <- paste0('DGEA_',Tag_this_analysis,'_genes_stats.csv')
+File_norm_expression <- paste0('DGEA_',Tag_this_analysis,'_norm_exp_quant.csv')
+File_xlsx_res <- paste0('DGEA_',Tag_this_analysis,'_res.xlsx')
+
+
+cols <- c("ENSEMBL", "SYMBOL", "GENENAME")
+ensemblkeys <- gsub("\\.[0-9]*$", "", deseq_output$deseq2res$gene_id)
+if (organism == "hsapiens") {
+  genenames <- select(org.Hs.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
+} else if (organism == "mmusculus") {
+  genenames <- select(org.Mm.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
+} else if (organism == "rnorvegicus") {
+  genenames <- select(org.Rn.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
+}
+genenames <- genenames[match(ensemblkeys, genenames$ENSEMBL), ]
+deseq_output$deseq2res <- cbind(deseq_output$deseq2res, genenames)
+
+write.csv(deseq_output$deseq2res,paste0(DIR_project, File_stats))
+write.csv(deseq_output$norm_count,paste0(DIR_project, File_norm_expression))
+
+wb <- createWorkbook()
+addWorksheet(wb, "DGEA_stats")
+writeData(wb, "DGEA_stats", deseq_output$deseq2res)
+addWorksheet(wb, "norm_exp_quant")
+writeData(wb, "norm_exp_quant", deseq_output$norm_count)
+## Save workbook to working directory
+saveWorkbook(wb, file = File_xlsx_res, overwrite = TRUE)
+```
+
+* *Download CSV file for the expression quantification of all 'All Samples' genes:* [`r File_norm_expression`](`r File_norm_expression`)
+
+
+<!-- ### [Correlation analysis](DGEA_correlation_analysis.html)
+### [Genesets Comparisons](DGEA_Geneset_Comparisons.html) -->
+
+## Sub-reports {.tabset}
+
+### samplesheet
+```{r echo=FALSE, results='asis'}
+samplesheet_file <- read.csv("samplesheet.csv")
+samplesheet_file <- subset(samplesheet_file, select = -c(fastq_1, fastq_2))
+kable(samplesheet_file) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
+```
+
+### contrasts
+```{r echo=FALSE, results='asis'}
+contrasts_file <- read.csv("contrasts.csv")
+kable(contrasts_file) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
+```
+
+## {-}
+
+
+# GROUP_COMPARISON_POINTER
+
+
+```{r, results='asis', echo=FALSE}
+if (execute_go_analyses) {
+  rmarkdown::render("GO_analyses.Rmd", output_format = "html_document", output_file = "GO_analyses.html")
+  rmarkdown::render("GO_integration.Rmd", output_format = "html_document", output_file = "GO_integration.html")
+  cat("# GO Analysis\n")
+  cat("### [GO Analyses](GO_analyses.html)\n")
+  cat("### [GO Integration](GO_integration.html)\n")
+}
+
+if (execute_gsea_integration) {
+  rmarkdown::render("GSEA.Rmd", output_format = "html_document", output_file = "GSEA.html")
+  cat("# GSEA\n")
+  cat("### [GSEA](GSEA.html)\n")
+}
+```
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r info, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

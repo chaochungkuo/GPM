@@ -1,0 +1,220 @@
+---
+title: "Analysis on ERCC spike in"
+author:
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library(data.table)
+require(dplyr)
+require(DT)
+library(ggplot2)
+library(ggpubr)
+library(pheatmap)
+library(tidyr)
+library(heatmaply)
+library(plotly)
+options(warn = -1)
+
+source("functions.R")
+
+load("data.RData")
+
+Tag_this_analysis <- "ERCC_QC"
+
+corr_figure <- function(ct, xlab, ylab) {
+  yrange <- abs(max(c(ct[[xlab]], ct[[ylab]]))-min(c(ct[[xlab]], ct[[ylab]])))
+  statcor_y <- max(c(ct[[xlab]], ct[[ylab]]))
+  statregline_y <- max(c(ct[[xlab]], ct[[ylab]]))-0.05 * yrange
+  fig <- ggplot(ct, aes(.data[[xlab]], .data[[ylab]])) +
+         geom_point(size=1, color="royalblue", alpha=0.2) + theme_bw() +
+         ggtitle(paste(xlab, "vs", ylab)) + theme(plot.title = element_text(hjust = 0.5)) +
+         geom_smooth(method = "lm", color="gray", alpha=0.1) +
+         xlab(xlab) + ylab(ylab) +
+         stat_cor(label.y = statcor_y)+ #this means at 35th unit in the y axis, the r squared and p value will be shown
+         stat_regline_equation(label.y = statregline_y) #this means at 30th unit regresion line equation will be shown
+  fig
+}
+
+corr_figure_btw2samples <- function(title, sample1, sample2) {
+  exptable <- fread("DGEA_All_samples_norm_exp_quant.csv")
+  columnsx <- c("gene_id", "gene_name", sample1)
+  columnsy <- c("gene_id", "gene_name", sample2)
+  xdata <- exptable[, ..columnsx]
+  ydata <- exptable[, ..columnsy]
+  
+  merged_table <- merge(xdata, ydata,
+                        by=c("gene_id","gene_name"), suffixes = c(".xlab", ".ylab"))
+  yrange <- abs(max(ydata[[sample2]])-min(ydata[[sample2]]))
+  statcor_y <- max(ydata[[sample2]])
+  statregline_y <- max(ydata[[sample2]])-0.05 * yrange
+  
+  fig <- ggplot(merged_table, aes_string(sample1, sample2)) +
+       geom_point(size=1, color="royalblue", alpha=0.2) + theme_bw() +
+       ggtitle(title) + theme(plot.title = element_text(hjust = 0.5)) +
+       geom_smooth(method = "lm", color="gray", alpha=0.1) +
+       xlab(sample1) + ylab(sample2) +
+       stat_cor(label.y = statcor_y)+ #this means at 35th unit in the y axis, the r squared and p value will be shown
+       stat_regline_equation(label.y = statregline_y) #this means at 30th unit regresion line equation will be shown
+  
+   fig
+}
+# https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt
+ercc_groups <- read.csv("Thermofisher_ERCC_cms_095046.txt", sep="\t")
+ct <- fread(paste0(DIR_salmon, "salmon.merged.gene_counts_length_scaled.tsv"))
+ERCC_ct <- ct[startsWith(ct$gene_id, "ERCC"),]
+ERCC_ct$gene_id <- gsub("_gene","",as.character(ERCC_ct$gene_id))
+# ERCC_ct[,3:8] <- as.numeric(ERCC_ct[,3:8])
+```
+
+### [Back to front page](Analysis_Report_RNAseq.html)
+
+## Dynamic range and lower limit of detection {.tabset}
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.5, fig.height=1}
+FC_tab <- merge(ERCC_ct, ercc_groups, by.x="gene_id", by.y="ERCC.ID")
+
+plot_scatter_spikein <- function(FC_tab, whichmix, sample) {
+  if (whichmix == "mix1") {
+    mixcol <- "concentration.in.Mix.1..attomoles.ul."
+  } else {
+    mixcol <- "concentration.in.Mix.2..attomoles.ul."
+  }
+  sel_sample <- match(sample, colnames(FC_tab))
+  sel_mix <- match(mixcol, colnames(FC_tab))
+  sel_subgroupID <- match("subgroup", colnames(FC_tab))
+  data <- FC_tab %>% select(1,sel_subgroupID,sel_sample, sel_mix)
+  data[,c(3)] <- log10(data[,c(3)]+1)
+  data <- as.data.frame(data)
+  colnames(data) <- c("gene_id","subgroup","norm_readcount","concentration")
+  data$concentration <- log10(data$concentration * 6.02 * 10^23+1)
+  fit <- lm(norm_readcount ~ concentration, data = data)
+  data$fit <- fitted(fit)
+  fig <- plot_ly(data = data, x = ~concentration, y = ~norm_readcount,  mode = "markers") %>%
+         add_markers(y = ~norm_readcount, color = ~subgroup, colors = "Set1", text=~gene_id) %>% 
+         add_trace(x = ~concentration, y = ~fit, mode = "lines", name="Regression", color="organge") %>%
+         layout(title = paste(sample, whichmix),
+                xaxis = list(zeroline = FALSE,
+                             title=paste("Transcripts in",whichmix,"(log10)")),
+                yaxis = list(zeroline = FALSE,
+                             title="Normalized read counts (log10)"))
+  return(fig)
+}
+
+```
+
+### SampleA
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.2, fig.height=1}
+plot_scatter_spikein(FC_tab, whichmix = "mix1", sample="SampleA")
+```
+
+<!-- ## Ratios between Mix 1 and Mix 2 {.tabset} -->
+
+<!-- ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.5, fig.height=1} -->
+<!-- # FC_tab[,3:11] <- FC_tab[,3:11]+1
+# FC_tab$FC_3 <- FC_tab$Skull_3/FC_tab$Ulna_3
+# FC_tab$FC_4 <- FC_tab$Skull_4/FC_tab$Ulna_4
+# FC_tab$FC_5 <- FC_tab$Skull_5/FC_tab$Ulna_5
+# FC_tab$FC_6 <- FC_tab$Skull_6/FC_tab$Ulna_6
+
+# data_long <- FC_tab[,c(1,17, 18, 19, 20)] %>% pivot_longer(cols=c('FC_3', 'FC_4', 'FC_5', 'FC_6'),
+#                     names_to='Group',
+#                     values_to='FC')
+# data_long$subgroup <- ercc_groups$subgroup[match(data_long$gene_id, ercc_groups$ERCC.ID)]
+# data_long$expectedFC <- ercc_groups$expected.fold.change.ratio[match(data_long$gene_id, ercc_groups$ERCC.ID)]
+# 
+# write.table(FC_tab[,c("gene_id","subgroup",
+#                       "concentration.in.Mix.1..attomoles.ul.","concentration.in.Mix.2..attomoles.ul.",
+#                       "expected.fold.change.ratio","log2.Mix.1.Mix.2.",'FC_3', 'FC_4', 'FC_5', 'FC_6')],file = "ERCC_FC_table.csv") -->
+
+<!-- plotratio <- function(data) { -->
+<!--   fig <- plot_ly(data = data, x = ~expectedFC, y = ~FC, color = ~subgroup, colors = "Set1", symbol=~Group, text=~gene_id) -->
+
+<!--   fig %>% -->
+<!--     layout(shapes = list(list( -->
+<!--       type = "line",  -->
+<!--       x0 = 0,  -->
+<!--       x1 = 4,  -->
+<!--       xref = "x", -->
+<!--       y0 = 0,  -->
+<!--       y1 = 4,  -->
+<!--       yref = "y", -->
+<!--       line = list(color = "royalblue") -->
+<!--     )), -->
+<!--     yaxis = list(range = c(0,16))) -->
+
+<!-- } -->
+<!-- ``` -->
+
+
+<!-- ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.5, fig.height=1} -->
+<!-- plotratio(data_long) -->
+<!-- ``` -->
+
+
+<!-- ### NEB11 -->
+
+<!-- ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.5, fig.height=1} -->
+<!-- sel_data <- data_long[data_long$Group=="FC_NEB11",] -->
+<!-- plotratio(sel_data) -->
+<!-- ``` -->
+
+
+## Heatmap
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.5, fig.height=2}
+heatmap_t <- ERCC_ct[, c(-1,-2)]
+rownames(heatmap_t) <- ERCC_ct$gene_id
+heatmap_t <- log10(heatmap_t+1)
+
+heatmaply(heatmap_t, main = "Normalized read counts of spike-in",
+          method = "plotly",labRow=ERCC_ct$gene_id,
+          xlab = "Samples", ylab = "Spike-in", width = 1.5, height = 2,
+          showticklabels = c(TRUE, FALSE), show_dendrogram = c(FALSE, TRUE),
+          key.title = "Scaled\nexpression\nin log10 scale",
+          label_names = c("Gene", "Sample", "Expression"))
+
+```
+
+<!-- According to the above heatmap, mix 1 (added to H889) and mix 2 (added to H891) are clustered properly. -->
+
+<!-- # Correlation of H889 (Mix1) {.tabset} -->
+
+<!-- ## NEB11 vs NEB12 -->
+
+<!-- ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=4, fig.height=4} -->
+<!-- corr_figure(ct=heatmap_t, xlab="NEB11_H889", ylab="NEB12_H889") -->
+<!-- ``` -->
+
+
+<!-- # Correlation of H891 (Mix 2){.tabset} -->
+
+<!-- ## NEB11 vs NEB12 -->
+
+<!-- ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=4, fig.height=4} -->
+<!-- corr_figure(ct=heatmap_t, xlab="NEB11_H891", ylab="NEB12_H891") -->
+<!-- ``` -->
+
+
+# References
+
+::: {#refs}
+:::
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

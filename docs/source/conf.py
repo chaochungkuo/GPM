@@ -5,7 +5,7 @@ project = 'GPM'
 copyright = '2023, Chao-Chung Kuo'
 author = 'Chao-Chung Kuo'
 
-release = "0.5.4"
+release = "0.5.5"
 
 # -- General configuration
 

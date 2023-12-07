@@ -1,0 +1,10 @@
+[gene-expression]
+reference,/data/shared_env/10xGenomics/refdata-cellranger-arc-mm10-2020-A-2.0.0
+
+[vdj]
+reference,/data/shared_env/10xGenomics/refdata-cellranger-vdj-GRCm38-alts-ensembl-7.0.0
+
+[libraries]
+fastq_id,fastqs,lanes,feature_types
+1_GEX,FASTQ_DIR,1|2|3|4,gene expression
+1_VDJ,FASTQ_DIR,1|2|3|4,VDJ

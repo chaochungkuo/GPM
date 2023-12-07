@@ -1,0 +1,84 @@
+---
+title: "GPM_PROJECTNAME"
+author:
+GPM_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library("heatmaply")
+library("readr")
+require("tidyr")
+options(warn = -1)
+
+DIR_base <- "GPM_DIR_BASE/"
+```
+
+![](RWTH_IZKF_GF_Logo_rgb.png)
+
+This document is the summary of the basic bacterial genome assembly done by Genomic Core Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration.
+
+Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
+
+------------------------------------------------------------------------
+
+The following contents are provided after the basic assembly analysis of the bacterial whole genome sequencing data with Bacass pipeline[@Peltzer2021-xn] under nf-core framework[@Ewels2020-il] :
+
+- Quality reports of the sequencing data
+- Contamination check reports for the samples
+- Assenbly results
+- Assembly quality assessment reports for the samples
+- Annotation of the assembled genome
+
+------------------------------------------------------------------------
+
+# Quality report of the sequencing data
+
+The raw sequencing data were demultiplexed. QC assessment was applied on the resulted fastq files. Bellow is the resulted multiQC[@Ewels2016-pr] report:
+
+[MultiQC reports](GPM_URL_3_Reports/multiqc/multiqc_report.html)
+
+# Contamination check
+
+The raw data from a genome sequencing could contain DNA from contaminating organisms. In this step, sequencing results were scanned using metagenomic analysis tool Kraken2[@Wood2019-er] to identify potential contamination.
+
+[Contamination reports](GPM_URL_2_Processed_data/Kraken2)
+
+# Genome Assembly
+
+Unicycler[@Wick2017-us] was applied to assemble the short sequencing reads. The assembled scaffolds fasta files are listed bellow:
+
+[Assembled scaffolds](GPM_URL_2_Processed_data/assembly)
+
+# Assembly quality assessment
+
+The quality of the assembled contigs were evaluated by QUAST[@Gurevich2013-tw] with the following report:
+
+[Assembly quality report](GPM_URL_2_Processed_data/QUAST/other_files/report.html)
+
+# Annotation the assembled genome
+
+The assemblies are annotated by Prokka[@Seemann2014-ic].
+
+[Assembly quality report](GPM_URL_2_Processed_data/Prokka)
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r info, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

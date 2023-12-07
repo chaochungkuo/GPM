@@ -1,0 +1,401 @@
+@article{love2014moderated,
+  title={Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2},
+  author={Love, Michael I and Huber, Wolfgang and Anders, Simon},
+  journal={Genome biology},
+  volume={15},
+  number={12},
+  pages={1--21},
+  year={2014},
+  publisher={BioMed Central}
+}
+
+@article{ewels2020nf,
+  title={The nf-core framework for community-curated bioinformatics pipelines},
+  author={Ewels, Philip A and Peltzer, Alexander and Fillinger, Sven and Patel, Harshil and Alneberg, Johannes and Wilm, Andreas and Garcia, Maxime Ulysse and Di Tommaso, Paolo and Nahnsen, Sven},
+  journal={Nature biotechnology},
+  volume={38},
+  number={3},
+  pages={276--278},
+  year={2020},
+  publisher={Nature Publishing Group}
+}
+
+@article{patro2017salmon,
+  title={Salmon provides fast and bias-aware quantification of transcript expression},
+  author={Patro, Rob and Duggal, Geet and Love, Michael I and Irizarry, Rafael A and Kingsford, Carl},
+  journal={Nature methods},
+  volume={14},
+  number={4},
+  pages={417--419},
+  year={2017},
+  publisher={Nature Publishing Group}
+}
+
+@article{di2017nextflow,
+  title={Nextflow enables reproducible computational workflows},
+  author={Di Tommaso, Paolo and Chatzou, Maria and Floden, Evan W and Barja, Pablo Prieto and Palumbo, Emilio and Notredame, Cedric},
+  journal={Nature biotechnology},
+  volume={35},
+  number={4},
+  pages={316--319},
+  year={2017},
+  publisher={Nature Publishing Group}
+}
+
+@article{merkel2014docker,
+  title={Docker: lightweight linux containers for consistent development and deployment},
+  author={Merkel, Dirk},
+  journal={Linux journal},
+  volume={2014},
+  number={239},
+  pages={2},
+  year={2014}
+}
+
+@article{dobin2013star,
+  title={STAR: ultrafast universal RNA-seq aligner},
+  author={Dobin, Alexander and Davis, Carrie A and Schlesinger, Felix and Drenkow, Jorg and Zaleski, Chris and Jha, Sonali and Batut, Philippe and Chaisson, Mark and Gingeras, Thomas R},
+  journal={Bioinformatics},
+  volume={29},
+  number={1},
+  pages={15--21},
+  year={2013},
+  publisher={Oxford University Press}
+}
+
+@article{liao2014featurecounts,
+  title={featureCounts: an efficient general purpose program for assigning sequence reads to genomic features},
+  author={Liao, Yang and Smyth, Gordon K and Shi, Wei},
+  journal={Bioinformatics},
+  volume={30},
+  number={7},
+  pages={923--930},
+  year={2014},
+  publisher={Oxford University Press}
+}
+
+@software{felix_krueger_2021_5127899,
+  author       = {Felix Krueger and
+                  Frankie James and
+                  Phil Ewels and
+                  Ebrahim Afyounian and
+                  Benjamin Schuster-Boeckler},
+  title        = {FelixKrueger/TrimGalore: v0.6.7 - DOI via Zenodo},
+  month        = jul,
+  year         = 2021,
+  publisher    = {Zenodo},
+  version      = {0.6.7},
+  doi          = {10.5281/zenodo.5127899},
+  url          = {https://doi.org/10.5281/zenodo.5127899}
+}
+
+@article{li2010fast,
+  title={Fast and accurate long-read alignment with Burrows--Wheeler transform},
+  author={Li, Heng and Durbin, Richard},
+  journal={Bioinformatics},
+  volume={26},
+  number={5},
+  pages={589--595},
+  year={2010},
+  publisher={Oxford Academic}
+}
+
+@article{zhang2008model,
+  title={Model-based analysis of ChIP-Seq (MACS)},
+  author={Zhang, Yong and Liu, Tao and Meyer, Clifford A and Eeckhoute, J{\'e}r{\^o}me and Johnson, David S and Bernstein, Bradley E and Nusbaum, Chad and Myers, Richard M and Brown, Myles and Li, Wei and others},
+  journal={Genome biology},
+  volume={9},
+  number={9},
+  pages={1--9},
+  year={2008},
+  publisher={BioMed Central}
+}
+
+@article{wu2021clusterprofiler,
+  title={clusterProfiler 4.0: A universal enrichment tool for interpreting omics data},
+  author={Wu, Tianzhi and Hu, Erqiang and Xu, Shuangbin and Chen, Meijun and Guo, Pingfan and Dai, Zehan and Feng, Tingze and Zhou, Lang and Tang, Wenli and Zhan, Li and others},
+  journal={The Innovation},
+  volume={2},
+  number={3},
+  pages={100141},
+  year={2021},
+  publisher={Elsevier}
+}
+
+@article{kolberg2020gprofiler2,
+  title={gprofiler2--an R package for gene list functional enrichment analysis and namespace conversion toolset g: Profiler},
+  author={Kolberg, Liis and Raudvere, Uku and Kuzmin, Ivan and Vilo, Jaak and Peterson, Hedi},
+  journal={F1000Research},
+  volume={9},
+  year={2020},
+  publisher={Faculty of 1000 Ltd}
+}
+
+@MISC{Peltzer2021-xn,
+  title     = "nf-core/bacass: v2.0.0 nf-core/bacass: ``Navy Steel Swordfish''",
+  author    = "Peltzer, Alexander and Straub, Daniel and Bot, Nf-Core and
+               Garcia, Maxime U and Taylor, Ben and Angelov, Angel and Ewels,
+               Phil and Zhou, Y and Patel, Harshil and Rivera, Ramon and
+               Menden, Kevin",
+  abstract  = "Main changes are conversion from nextflow DSL1 to DSL2.
+               Additionally, the template and software was updated, as detailed
+               below. Changed \#56 - Switched to DSL2 \& update to new nf-core
+               2.1 TEMPLATE \#56 - --krakendb now expects a .tar.gz/.tgz
+               (compressed tar archive) directly from
+               https://benlangmead.github.io/aws-indexes/k2 instead of an
+               uncompressed folder. Added \#56 - Added full size test dataset,
+               two Zetaproteobacteria sequenced with Illumina MiSeq Reagent Kit
+               V2, PE250, 3 to 4 million read pairs. Fixed \#51 - Fixed
+               Unicycler Dependencies \#56 - Updated a bunch of dependencies
+               (unchanged: FastQC, Miniasm, Prokka, Porechop, QUAST) Unicycler
+               from 0.4.4 to 0.4.8 Kraken2 from 2.0.9beta to 2.1.1 MultiQC from
+               1.9 to 1.10.1 PYCOQC from 2.5.0.23 to 2.5.2 Samtools from 1.11
+               to 1.13 Canu from 2.0 to 2.1.1-2 dfast from 1.2.10 to 1.2.14
+               Medaka from 1.1.2 to 1.4.3-0 Minimap 2 from 2.17 to 2.21
+               Nanoplot from 1.32.1 to 1.38.0 Nanopolish from 0.13.2 to
+               0.13.2-5 Racon from 1.4.13 to 1.4.20-1 Skewer from 0.2.2 to
+               0.2.2-3",
+  publisher = "Zenodo",
+  year      =  2021
+}
+
+@ARTICLE{Wood2019-er,
+  title     = "Improved metagenomic analysis with Kraken 2",
+  author    = "Wood, Derrick E and Lu, Jennifer and Langmead, Ben",
+  abstract  = "Although Kraken's k-mer-based approach provides a fast taxonomic
+               classification of metagenomic sequence data, its large memory
+               requirements can be limiting for some applications. Kraken 2
+               improves upon Kraken 1 by reducing memory usage by 85\%,
+               allowing greater amounts of reference genomic data to be used,
+               while maintaining high accuracy and increasing speed fivefold.
+               Kraken 2 also introduces a translated search mode, providing
+               increased sensitivity in viral metagenomics analysis.",
+  journal   = "Genome Biol.",
+  publisher = "Springer Science and Business Media LLC",
+  volume    =  20,
+  number    =  1,
+  pages     = "257",
+  month     =  nov,
+  year      =  2019,
+  keywords  = "Alignment-free methods; Metagenomics; Metagenomics
+               classification; Microbiome; Minimizers; Probabilistic data
+               structures",
+  copyright = "http://creativecommons.org/licenses/by/4.0/",
+  language  = "en"
+}
+
+@ARTICLE{Ewels2020-il,
+  title     = "The nf-core framework for community-curated bioinformatics
+               pipelines",
+  author    = "Ewels, Philip A and Peltzer, Alexander and Fillinger, Sven and
+               Patel, Harshil and Alneberg, Johannes and Wilm, Andreas and
+               Garcia, Maxime Ulysse and Di Tommaso, Paolo and Nahnsen, Sven",
+  journal   = "Nat. Biotechnol.",
+  publisher = "Springer Science and Business Media LLC",
+  volume    =  38,
+  number    =  3,
+  pages     = "276--278",
+  month     =  mar,
+  year      =  2020,
+  language  = "en"
+}
+
+@ARTICLE{Di_Tommaso2017-oq,
+  title    = "Nextflow enables reproducible computational workflows",
+  author   = "Di Tommaso, Paolo and Chatzou, Maria and Floden, Evan W and
+              Barja, Pablo Prieto and Palumbo, Emilio and Notredame, Cedric",
+  journal  = "Nat. Biotechnol.",
+  volume   =  35,
+  number   =  4,
+  pages    = "316--319",
+  month    =  apr,
+  year     =  2017,
+  language = "en"
+}
+
+@ARTICLE{Wick2017-us,
+  title     = "Unicycler: Resolving bacterial genome assemblies from short and
+               long sequencing reads",
+  author    = "Wick, Ryan R and Judd, Louise M and Gorrie, Claire L and Holt,
+               Kathryn E",
+  abstract  = "The Illumina DNA sequencing platform generates accurate but
+               short reads, which can be used to produce accurate but
+               fragmented genome assemblies. Pacific Biosciences and Oxford
+               Nanopore Technologies DNA sequencing platforms generate long
+               reads that can produce complete genome assemblies, but the
+               sequencing is more expensive and error-prone. There is
+               significant interest in combining data from these complementary
+               sequencing technologies to generate more accurate ``hybrid''
+               assemblies. However, few tools exist that truly leverage the
+               benefits of both types of data, namely the accuracy of short
+               reads and the structural resolving power of long reads. Here we
+               present Unicycler, a new tool for assembling bacterial genomes
+               from a combination of short and long reads, which produces
+               assemblies that are accurate, complete and cost-effective.
+               Unicycler builds an initial assembly graph from short reads
+               using the de novo assembler SPAdes and then simplifies the graph
+               using information from short and long reads. Unicycler uses a
+               novel semi-global aligner to align long reads to the assembly
+               graph. Tests on both synthetic and real reads show Unicycler can
+               assemble larger contigs with fewer misassemblies than other
+               hybrid assemblers, even when long-read depth and accuracy are
+               low. Unicycler is open source (GPLv3) and available at
+               github.com/rrwick/Unicycler.",
+  journal   = "PLoS Comput. Biol.",
+  publisher = "Public Library of Science (PLoS)",
+  volume    =  13,
+  number    =  6,
+  pages     = "e1005595",
+  month     =  jun,
+  year      =  2017,
+  copyright = "http://creativecommons.org/licenses/by/4.0/",
+  language  = "en"
+}
+
+@ARTICLE{Gurevich2013-tw,
+  title     = "{QUAST}: quality assessment tool for genome assemblies",
+  author    = "Gurevich, Alexey and Saveliev, Vladislav and Vyahhi, Nikolay and
+               Tesler, Glenn",
+  abstract  = "SUMMARY: Limitations of genome sequencing techniques have led to
+               dozens of assembly algorithms, none of which is perfect. A
+               number of methods for comparing assemblers have been developed,
+               but none is yet a recognized benchmark. Further, most existing
+               methods for comparing assemblies are only applicable to new
+               assemblies of finished genomes; the problem of evaluating
+               assemblies of previously unsequenced species has not been
+               adequately considered. Here, we present QUAST-a quality
+               assessment tool for evaluating and comparing genome assemblies.
+               This tool improves on leading assembly comparison software with
+               new ideas and quality metrics. QUAST can evaluate assemblies
+               both with a reference genome, as well as without a reference.
+               QUAST produces many reports, summary tables and plots to help
+               scientists in their research and in their publications. In this
+               study, we used QUAST to compare several genome assemblers on
+               three datasets. QUAST tables and plots for all of them are
+               available in the Supplementary Material, and interactive
+               versions of these reports are on the QUAST website.
+               AVAILABILITY: http://bioinf.spbau.ru/quast . SUPPLEMENTARY
+               INFORMATION: Supplementary data are available at Bioinformatics
+               online.",
+  journal   = "Bioinformatics",
+  publisher = "Oxford University Press (OUP)",
+  volume    =  29,
+  number    =  8,
+  pages     = "1072--1075",
+  month     =  apr,
+  year      =  2013,
+  language  = "en"
+}
+
+@ARTICLE{Seemann2014-ic,
+  title     = "Prokka: rapid prokaryotic genome annotation",
+  author    = "Seemann, Torsten",
+  abstract  = "UNLABELLED: The multiplex capability and high yield of current
+               day DNA-sequencing instruments has made bacterial whole genome
+               sequencing a routine affair. The subsequent de novo assembly of
+               reads into contigs has been well addressed. The final step of
+               annotating all relevant genomic features on those contigs can be
+               achieved slowly using existing web- and email-based systems, but
+               these are not applicable for sensitive data or integrating into
+               computational pipelines. Here we introduce Prokka, a command
+               line software tool to fully annotate a draft bacterial genome in
+               about 10 min on a typical desktop computer. It produces
+               standards-compliant output files for further analysis or viewing
+               in genome browsers. AVAILABILITY AND IMPLEMENTATION: Prokka is
+               implemented in Perl and is freely available under an open source
+               GPLv2 license from http://vicbioinformatics.com/.",
+  journal   = "Bioinformatics",
+  publisher = "Oxford University Press (OUP)",
+  volume    =  30,
+  number    =  14,
+  pages     = "2068--2069",
+  month     =  jul,
+  year      =  2014,
+  language  = "en"
+}
+
+@ARTICLE{Wood2019-zm,
+  title     = "Improved metagenomic analysis with Kraken 2",
+  author    = "Wood, Derrick E and Lu, Jennifer and Langmead, Ben",
+  abstract  = "Although Kraken's k-mer-based approach provides a fast taxonomic
+               classification of metagenomic sequence data, its large memory
+               requirements can be limiting for some applications. Kraken 2
+               improves upon Kraken 1 by reducing memory usage by 85\%,
+               allowing greater amounts of reference genomic data to be used,
+               while maintaining high accuracy and increasing speed fivefold.
+               Kraken 2 also introduces a translated search mode, providing
+               increased sensitivity in viral metagenomics analysis.",
+  journal   = "Genome Biol.",
+  publisher = "Springer Science and Business Media LLC",
+  volume    =  20,
+  number    =  1,
+  pages     = "257",
+  month     =  nov,
+  year      =  2019,
+  keywords  = "Alignment-free methods; Metagenomics; Metagenomics
+               classification; Microbiome; Minimizers; Probabilistic data
+               structures",
+  copyright = "http://creativecommons.org/licenses/by/4.0/",
+  language  = "en"
+}
+
+@ARTICLE{Ewels2016-pr,
+  title    = "{MultiQC}: summarize analysis results for multiple tools and
+              samples in a single report",
+  author   = "Ewels, Philip and Magnusson, M{\aa}ns and Lundin, Sverker and
+              K{\"a}ller, Max",
+  abstract = "MOTIVATION: Fast and accurate quality control is essential for
+              studies involving next-generation sequencing data. Whilst
+              numerous tools exist to quantify QC metrics, there is no common
+              approach to flexibly integrate these across tools and large
+              sample sets. Assessing analysis results across an entire project
+              can be time consuming and error prone; batch effects and outlier
+              samples can easily be missed in the early stages of analysis.
+              RESULTS: We present MultiQC, a tool to create a single report
+              visualising output from multiple tools across many samples,
+              enabling global trends and biases to be quickly identified.
+              MultiQC can plot data from many common bioinformatics tools and
+              is built to allow easy extension and customization. AVAILABILITY
+              AND IMPLEMENTATION: MultiQC is available with an GNU GPLv3
+              license on GitHub, the Python Package Index and Bioconda.
+              Documentation and example reports are available at
+              http://multiqc.info CONTACT: phil.ewels@scilifelab.se.",
+  journal  = "Bioinformatics",
+  volume   =  32,
+  number   =  19,
+  pages    = "3047--3048",
+  month    =  oct,
+  year     =  2016,
+  language = "en"
+}
+
+@article{subramanian2005gene,
+  title={Gene set enrichment analysis: a knowledge-based approach for interpreting genome-wide expression profiles},
+  author={Subramanian, Aravind and Tamayo, Pablo and Mootha, Vamsi K and Mukherjee, Sayan and Ebert, Benjamin L and Gillette, Michael A and Paulovich, Amanda and Pomeroy, Scott L and Golub, Todd R and Lander, Eric S and others},
+  journal={Proceedings of the National Academy of Sciences},
+  volume={102},
+  number={43},
+  pages={15545--15550},
+  year={2005},
+  publisher={National Acad Sciences}
+}
+
+@article{liberzon2011molecular,
+  title={Molecular signatures database (MSigDB) 3.0},
+  author={Liberzon, Arthur and Subramanian, Aravind and Pinchback, Reid and Thorvaldsd{\'o}ttir, Helga and Tamayo, Pablo and Mesirov, Jill P},
+  journal={Bioinformatics},
+  volume={27},
+  number={12},
+  pages={1739--1740},
+  year={2011},
+  publisher={Oxford University Press}
+}
+
+@article{korotkevich2016fast,
+  title={Fast gene set enrichment analysis},
+  author={Korotkevich, Gennady and Sukhov, Vladimir and Budin, Nikolay and Shpak, Boris and Artyomov, Maxim N and Sergushichev, Alexey},
+  journal={BioRxiv},
+  pages={060012},
+  year={2016},
+  publisher={Cold Spring Harbor Laboratory}
+}
