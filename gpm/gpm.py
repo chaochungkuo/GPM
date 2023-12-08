@@ -24,7 +24,8 @@ tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                       "analysis_types"]),
                         ("Export", ["export_URL",
                                     "export_user",
-                                    "export_password"])])
+                                    "export_password"]),
+                        ("History", ["logs"])])
 
 
 class GPM():
@@ -54,31 +55,21 @@ class GPM():
         config.read(filepath)
         # Retrieve values from the configuration file
         for section in tags_GPM.keys():
-            # print(section)
-            # if section == "Logs":
-            #     print(config.options(section))
-            #     for option in config.options(section):
-            #         print(option)
-            #         if not config.has_option(section, option):
-            #             value = config.get(section, option)
-            #             print([value, option])
-            #             self.logs.append(value)
-            # else:
-            section_dict = config[section]
-            for tag in tags_GPM[section]:
-                value = section_dict.get(tag)
-                if "," in value:
-                    value = [x.strip() for x in value.split(",")]
-                elif value == "":
-                    continue
-                self.profile[section][tag] = value
-        with open(filepath) as f:
-            is_log = False
-            for line in f:
-                if is_log:
-                    self.logs.append(line.strip())
-                if line.strip() == "[Logs]":
-                    is_log = True
+            print(section)
+            if section == "History":
+                logs = config[section]["logs"]
+                logs = [log.strip() for log in logs.strip().split("\n")]
+                print(logs)
+                self.logs = logs
+            else:
+                section_dict = config[section]
+                for tag in tags_GPM[section]:
+                    value = section_dict.get(tag)
+                    if "," in value:
+                        value = [x.strip() for x in value.split(",")]
+                    elif value == "":
+                        continue
+                    self.profile[section][tag] = value
 
     def write_project_config_file(self):
         """
@@ -88,6 +79,7 @@ class GPM():
         :type filepath: str
         :return: None
         """
+        self.profile["History"]["logs"] = "\t" + "\n".join(self.logs)
         config = configparser.ConfigParser()
         for section, options in self.profile.items():
             config.add_section(section)
@@ -96,9 +88,6 @@ class GPM():
         # Write the configuration to the file
         with open(self.profile["Project"]["project.ini"], 'w') as config_file:
             config.write(config_file)
-            print("[Logs]", file=config_file)
-            for entry in self.logs:
-                print(entry, file=config_file)
 
     def update_log(self):
         """
@@ -106,11 +95,9 @@ class GPM():
 
         :return: None
         """
-        # ctx = click.get_current_context()
         full_command = sys.argv
         if full_command[0].endswith("/gpm"):
             full_command[0] = "gpm"
-        # full_command = " ".join(ctx.command_path.split() + click.get_os_args())
         full_command = " ".join(full_command)
         current_datetime = datetime.now()
         formatted_timestamp = current_datetime.strftime('%y%m%d %H:%M')
