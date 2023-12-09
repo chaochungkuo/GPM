@@ -15,6 +15,8 @@ There are two levels of configuration files in GPM:
     - `gpm.ini` by default or `gpm.ini.user` if it exists.
 - Project-wise configuration as `project.ini`
 
+All the options defined in the above files are used as the key for inserting their corresponding values while copying any files in GPM in creating reports or adding analysis templates. This offers a flexible way to customize your own script and reports.
+
 Keeping Everything in Projects for Repeatability
 ----------------
 
