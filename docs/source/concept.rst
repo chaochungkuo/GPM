@@ -6,6 +6,15 @@ One project.ini Across All Phases
 
 In the lifecycle of a project, spanning demultiplexing, processing, analyses, exporting, and archiving, GPM ensures consistent project management by maintaining a single project.ini file across all stages. This file serves as a common thread inherited by subsequent steps, fostering traceability and repeatability for every file and operation.
 
+Two levels of configuration files
+----------------
+
+There are two levels of configuration files in GPM:
+- Global configuration under `GPMDATA/config/`
+    - `environment.ini` by default or `environment.ini.user` if it exists.
+    - `gpm.ini` by default or `gpm.ini.user` if it exists.
+- Project-wise configuration as `project.ini`
+
 Keeping Everything in Projects for Repeatability
 ----------------
 

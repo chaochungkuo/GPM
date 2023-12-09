@@ -1,7 +1,7 @@
 ---
-title: "GPM_PROJECTNAME"
+title: "PROJECT_NAME"
 author: 
-GPM_AUTHORS
+RMD_AUTHORS
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
@@ -16,7 +16,6 @@ bibliography: references.bib
 ---
 
 ```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-# rmarkdown::render('Analysis_Report_RNAseq.Rmd', output_format = 'html_document', output_file ='Analysis_Report_RNAseq.html')
 library(knitr)
 library(kableExtra)
 library(stringr)

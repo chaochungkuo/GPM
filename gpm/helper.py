@@ -37,9 +37,9 @@ def check_project_name(name):
         sys.exit()
     # app
     app = split_name[4]
-    if app not in get_gpm_config("GPM", "APPLICATIONS"):
+    if app not in get_gpm_config("GPM", "GPM_APPLICATIONS"):
         click.echo("Unsupported application. Please take one from below:")
-        click.echo(", ".join(get_gpm_config("GPM", "APPLICATIONS")))
+        click.echo(", ".join(get_gpm_config("GPM", "GPM_APPLICATIONS")))
         sys.exit()
 
 
@@ -63,8 +63,8 @@ def remove_end_slash(path):
 def get_config_values(config_name):
     """
     Return a dictionary of the key value pairs in the defined config file.
-    User-defined config (*.config.user) has a higher priority
-    than default one (*.config).
+    User-defined config (*.ini.user) has a higher priority
+    than default one (*.ini).
     """
     config_path = path.join(get_gpmdata_path(), "config/"+config_name+".user")
     if not path.exists(config_path):
@@ -81,8 +81,8 @@ def get_config_values(config_name):
 def get_config_value(config_name, section, item):
     """
     Return value of the defined item in the defined config file.
-    User-defined config (*.config.user) has a higher priority
-    than default one (*.config).
+    User-defined config (*.ini.user) has a higher priority
+    than default one (*.ini).
     """
     config_path = path.join(get_gpmdata_path(), "config/"+config_name+".user")
     if not path.exists(config_path):
@@ -97,22 +97,22 @@ def get_config_value(config_name, section, item):
 
 def get_gpm_config(section, item):
     """
-    Return the config from GPMDATA/gpm.config as a dictionary.
-    User-defined config (gpm.config.user) has a higher priority
-    than default one (gpm.config).
+    Return the config from GPMDATA/gpm.ini as a dictionary.
+    User-defined config (gpm.ini.user) has a higher priority
+    than default one (gpm.ini).
     """
-    config_name = "gpm.config"
+    config_name = "gpm.ini"
     res = get_config_value(config_name, section, item)
     return res
 
 
 def get_environment_config(section, item):
     """
-    Return the config from GPMDATA/environment.config as a dictionary.
-    User-defined config (environment.config.user) has a higher priority
-    than default one (environment.config).
+    Return the config from GPMDATA/environment.ini as a dictionary.
+    User-defined config (environment.ini.user) has a higher priority
+    than default one (environment.ini).
     """
-    config_name = "environment.config"
+    config_name = "environment.ini"
     res = get_config_value(config_name, section, item)
     return res
 

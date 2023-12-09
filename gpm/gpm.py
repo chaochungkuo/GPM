@@ -11,7 +11,7 @@ from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                      "application", "project.ini",
-                                     "project_path"]),
+                                     "project_path", "project_name"]),
                         ("Raw data", ["bcl_path"]),
                         ("Demultiplexing", ["fastq_path", "fastq_qc_path",
                                             "demultiplex_method"]),
@@ -131,7 +131,7 @@ class GPM():
         """
         Copy the files for demultiplexing according to the given method.
 
-        :param method: One of the methods defined in gpm.config.
+        :param method: One of the methods defined in gpm.ini.
         :type method: str
         :param raw: Path of the raw BCL folder.
         :type raw: str
@@ -198,6 +198,7 @@ class GPM():
         self.profile["Project"]["name2"] = names[2]
         self.profile["Project"]["institute"] = names[3]
         self.profile["Project"]["application"] = names[4]
+        self.profile["Project"]["project_name"] = " ".join(names)
         # Create project folder
         current_dir = os.getcwd()
         project_path = os.path.join(current_dir, name)
@@ -215,7 +216,7 @@ class GPM():
         """
         Copy the files for processing according to the given method.
 
-        :param method: One of the methods defined in gpm.config.
+        :param method: One of the methods defined in gpm.ini.
         :type method: str
         :param fastq: Path of the FASTQ folder.
         :type fastq: str

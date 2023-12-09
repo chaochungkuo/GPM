@@ -46,7 +46,8 @@ def main():
 @click.option('-o', '--output',
               help=help_messages["demultiplex_output"], required=True)
 @click.option('-m', '--method',
-              type=click.Choice(get_gpm_config("GPM", "DEMULTIPLEX_METHODS"),
+              type=click.Choice(get_gpm_config("GPM",
+                                               "GPM_DEMULTIPLEX_METHODS"),
                                 case_sensitive=False))
 def demultiplex(method, raw, output):
     """
@@ -67,7 +68,8 @@ def demultiplex(method, raw, output):
 @click.option('-n', '--name',
               help=help_messages["init_name"], required=True)
 @click.option('-p', '--processing', required=False,
-              type=click.Choice(get_gpm_config("GPM", "PROCESSING_METHODS"),
+              type=click.Choice(get_gpm_config("GPM",
+                                               "GPM_PROCESSING_METHODS"),
                                 case_sensitive=False),
               help="Define the pipeline for this project.")
 def init(from_config, fastq, name, processing):
@@ -90,7 +92,8 @@ def init(from_config, fastq, name, processing):
 @click.option('-fq', '--fastq',
               help=help_messages["init_fastq"], required=True)
 @click.option('-p', '--processing',
-              type=click.Choice(get_gpm_config("GPM", "PROCESSING_METHODS"),
+              type=click.Choice(get_gpm_config("GPM",
+                                               "GPM_PROCESSING_METHODS"),
                                 case_sensitive=False),
               help="Define the pipeline for this project.")
 def processing(project_config, fastq, processing):
@@ -107,7 +110,7 @@ def processing(project_config, fastq, processing):
 @main.command()
 @click.argument('project_config')
 @click.option('-r', '--report',
-              type=click.Choice(get_gpm_config("GPM", "APPLICATIONS"),
+              type=click.Choice(get_gpm_config("GPM", "GPM_APPLICATIONS"),
                                 case_sensitive=False),
               help="Define the kind of report for this project.")
 @click.option('-ls', '--list', "show_list", required=False, default=False,

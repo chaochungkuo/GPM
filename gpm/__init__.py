@@ -4,4 +4,4 @@ projects.
 """
 
 PROJECT_INI_FILE = "project.ini"
-CONFIG_LIST = ["gpm.config", "environment.config"]
+CONFIG_LIST = ["gpm.ini", "environment.ini"]

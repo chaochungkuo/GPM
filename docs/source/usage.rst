@@ -1,7 +1,10 @@
-Installation
+Usage
 =====
 
 .. _installation:
+
+Installation
+------------
 
 To use GPM, first install it using pip:
 
@@ -21,3 +24,6 @@ You can test your installation by:
 .. code-block:: console
 
    $ gpm --help
+
+Configuration
+-------------
