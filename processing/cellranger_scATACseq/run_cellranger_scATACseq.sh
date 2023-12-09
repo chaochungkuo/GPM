@@ -6,10 +6,10 @@
 # this script can be run directly from shell
 
 Local_Cores=N_CORES
-refGenome="refdata_cellranger_arc_mm10_2020_A"
+refGenome="REFDATA_cellranger_arc_mm10_2020_A"
 
-mkdir -p ./scATACseq_output
-cd ./scATACseq_output
+mkdir -p ./results
+cd ./results
 
 sampleid="sample"
 fastqDir="FASTQ_PATH"

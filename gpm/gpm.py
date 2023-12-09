@@ -13,7 +13,9 @@ tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                      "application", "project.ini",
                                      "project_path", "project_name"]),
                         ("Raw data", ["bcl_path"]),
-                        ("Demultiplexing", ["fastq_path", "fastq_qc_path",
+                        ("Demultiplexing", ["demultiplex_path",
+                                            "fastq_path",
+                                            "fastq_multiqc_path",
                                             "demultiplex_method"]),
                         ("Processing", ["processing_path",
                                         "processing_method",
@@ -55,11 +57,9 @@ class GPM():
         config.read(filepath)
         # Retrieve values from the configuration file
         for section in tags_GPM.keys():
-            print(section)
             if section == "History":
                 logs = config[section]["logs"]
                 logs = [log.strip() for log in logs.strip().split("\n")]
-                print(logs)
                 self.logs = logs
             else:
                 section_dict = config[section]
@@ -175,8 +175,12 @@ class GPM():
             if os.path.isfile(file_path):
                 self.copy_file(source=file_path, target=target_file)
         # Update profile
-        self.profile["Demultiplexing"]["fastq_path"] = os.path.join(output,
-                                                                    raw_name)
+        demultiplex_path = os.path.join(output, raw_name)
+        self.profile["Demultiplexing"]["demultiplex_path"] = demultiplex_path
+        multiqc_path = os.path.join(demultiplex_path,
+                                    "multiqc/multiqc_report.html")
+        self.profile["Demultiplexing"]["fastq_multiqc_path"] = multiqc_path
+        self.profile["Demultiplexing"]["demultiplex_method"] = method
         config_path = os.path.join(output, raw_name, PROJECT_INI_FILE)
         self.profile["Project"]["project.ini"] = config_path
 
