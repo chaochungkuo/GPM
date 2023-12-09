@@ -198,7 +198,8 @@ class GPM():
         self.profile["Project"]["name2"] = names[2]
         self.profile["Project"]["institute"] = names[3]
         self.profile["Project"]["application"] = names[4]
-        self.profile["Project"]["project_name"] = " ".join(names)
+        self.profile["Project"]["project_name"] = name
+        self.profile["Project"]["project_string"] = " ".join(names)
         # Create project folder
         current_dir = os.getcwd()
         project_path = os.path.join(current_dir, name)

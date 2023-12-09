@@ -4,7 +4,7 @@
 # bash run_cellranger.sh
 
 # Please execute this command in the directory OUTPUT_DIR
-PATH_CELLRANGER mkfastq --id=mkfastq --localcores=N_CORES \
+PATH_CELLRANGER_BASE mkfastq --id=mkfastq --localcores=N_CORES \
                    --run=BCL_PATH \
                    --csv=./samplesheet_cellranger.csv
 

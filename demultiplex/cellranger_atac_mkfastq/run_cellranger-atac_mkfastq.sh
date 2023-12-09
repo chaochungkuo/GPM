@@ -5,7 +5,6 @@
 
 # Please execute this command in the directory OUTPUT_DIR
 PATH_CELLRANGER_ATAC mkfastq --id=mkfastq --localcores=N_CORES \
-                   --run=BCL_PATH \
-                   --csv=./samplesheet.csv
-
+                   --run=FLOWCELL_DIR \
+                   --csv=./samplesheet_cellranger.csv
 bash run_merge_lanes.sh
