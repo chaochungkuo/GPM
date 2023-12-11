@@ -4,6 +4,7 @@ import datetime
 import click
 import configparser
 from gpm import CONFIG_LIST
+import pandas as pd
 
 
 def get_gpmdata_path():
@@ -140,3 +141,10 @@ def check_analysis_name(analysis_dict, analysis_name):
         click.echo("Please choose an analysis from the list below")
         click.echo(all_names)
         sys.exit()
+
+
+def copy_samplesheet(source_samplesheet, target_samplesheet):
+    df = pd.read_csv(source_samplesheet)
+    df.drop(columns=["fastq1", "fastq2", "strandness"], inplace=True)
+    df[['label1', 'label2']] = df['sample'].str.split('_', expand=True)
+    df.to_csv(target_samplesheet, index=False)

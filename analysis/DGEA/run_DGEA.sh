@@ -19,9 +19,5 @@ python rmd_report_extender.py
 
 ################## render the report #####################
 # Store the previously activated conda environment
-previous_env=$(conda info --envs | grep "*" | awk '{print $1}')
 
-source activate /opt/miniconda3/envs/rstudio
-Rscript -e 'rmarkdown::render("Analysis_Report_RNAseq.Rmd", output_format = "html_document", output_file = "Analysis_Report_RNAseq.html")'
-# Activate the previous conda environment
-source activate $previous_env
+

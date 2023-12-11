@@ -32,13 +32,14 @@ library(AnnotationDbi, warn.conflicts = FALSE)
 options(warn = -1)
 
 DIR_base <- "GPM_DIR_BASE/"
-DIR_project <- paste0(DIR_base, "analysis/")
+DIR_analysis <- paste0(DIR_base, "analysis/")
+DIR_DGEA <- paste0(DIR_analysis, "DGEA/")
 
-source(paste0(DIR_project, "functions.R"))
+source(paste0(DIR_DGEA, "DGEA_RNAseq_functions.R"))
 
-load(paste0(DIR_project, "data.RData"))
-load("SAMPLE_RData")
-
+# load(paste0(DIR_analysis, "data.RData"))
+# load("SAMPLE_RData")
+organism = "DGEA_ORGANISM"
 if (organism == "hsapiens") {
   library(org.Hs.eg.db)
 } else if (organism == "mmusculus") {
@@ -47,21 +48,39 @@ if (organism == "hsapiens") {
   library(org.Rn.eg.db)
 }
 
-Tag_this_analysis <- "FILETAG"
+Tag_this_analysis <- "DGEA_FILETAG"
 File_stats <- paste0('DGEA_',Tag_this_analysis,'_genes_stats.csv')
 File_norm_expression <- paste0('DGEA_',Tag_this_analysis,'_norm_exp_quant.csv')
 
 File_xlsx_res <- paste0('DGEA_',Tag_this_analysis,'_res.xlsx')
+
+samples <- read.table(file.path(DIR_DGEA,"samplesheet.csv"), header=TRUE, sep = ",")
+rownames(samples) <- samples$sample
+samples2 <- samples
+samples2$DGEA_VARIABLE <- factor(samples2$DGEA_VARIABLE, levels = c("DGEA_TARGET","DGEA_REF"))
+samples2 <- samples2[complete.cases(samples2$DGEA_VARIABLE), ]
+
+paired <- DGEA_PAIRED_BOOLEAN
+countsFromAbundance <- DGEA_countsFromAbundance
+lengthcorrection <- DGEA_lengthcorrection
+spikein_ERCC <- DGEA_spikein_ERCC
 ```
 
 ### [Back to front page](Analysis_Report_RNAseq.html)
 
 Differential gene expression analysis is done with DESEQ2 package in R [@love2014moderated] and follows the instruction for Salmon quantification ([Analyzing RNA-seq data with DESeq2](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)).
 
-This analysis is done with PAIRED data.
+This analysis is done with DGEA_PAIRED data.
+
+# Samplesheet
+
+```{r echo=FALSE, results='asis'}
+kable(samples2) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
+```
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-deseq_output <- run_deseq_salmon(filtered_samples, spikein=spikein_ERCC, paired=paired,
+deseq_output <- run_deseq_salmon(samples2, spikein=spikein_ERCC, paired=paired,
                                  countsFromAbundance=countsFromAbundance,
                                  lengthcorrection=lengthcorrection)
 ```
@@ -71,7 +90,7 @@ deseq_output <- run_deseq_salmon(filtered_samples, spikein=spikein_ERCC, paired=
 ## PCA
 
 ```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
-RNAseq_PCA_plotly(deseq_output$norm_count, filtered_samples)
+RNAseq_PCA_plotly(deseq_output$norm_count, samples2)
 ```
 
 ## 3D-PCA
@@ -80,19 +99,19 @@ RNAseq_PCA_plotly(deseq_output$norm_count, filtered_samples)
 RNAseq_3D_PCA_plotly(deseq_output$norm_count, filtered_samples)
 ```
 
-`r if(volcano){"## Volcano plot"}`
+## Volcano plot
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=volcano}
 RNAseq_volcano_plotly(deseq_output$deseq2res)
 ```
 
-`r if(maplot){"## MA plot"}`
+## MA plot
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=maplot}
 RNAseq_maplot_plotly(deseq_output$deseq2res)
 ```
 
-`r if(spikein_ERCC&maplot){"## MA plot of spike in"}`
+`r if(spikein_ERCC){"## MA plot of spike in"}`
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=spikein_ERCC&maplot}
 RNAseq_maplot_plotly_ERCC(deseq_output$res_combined_ERCC)
@@ -113,13 +132,13 @@ RNAseq_heatmap_plotly(deseq_output$deseq2res)
 RNAseq_PCA_ggplot2(deseq_output, filtered_samples)
 ```
 
-`r if(volcano){"## Volcano plot"}`
+## Volcano plot
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=volcano}
 RNAseq_volcano_ggplot2(deseq_output)
 ```
 
-`r if(maplot){"## MA plot"}`
+## MA plot
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=maplot}
 RNAseq_maplot_ggplot2(deseq_output)
@@ -131,21 +150,21 @@ RNAseq_maplot_ggplot2(deseq_output)
 RNAseq_heatmap_ggplot2(deseq_output)
 ```
 
-`r if(sigtable){"# Tables {.tabset}"}`
+# Tables {.tabset}
 
-`r if(sigtable){"## Sig. genes"}`
+## Sig. genes
 
 ```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(deseq_output$deseq2res_sig)
 ```
 
-`r if(sigtable){"## Up genes"}`
+## Up genes
 
 ```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(deseq_output$deseq2res_sig[deseq_output$deseq2res_sig$log2FoldChange > 0,])
 ```
 
-`r if(sigtable){"## Down genes"}`
+## Down genes
 
 ```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(deseq_output$deseq2res_sig[deseq_output$deseq2res_sig$log2FoldChange < 0,])
@@ -165,8 +184,8 @@ if (organism == "hsapiens") {
 genenames <- genenames[match(ensemblkeys, genenames$ENSEMBL), ]
 deseq_output$deseq2res <- cbind(deseq_output$deseq2res, genenames)
 
-write.csv(deseq_output$deseq2res,paste0(DIR_project, File_stats))
-write.csv(deseq_output$norm_count,paste0(DIR_project, File_norm_expression))
+write.csv(deseq_output$deseq2res,paste0(DIR_DGEA, File_stats))
+write.csv(deseq_output$norm_count,paste0(DIR_DGEA, File_norm_expression))
 
 wb <- createWorkbook()
 addWorksheet(wb, "DGEA_stats")
@@ -174,7 +193,7 @@ writeData(wb, "DGEA_stats", deseq_output$deseq2res)
 addWorksheet(wb, "norm_exp_quant")
 writeData(wb, "norm_exp_quant", deseq_output$norm_count)
 ## Save workbook to working directory
-saveWorkbook(wb, file = File_xlsx_res, overwrite = TRUE)
+saveWorkbook(wb, file = paste0(DIR_DGEA, File_xlsx_res), overwrite = TRUE)
 ```
 
 # Download statistics

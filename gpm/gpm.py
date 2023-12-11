@@ -1,4 +1,5 @@
 import os
+from os import path
 import sys
 import click
 from collections import OrderedDict
@@ -6,7 +7,8 @@ import configparser
 from datetime import datetime
 from gpm.helper import remove_end_slash, get_gpmdata_path, \
                        check_project_name, get_dict_from_configs, \
-                       replace_variables_by_dict, check_analysis_name
+                       replace_variables_by_dict, check_analysis_name, \
+                       copy_samplesheet
 from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
@@ -140,48 +142,48 @@ class GPM():
         :return: None
         """
         raw = remove_end_slash(raw)
-        raw = os.path.abspath(raw)
+        raw = path.abspath(raw)
         output = remove_end_slash(output)
-        output = os.path.abspath(output)
+        output = path.abspath(output)
         # Check path for raw data
-        if os.path.exists(raw):
+        if path.exists(raw):
             self.profile["Raw data"]["bcl_path"] = raw
         else:
             click.echo("The given path for raw data doesn't exist.")
             click.echo(raw)
             sys.exit()
         # Check path for output path
-        raw_name = os.path.basename(raw)
+        raw_name = path.basename(raw)
         # If run name is repeated
-        if os.path.basename(output) == raw_name:
+        if path.basename(output) == raw_name:
             click.echo("Please don't repeat the basename of the folder.")
             click.echo("Instead of this:")
             click.echo(output)
             click.echo("Please use this:")
-            click.echo(os.path.dirname(output))
+            click.echo(path.dirname(output))
             sys.exit()
         # If the run exists, otherwise create a new folder
-        if os.path.exists(os.path.join(output, raw_name)):
+        if path.exists(path.join(output, raw_name)):
             click.echo("This run exists in the output directory.")
-            click.echo(os.path.join(output, raw_name))
+            click.echo(path.join(output, raw_name))
             sys.exit()
         else:
-            os.mkdir(os.path.join(output, raw_name))
+            os.mkdir(path.join(output, raw_name))
         # Copy the method
-        source_dir = os.path.join(get_gpmdata_path(), "demultiplex", method)
+        source_dir = path.join(get_gpmdata_path(), "demultiplex", method)
         for filename in os.listdir(source_dir):
-            file_path = os.path.join(source_dir, filename)
-            target_file = os.path.join(output, raw_name, filename)
-            if os.path.isfile(file_path):
+            file_path = path.join(source_dir, filename)
+            target_file = path.join(output, raw_name, filename)
+            if path.isfile(file_path):
                 self.copy_file(source=file_path, target=target_file)
         # Update profile
-        demultiplex_path = os.path.join(output, raw_name)
+        demultiplex_path = path.join(output, raw_name)
         self.profile["Demultiplexing"]["demultiplex_path"] = demultiplex_path
-        multiqc_path = os.path.join(demultiplex_path,
-                                    "multiqc/multiqc_report.html")
+        multiqc_path = path.join(demultiplex_path,
+                                 "multiqc/multiqc_report.html")
         self.profile["Demultiplexing"]["fastq_multiqc_path"] = multiqc_path
         self.profile["Demultiplexing"]["demultiplex_method"] = method
-        config_path = os.path.join(output, raw_name, PROJECT_INI_FILE)
+        config_path = path.join(output, raw_name, PROJECT_INI_FILE)
         self.profile["Project"]["project.ini"] = config_path
 
     def init_project(self, name):
@@ -206,15 +208,15 @@ class GPM():
         self.profile["Project"]["project_string"] = " ".join(names)
         # Create project folder
         current_dir = os.getcwd()
-        project_path = os.path.join(current_dir, name)
-        if os.path.exists(project_path):
+        project_path = path.join(current_dir, name)
+        if path.exists(project_path):
             print("The given project path exists already:")
             print(project_path)
         else:
             os.mkdir(project_path)
         # Update project.ini
         self.profile["Project"]["project_path"] = project_path
-        config_path = os.path.join(project_path, PROJECT_INI_FILE)
+        config_path = path.join(project_path, PROJECT_INI_FILE)
         self.profile["Project"]["project.ini"] = config_path
 
     def processing(self, method, fastq):
@@ -228,19 +230,19 @@ class GPM():
         :return: None
         """
         # Create processing folder
-        processing_path = os.path.join(self.profile["Project"]["project_path"],
-                                       method)
-        if os.path.exists(processing_path):
+        processing_path = path.join(self.profile["Project"]["project_path"],
+                                    method)
+        if path.exists(processing_path):
             click.echo("The folder exists already:")
             click.echo(processing_path)
         else:
             os.mkdir(processing_path)
         # Copy the method
-        source_dir = os.path.join(get_gpmdata_path(), "processing", method)
+        source_dir = path.join(get_gpmdata_path(), "processing", method)
         for filename in os.listdir(source_dir):
-            file_path = os.path.join(source_dir, filename)
-            target_file = os.path.join(processing_path, filename)
-            if os.path.isfile(file_path):
+            file_path = path.join(source_dir, filename)
+            target_file = path.join(processing_path, filename)
+            if path.isfile(file_path):
                 self.copy_file(source=file_path, target=target_file)
         # Update project.ini
         self.profile["Processing"]["processing_path"] = processing_path
@@ -252,9 +254,9 @@ class GPM():
 
         :return: None
         """
-        analysis_dir = os.path.join(self.profile["Project"]["project_path"],
-                                    "analysis")
-        if not os.path.exists(analysis_dir):
+        analysis_dir = path.join(self.profile["Project"]["project_path"],
+                                 "analysis")
+        if not path.exists(analysis_dir):
             os.mkdir(analysis_dir)
         self.profile["Analysis"]["analysis_path"] = analysis_dir
 
@@ -264,10 +266,10 @@ class GPM():
 
         :return: None
         """
-        source_file = os.path.join(get_gpmdata_path(), "analysis",
-                                   "Analysis_Report_"+application+".Rmd")
-        target_file = os.path.join(self.profile["Analysis"]["analysis_path"],
-                                   "Analysis_Report_"+application+".Rmd")
+        source_file = path.join(get_gpmdata_path(), "analysis",
+                                "Analysis_Report_"+application+".Rmd")
+        target_file = path.join(self.profile["Analysis"]["analysis_path"],
+                                "Analysis_Report_"+application+".Rmd")
         self.copy_file(source_file, target_file)
 
     def show_analysis_list(self):
@@ -296,8 +298,8 @@ class GPM():
 
         :return: A dictionary for analysis:file
         """
-        analysis_config = os.path.join(get_gpmdata_path(), "config",
-                                       "analysis.config")
+        analysis_config = path.join(get_gpmdata_path(), "config",
+                                    "analysis.config")
         analysis_dict = OrderedDict()
         with open(analysis_config) as f:
             for line in f:
@@ -325,12 +327,26 @@ class GPM():
         for group in analysis_dict.keys():
             for label in analysis_dict[group].keys():
                 if label == analysis_name:
-                    group_dir = os.path.join(target_dir, group)
-                    if not os.path.exists(group_dir):
+                    group_dir = path.join(target_dir, group)
+                    if not path.exists(group_dir):
                         os.makedirs(group_dir)
                     for template in analysis_dict[group][label]:
                         click.echo("  "+template)
-                        source_file = os.path.join(source_dir, template)
-                        target_file = os.path.join(group_dir,
-                                                   os.path.basename(template))
+                        source_file = path.join(source_dir, template)
+                        target_file = path.join(group_dir,
+                                                path.basename(template))
                         self.copy_file(source_file, target_file)
+
+    def run_analysis_codes(self, analysis_name):
+        """
+        Run the corresponding codes while inserting new analysis method.
+
+        :return: None
+        """
+        if analysis_name == "DGEA_RNAseq":
+            sheet = path.join(self.profile["Processing"]["processing_path"],
+                              "samplesheet.csv")
+            dir_analysis = self.profile["Analysis"]["analysis_path"]
+            copy_samplesheet(sheet,
+                             path.join(dir_analysis, "DGEA",
+                                       "samplesheet.csv"))
