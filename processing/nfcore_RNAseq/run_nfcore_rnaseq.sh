@@ -2,7 +2,7 @@
 # PATH_NEXTFLOW run nf-core/rnaseq -r 3.12.0 -profile test,docker --outdir results
 
 ################## GPM samplesheet #####################
-# gpm samplesheet -st 'auto' -sn true -si  samplesheet.csv FASTQ_DIR
+# gpm samplesheet -st 'reverse' -sn true -si 2 samplesheet.csv FASTQ_PATH
 
 PATH_NEXTFLOW run nf-core/rnaseq -r 3.12.0 -profile docker -c nextflow.config \
      --input samplesheet.csv --outdir results \
