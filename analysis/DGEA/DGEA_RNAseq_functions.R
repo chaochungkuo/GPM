@@ -1,3 +1,21 @@
+organism_DB <- function(organism) {
+  # hsapiens mmusculus rnorvegicus sscrofa
+  if (organism == "hsapiens") {
+  library(org.Hs.eg.db)
+  organsim_DB <- org.Hs.eg.db
+} else if (organism == "mmusculus") {
+  library(org.Mm.eg.db)
+  organsim_DB <- org.Mm.eg.db
+} else if (organism == "rnorvegicus") {
+  library(org.Rn.eg.db)
+  organsim_DB <- org.Rn.eg.db
+} else if (organism == "sscrofa") {
+  library(org.Ss.eg.db)
+  organsim_DB <- org.Ss.eg.db
+}
+return(organism_DB)
+}
+
 ###########################################################
 ## Simple comparison, no duplicates
 ###########################################################
@@ -93,14 +111,14 @@ simple_sc <- function(count_table, group_base, group_comp) {
 add_DGEA <- function(description, tag, filtered_samples, volcano=TRUE, maplot=TRUE, sigtable=TRUE, paired=FALSE) {
   scripts  <- readLines("DGEA_template.Rmd")
   scripts  <- gsub(pattern = "TITLEDESCRIPTION", replace = description, x = scripts)
-  scripts  <- gsub(pattern = "FILETAG", replace = tag, x = scripts)
-  if (paired) {scripts  <- gsub(pattern = "PAIRED", replace = "paired", x = scripts)} 
-  else {scripts  <- gsub(pattern = "PAIRED", replace = "unpaired", x = scripts)}
+  scripts  <- gsub(pattern = "DGEA_FILETAG", replace = tag, x = scripts)
+  if (paired) {scripts  <- gsub(pattern = "DGEA_PAIRED", replace = "paired", x = scripts)} 
+  else {scripts  <- gsub(pattern = "DGEA_PAIRED", replace = "unpaired", x = scripts)}
   
-  tmp_samplesheet <- paste0("DGEA_", tag, "_data.RData")
+  rdata <- paste0("DGEA_", tag, "_data.RData")
   filtered_samples <- filtered_samples[complete.cases(filtered_samples$group),]
-  save(filtered_samples, volcano, maplot, sigtable, paired, file = tmp_samplesheet)
-  scripts  <- gsub(pattern = "SAMPLE_RData", replace = tmp_samplesheet, x = scripts)
+  save(filtered_samples, volcano, maplot, sigtable, paired, file = rdata)
+  scripts  <- gsub(pattern = "SAMPLE_RData", replace = rdata, x = scripts)
   filename <- paste0("DGEA_",tag)
   writeLines(scripts, con=paste0(filename,".Rmd"))
 }

@@ -34,7 +34,7 @@ This command generates essential files for demultiplexing:
 With your FASTQ files in hand, initiate the processing step:
 
 ```bash
-gpm init --from-config above/project.ini --fastq path/to/fastqs --name 231231_Chao-Chung_Kuo_UKA_RNAseq
+gpm init --from-config above/project.ini --fastq path/to/fastqs --name 231231_Chao-Chung_Kuo_UKA_RNAseq --processing nfcore_3mRNAseq
 ```
 
 This script generates the following files:
@@ -49,19 +49,19 @@ Now, you are ready to run nfcore and process your data.
 
 ### 3. Analysis
 
-Generate the analysis report:
+Generate the analysis report for the given application:
 
 ```bash
 gpm analysis project.ini --application RNAseq
 ```
 
-An Rmd file, **Analysis_Report_RNAseq.Rmd**, will be added under the _analysis_ folder. Explore available analyses:
+An Rmd file, **Analysis_Report_RNAseq.Rmd**, will be added under the _analysis_ folder. Now you can explore available analyses provided by GPM by:
 
 ```bash
 gpm analysis project.ini --list
 ```
 
-Add a set of files for **DGEA_RNAseq**:
+Now you can select the analysis you want by name and add a set of files for **DGEA_RNAseq**:
 
 ```bash
 gpm analysis project.ini --add DGEA_RNAseq

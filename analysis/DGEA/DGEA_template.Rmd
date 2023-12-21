@@ -12,7 +12,7 @@ output:
     toc_depth: 3
     number_sections: false
     theme: lumen
-bibliography: references.bib
+bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
@@ -36,17 +36,10 @@ DIR_analysis <- paste0(DIR_base, "analysis/")
 DIR_DGEA <- paste0(DIR_analysis, "DGEA/")
 
 source(paste0(DIR_DGEA, "DGEA_RNAseq_functions.R"))
+load("SAMPLE_RData")
 
-# load(paste0(DIR_analysis, "data.RData"))
-# load("SAMPLE_RData")
 organism = "DGEA_ORGANISM"
-if (organism == "hsapiens") {
-  library(org.Hs.eg.db)
-} else if (organism == "mmusculus") {
-  library(org.Mm.eg.db)
-} else if (organism == "rnorvegicus") {
-  library(org.Rn.eg.db)
-}
+organism_DB <- organism_DB(organism)
 
 Tag_this_analysis <- "DGEA_FILETAG"
 File_stats <- paste0('DGEA_',Tag_this_analysis,'_genes_stats.csv')
@@ -174,13 +167,7 @@ table_sig_genes(deseq_output$deseq2res_sig[deseq_output$deseq2res_sig$log2FoldCh
 # download_table()
 cols <- c("ENSEMBL", "SYMBOL", "GENENAME")
 ensemblkeys <- gsub("\\.[0-9]*$", "", deseq_output$deseq2res$gene_id)
-if (organism == "hsapiens") {
-  genenames <- select(org.Hs.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
-} else if (organism == "mmusculus") {
-  genenames <- select(org.Mm.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
-} else if (organism == "rnorvegicus"){
-  genenames <- select(org.Rn.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
-}
+genenames <- select(organism_DB, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
 genenames <- genenames[match(ensemblkeys, genenames$ENSEMBL), ]
 deseq_output$deseq2res <- cbind(deseq_output$deseq2res, genenames)
 

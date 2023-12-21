@@ -16,20 +16,16 @@ bibliography: references.bib
 ---
 
 ```{r init, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-# library(ggrepel)
-# set.seed(42)
 options(warn = -1)
 options(knitr.duplicate.label = "allow")
-
-################# File paths #####################################################
+# File paths
 DIR_base <- "PROJECT_PATH/"
-DIR_project <- paste0(DIR_base, "analysis/")
+DIR_analysis <- paste0(DIR_base, "analysis/")
 
-source(paste0(DIR_project, "functions.R"))
+source(paste0(DIR_analysis, "functions.R"))
 
-save(DIR_base,DIR_project,
-     file = paste0(DIR_project, "data.RData"))
-
+generate_Rmd <- TRUE
+render_html <- TRUE
 ```
 
 ![](RMD_INSTITUTE_LOGO)
@@ -66,6 +62,91 @@ wget -r -nH -np -nd -P --user USERNAME --password PASSWORD -A '*.tar' EXPORT_URL
 Please make sure that you store these data in a lab-wise level. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
 
 \textcolor{red}{Your data will be deleted according to this policy automatically. Please download everything.}
+
+# Sample Overview
+
+```{r echo=FALSE, results='asis'}
+samplesheet_file <- read.csv("samplesheet.csv")
+# samplesheet_file <- subset(samplesheet_file, select = -c(fastq_1, fastq_2))
+kable(samplesheet_file) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
+```
+
+# Differential Gene Expression Analysis
+
+```{r init, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+DIR_DGEA <- paste0(DIR_analysis, "DGEA/")
+source(paste0(DIR_DGEA, "DGEA_RNAseq_functions.R"))
+spikein_ERCC <- FALSE
+paired_test <- FALSE
+# 3mRNAseq
+countsFromAbundance <- "no"
+lengthcorrection <- FALSE
+# RNAseq, totalRNAseq, mRNAseq
+countsFromAbundance <- "lengthScaledTPM"
+lengthcorrection <- TRUE
+
+organism <- "" # hsapiens mmusculus rnorvegicus sscrofa
+organism_DB <- organism_DB(organism)
+
+```
+
+### All Samples 3d PCA plot
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+description <- "All samples"
+filtered_samples <- samples[complete.cases(samples$group),]
+deseq_output <- run_deseq_salmon(filtered_samples, 
+                                 spikein=spikein_ERCC, 
+                                 paired=paired_test,
+                                 countsFromAbundance=countsFromAbundance,
+                                 lengthcorrection=lengthcorrection)
+RNAseq_3D_PCA_plotly(deseq_output$norm_count, filtered_samples)
+```
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+Tag_this_analysis <- "All_Samples"
+File_stats <- paste0('DGEA_',Tag_this_analysis,'_genes_stats.csv')
+File_norm_expression <- paste0('DGEA_',Tag_this_analysis,'_norm_exp_quant.csv')
+File_xlsx_res <- paste0('DGEA_',Tag_this_analysis,'_res.xlsx')
+
+cols <- c("ENSEMBL", "SYMBOL", "GENENAME")
+ensemblkeys <- gsub("\\.[0-9]*$", "", deseq_output$deseq2res$gene_id)
+genenames <- select(organsim_DB, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
+genenames <- genenames[match(ensemblkeys, genenames$ENSEMBL), ]
+deseq_output$deseq2res <- cbind(deseq_output$deseq2res, genenames)
+write.csv(deseq_output$deseq2res, paste0(DIR_DGEA, File_stats))
+write.csv(deseq_output$norm_count, paste0(DIR_DGEA, File_norm_expression))
+
+wb <- createWorkbook()
+addWorksheet(wb, "DGEA_stats")
+writeData(wb, "DGEA_stats", deseq_output$deseq2res)
+addWorksheet(wb, "norm_exp_quant")
+writeData(wb, "norm_exp_quant", deseq_output$norm_count)
+saveWorkbook(wb, file = paste0(DIR_DGEA, File_xlsx_res), overwrite = TRUE)
+```
+
+* Download CSV file for the expression quantification of all 'All Samples' genes: [`r File_norm_expression`](`r paste0("DGEA/",File_norm_expression)`)
+
+<!-- ### [Correlation analysis](DGEA_correlation_analysis.html) -->
+
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+filetag <- "Control_vs_Treatment"
+description <- str_replace_all(filetag, "_", " ")
+filtered_samples <- samples
+filtered_samples$group <- factor(filtered_samples$group, levels = c("Control","Treatment"))
+if ( generate_Rmd == TRUE ) {
+  add_DGEA(description, filetag, filtered_samples, paired=paired_test)
+}
+if ( render_html == TRUE ) {
+  rmarkdown::render(paste0(DIR_DGEA, 'DGEA_',filetag,'.Rmd'), 
+                    output_format = 'html_document',
+                    output_file = paste0(DIR_DGEA,'DGEA_',filetag,'.html'))
+}
+
+```
+### [`r description`](`r paste0(DIR_DGEA, 'DGEA_',filetag,'.html')`)
 
 <!-- INSERTING POINT -->
 
