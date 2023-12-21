@@ -9,6 +9,7 @@ from gpm.helper import remove_end_slash, get_gpmdata_path, \
                        check_project_name, get_dict_from_configs, \
                        replace_variables_by_dict, check_analysis_name, \
                        copy_samplesheet
+from gpm.messages import show_tree, show_instructions
 from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
@@ -185,6 +186,9 @@ class GPM():
         self.profile["Demultiplexing"]["demultiplex_method"] = method
         config_path = path.join(output, raw_name, PROJECT_INI_FILE)
         self.profile["Project"]["project.ini"] = config_path
+        # Show instructions
+        show_tree(demultiplex_path)
+        show_instructions("demultiplex", method)
 
     def init_project(self, name):
         """
