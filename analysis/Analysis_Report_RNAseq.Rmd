@@ -22,7 +22,7 @@ options(knitr.duplicate.label = "allow")
 DIR_base <- "PROJECT_PROJECT_PATH/"
 DIR_analysis <- paste0(DIR_base, "analysis/")
 
-source(paste0(DIR_analysis, "functions.R"))
+source(paste0(DIR_analysis, "report_functions.R"))
 
 generate_Rmd <- TRUE
 render_html <- TRUE

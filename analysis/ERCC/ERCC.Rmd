@@ -27,7 +27,7 @@ library(heatmaply)
 library(plotly)
 options(warn = -1)
 
-source("functions.R")
+source("report_functions.R")
 
 load("data.RData")
 

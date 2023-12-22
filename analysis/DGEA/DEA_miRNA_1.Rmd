@@ -34,7 +34,7 @@ options(warn = -1)
 DIR_base <- "GPM_DIR_BASE/"
 DIR_project <- paste0(DIR_base, "analysis/")
 
-source(paste0(DIR_project, "functions.R"))
+source(paste0(DIR_project, "report_functions.R"))
 
 load(paste0(DIR_project, "data.RData"))
 

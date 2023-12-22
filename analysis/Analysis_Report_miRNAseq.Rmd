@@ -34,7 +34,7 @@ FILE_counts_mature <- paste0(DIR_edger, "mature_counts.csv")
 FILE_CPM_hairpin <- paste0(DIR_edger, "hairpin_normalized_CPM.txt")
 FILE_CPM_mature <- paste0(DIR_edger, "mature_normalized_CPM.txt")
 
-source(paste0(DIR_project, "functions.R"))
+source(paste0(DIR_project, "report_functions.R"))
 
 ################# Parameters #####################################################
 Fig_width <- 600

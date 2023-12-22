@@ -25,7 +25,7 @@ library(pheatmap)
 library(tidyr)
 options(warn = -1)
 
-source("functions.R")
+source("report_functions.R")
 
 load("data.RData")
 
