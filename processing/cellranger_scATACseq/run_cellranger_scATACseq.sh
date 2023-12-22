@@ -12,7 +12,7 @@ mkdir -p ./results
 cd ./results
 
 sampleid="sample"
-fastqDir="FASTQ_PATH"
+fastqDir="PROJECT_FASTQ_PATH"
 PATH_CELLRANGER_ATAC count --sample=$sampleid \
 					--fastqs=$fastqDir \
 					--id=$sampleid \

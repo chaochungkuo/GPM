@@ -6,5 +6,5 @@ reference,/data/shared_env/10xGenomics/refdata-cellranger-vdj-GRCm38-alts-ensemb
 
 [libraries]
 fastq_id,fastqs,lanes,feature_types
-1_GEX,FASTQ_DIR,1|2|3|4,gene expression
-1_VDJ,FASTQ_DIR,1|2|3|4,VDJ
+1_GEX,PROJECT_FASTQ_DIR,1|2|3|4,gene expression
+1_VDJ,PROJECT_FASTQ_DIR,1|2|3|4,VDJ

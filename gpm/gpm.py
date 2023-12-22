@@ -126,7 +126,8 @@ class GPM():
                     if section != "Logs":
                         for tag, value in options.items():
                             if "PROJECT_"+tag.upper() in line:
-                                line = line.replace(tag.upper(), value)
+                                line = line.replace("PROJECT_"+tag.upper(),
+                                                    value)
                 # configs
                 line = replace_variables_by_dict(line, config_dict)
                 output_file.write(line)

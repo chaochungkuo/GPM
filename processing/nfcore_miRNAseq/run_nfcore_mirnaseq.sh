@@ -1,18 +1,18 @@
 ################## test script ##################
 # PATH_NEXTFLOW run nf-core/rnaseq -profile test,docker
 
-# mkdir -p FASTQ_DIR/UMI_trimmed
-# for FASTQ in FASTQ_DIR/*.fastq.gz
+# mkdir -p PROJECT_FASTQ_DIR/UMI_trimmed
+# for FASTQ in PROJECT_FASTQ_DIR/*.fastq.gz
 # do
 #     filename=$(basename -- "$FASTQ")
 #     echo $filename
-#     TRIMMED_FASTQ="FASTQ_DIR/UMI_trimmed/${filename}"
+#     TRIMMED_FASTQ="PROJECT_FASTQ_DIR/UMI_trimmed/${filename}"
 #     echo $TRIMMED_FASTQ
 #     umi_tools extract --stdin=${FASTQ} --stdout=${TRIMMED_FASTQ} --extract-method=regex --bc-pattern='.+AACTGTAGGCACCATCAAT{s<=2}(?P<umi_1>.{12})(?P<discard_2>.*)' 
 # done
 
 ################## GPM samplesheet #####################
-# gpm samplesheet -st 'forward' samplesheet.csv FASTQ_DIR/UMI_trimmed
+# gpm samplesheet -st 'forward' samplesheet.csv PROJECT_FASTQ_DIR/UMI_trimmed
 
 PATH_NEXTFLOW run nf-core/smrnaseq -r 2.0.0 -profile docker \
      --input samplesheet.csv --outdir results --mirtrace_species hsa --mirtrace_protocol qiaseq \

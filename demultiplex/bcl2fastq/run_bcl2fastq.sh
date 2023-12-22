@@ -6,7 +6,7 @@
 # Please execute this command in the directory OUTPUT_DIR
 PATH_BCL2FASTQ \
   --no-lane-splitting \
-  --runfolder-dir BCL_PATH \
+  --runfolder-dir PROJECT_BCL_PATH \
   --output-dir . \
   --interop-dir ./InterOp/ \
   --sample-sheet ./samplesheet_bcl2fastq.csv \
