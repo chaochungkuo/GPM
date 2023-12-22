@@ -14,7 +14,8 @@ from gpm import PROJECT_INI_FILE
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                      "application", "project.ini",
-                                     "project_path", "project_name"]),
+                                     "project_path", "project_name",
+                                     "project_string"]),
                         ("Raw data", ["bcl_path"]),
                         ("Demultiplexing", ["demultiplex_path",
                                             "fastq_path",

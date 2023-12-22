@@ -129,7 +129,13 @@ def get_dict_from_configs():
 def replace_variables_by_dict(line, input_dict):
     for key, value in input_dict.items():
         if key.upper() in line:
-            line = line.replace(key.upper(), value)
+            if key == "rmd_authors":
+                authors = [author.strip() for author
+                           in value.split("\n")]
+                authors = ["  - "+author.strip('"') for author in authors]
+                line = "\n".join(authors)+"\n"
+            else:
+                line = line.replace(key.upper(), value)
     return line
 
 
@@ -144,7 +150,13 @@ def check_analysis_name(analysis_dict, analysis_name):
 
 
 def copy_samplesheet(source_samplesheet, target_samplesheet):
-    df = pd.read_csv(source_samplesheet)
-    df.drop(columns=["fastq1", "fastq2", "strandness"], inplace=True)
-    df[['label1', 'label2']] = df['sample'].str.split('_', expand=True)
-    df.to_csv(target_samplesheet, index=False)
+    try:
+        df = pd.read_csv(source_samplesheet)
+        df.drop(columns=["fastq1", "fastq2", "strandness"], inplace=True)
+        df[['label1', 'label2']] = df['sample'].str.split('_', expand=True)
+        df.to_csv(target_samplesheet, index=False)
+    except Exception:
+        warning = "No samplesheet from processing path is available.\n"\
+                  "Please generate the samplesheet.csv manually."
+        click.echo(click.style(warning,
+                   fg='red'))

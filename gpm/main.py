@@ -110,7 +110,7 @@ def processing(project_config, fastq, processing):
 @main.command()
 @click.argument('project_config')
 @click.option('-r', '--report',
-              type=click.Choice(get_gpm_config("GPM", "GPM_APPLICATIONS"),
+              type=click.Choice(get_gpm_config("GPM", "GPM_REPORTS"),
                                 case_sensitive=False),
               help="Define the kind of report for this project.")
 @click.option('-ls', '--list', "show_list", required=False, default=False,
@@ -132,7 +132,7 @@ def analysis(project_config, report, show_list, add_template):
             pm.add_analysis_report(report)
         if add_template:
             pm.add_analysis_template(add_template)
-            pm.run_analysis_codes(add_template)
+            # pm.run_analysis_codes(add_template)
         pm.update_log()
         pm.write_project_config_file()
 

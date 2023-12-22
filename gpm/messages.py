@@ -1,5 +1,6 @@
 import click
 from pathlib import Path
+from gpm.helper import get_gpm_config
 
 gpm_messages = {
     "demultiplex": {},
@@ -77,7 +78,7 @@ class DisplayablePath(object):
                                if criteria(path)),
                           key=lambda s: str(s).lower())
 
-        ignore_paths = ""  # get_gpmconfig("GPM", "file_tree_ignore")
+        ignore_paths = get_gpm_config("GPM", "GPM_TREE_IGNORE")
         new_children = []
         for child in children:
             # print(child)
@@ -126,7 +127,7 @@ class DisplayablePath(object):
 
 
 def show_tree(target_path):
-    click.echo(click.style("\nThe following files are generated:",
+    click.echo(click.style("\nThe current status in the target directory:",
                            fg='bright_green'))
     paths = DisplayablePath.make_tree(Path(target_path))
     for path in paths:
@@ -138,9 +139,9 @@ def show_instructions(command, method):
     click.echo(click.style(" ".join(["Further instructions for",
                                      command,  method+":"]),
                            fg='bright_green'))
-    if gpm_messages[command][method]:
+    try:
         for line in gpm_messages[command][method]:
             click.echo(line)
-    else:
+    except Exception:
         click.echo("    Not available.")
     click.echo("")
