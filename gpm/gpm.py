@@ -251,6 +251,9 @@ class GPM():
         # Update project.ini
         self.profile["Processing"]["processing_path"] = processing_path
         self.profile["Processing"]["processing_method"] = method
+        # Show instructions
+        show_tree(processing_path)
+        show_instructions("processing", method)
 
     def add_analysis_dir(self):
         """

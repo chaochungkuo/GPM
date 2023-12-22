@@ -3,13 +3,11 @@ from pathlib import Path
 
 gpm_messages = {
     "demultiplex": {},
-    "init": {},
     "processing": {},
     "analysis": {}
 }
 
 gpm_messages["demultiplex"]["bcl2fastq"] = [
-    "Further instructions for demultiplex bcl2fastq:"
     "1. Modify samplesheet.csv with the proper information. ",
     "   Please add Sample_Project with the correct format ",
     "   (YYMMDD_Name1_Name2_Institute_Application).",
@@ -20,7 +18,6 @@ gpm_messages["demultiplex"]["bcl2fastq"] = [
 ]
 
 gpm_messages["demultiplex"]["cellranger_mkfastq"] = [
-    "Further instructions for demultiplex cellranger_mkfastq:"
     "1. Modify samplesheet_cellranger.csv with the proper information. ",
     "2. Check and modify run_cellranger_mkfastq.sh",
     "3. Run run_cellranger_mkfastq.sh with the command below: ",
@@ -29,12 +26,20 @@ gpm_messages["demultiplex"]["cellranger_mkfastq"] = [
 ]
 
 gpm_messages["demultiplex"]["cellranger_atac_mkfastq"] = [
-    "Further instructions for demultiplex cellranger_atac_mkfastq:"
     "1. Modify samplesheet_cellranger.csv with the proper information. ",
     "2. Check and modify run_cellranger-atac_mkfastq.sh",
     "3. Run run_cellranger-atac_mkfastq.sh with the command below: ",
     "   (Recommend to run it in screen session)",
     "   bash run_cellranger-atac_mkfastq.sh"
+]
+
+gpm_messages["processing"]["nfcore_3mRNAseq"] = [
+    "1. Generate samplesheet.csv with the following command:",
+    "   gpm samplesheet_rnaseq --help",
+    "2. Check and modify run_nfcore_3mrnaseq.sh",
+    "3. Run run_nfcore_3mrnaseq.sh with the command below: ",
+    "   (Recommend to run it in screen session)",
+    "   bash run_nfcore_3mrnaseq.sh"
 ]
 
 
@@ -121,12 +126,21 @@ class DisplayablePath(object):
 
 
 def show_tree(target_path):
-    click.echo(click.style("The following files are generated:"))
+    click.echo(click.style("\nThe following files are generated:",
+                           fg='bright_green'))
     paths = DisplayablePath.make_tree(Path(target_path))
     for path in paths:
         click.echo(path.displayable())
+    click.echo("")
 
 
 def show_instructions(command, method):
-    for line in gpm_messages[command][method]:
-        click.echo(line)
+    click.echo(click.style(" ".join(["Further instructions for",
+                                     command,  method+":"]),
+                           fg='bright_green'))
+    if gpm_messages[command][method]:
+        for line in gpm_messages[command][method]:
+            click.echo(line)
+    else:
+        click.echo("    Not available.")
+    click.echo("")
