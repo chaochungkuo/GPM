@@ -123,6 +123,7 @@ def get_dict_from_configs():
     for sel_config in CONFIG_LIST:
         config_dict = get_config_values(sel_config)
         combined_dict.update(config_dict)
+    # print(combined_dict)
     return combined_dict
 
 
@@ -134,6 +135,11 @@ def replace_variables_by_dict(line, input_dict):
                            in value.split("\n")]
                 authors = ["  - "+author.strip('"') for author in authors]
                 line = "\n".join(authors)+"\n"
+            elif key == "rmd_institute_logo":
+                # print(line)
+                # print(value)
+                line = line.replace(key.upper(), value)
+                # print(line)
             else:
                 line = line.replace(key.upper(), value)
     return line

@@ -121,14 +121,25 @@ class GPM():
         config_dict = get_dict_from_configs()
         with open(source, 'r') as input_file, open(target, 'w') as output_file:
             for line in input_file:
+                checkline = False
+                if "RMD_INSTITUTE_LOGO" in line:
+                    checkline = True
+                    print(line)
                 # project.ini
                 for section, options in self.profile.items():
                     if section != "Logs":
                         for tag, value in options.items():
-                            if tag.upper() in line:
+                            if "PROJECT_"+tag.upper() in line:
+                                print(tag)
+                                # print(value)
                                 line = line.replace(tag.upper(), value)
+                                # print(line)
+                if checkline:
+                    print(line)
                 # configs
                 line = replace_variables_by_dict(line, config_dict)
+                if checkline:
+                    print(line)
                 output_file.write(line)
 
     def demultiplex(self, method, raw, output):
@@ -274,11 +285,15 @@ class GPM():
 
         :return: None
         """
-        source_file = path.join(get_gpmdata_path(), "analysis",
-                                "Analysis_Report_"+application+".Rmd")
-        target_file = path.join(self.profile["Analysis"]["analysis_path"],
-                                "Analysis_Report_"+application+".Rmd")
-        self.copy_file(source_file, target_file)
+        files = ["Analysis_Report_"+application+".Rmd",
+                 "report_functions.R",
+                 "references.bib"]
+        for copy_file in files:
+            source_file = path.join(get_gpmdata_path(), "analysis",
+                                    copy_file)
+            target_file = path.join(self.profile["Analysis"]["analysis_path"],
+                                    copy_file)
+            self.copy_file(source_file, target_file)
 
     def show_analysis_list(self):
         """
