@@ -1,4 +1,4 @@
-organism_DB <- function(organism) {
+get_organism_DB <- function(organism) {
   # hsapiens mmusculus rnorvegicus sscrofa
   if (organism == "hsapiens") {
   library(org.Hs.eg.db)

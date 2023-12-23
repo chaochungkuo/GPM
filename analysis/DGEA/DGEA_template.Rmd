@@ -16,64 +16,40 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-library("heatmaply")
-require(dplyr)
-require(DT)
+library(heatmaply)
+library(dplyr)
+library(DT)
 library(ggplot2)
 library(DESeq2)
-library("tximport")
-library("readr")
-library("tximportData")
+library(tximport)
+library(readr)
+library(tximportData)
 library(stringr)
 library(tidyr)
 library(data.table)
-library('openxlsx')
+library(openxlsx)
+library(kableExtra)
 library(AnnotationDbi, warn.conflicts = FALSE)
 options(warn = -1)
 
-DIR_base <- "GPM_DIR_BASE/"
-DIR_analysis <- paste0(DIR_base, "analysis/")
-DIR_DGEA <- paste0(DIR_analysis, "DGEA/")
-
 source(paste0(DIR_DGEA, "DGEA_RNAseq_functions.R"))
+load("DGEA_settings.RData")
 load("SAMPLE_RData")
-
-organism = "DGEA_ORGANISM"
-organism_DB <- organism_DB(organism)
 
 Tag_this_analysis <- "DGEA_FILETAG"
 File_stats <- paste0('DGEA_',Tag_this_analysis,'_genes_stats.csv')
 File_norm_expression <- paste0('DGEA_',Tag_this_analysis,'_norm_exp_quant.csv')
-
 File_xlsx_res <- paste0('DGEA_',Tag_this_analysis,'_res.xlsx')
-
-samples <- read.table(file.path(DIR_DGEA,"samplesheet.csv"), header=TRUE, sep = ",")
-rownames(samples) <- samples$sample
-samples2 <- samples
-samples2$DGEA_VARIABLE <- factor(samples2$DGEA_VARIABLE, levels = c("DGEA_TARGET","DGEA_REF"))
-samples2 <- samples2[complete.cases(samples2$DGEA_VARIABLE), ]
-
-paired <- DGEA_PAIRED_BOOLEAN
-countsFromAbundance <- DGEA_countsFromAbundance
-lengthcorrection <- DGEA_lengthcorrection
-spikein_ERCC <- DGEA_spikein_ERCC
 ```
 
-### [Back to front page](Analysis_Report_RNAseq.html)
+### [Back to front page](../Analysis_Report_RNAseq.html)
 
 Differential gene expression analysis is done with DESEQ2 package in R [@love2014moderated] and follows the instruction for Salmon quantification ([Analyzing RNA-seq data with DESeq2](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)).
 
 This analysis is done with DGEA_PAIRED data.
 
-# Samplesheet
-
-```{r echo=FALSE, results='asis'}
-kable(samples2) %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
-```
-
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-deseq_output <- run_deseq_salmon(samples2, spikein=spikein_ERCC, paired=paired,
+deseq_output <- run_deseq_salmon(filtered_samples, spikein=spikein_ERCC, paired=paired,
                                  countsFromAbundance=countsFromAbundance,
                                  lengthcorrection=lengthcorrection)
 ```
@@ -83,7 +59,7 @@ deseq_output <- run_deseq_salmon(samples2, spikein=spikein_ERCC, paired=paired,
 ## PCA
 
 ```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
-RNAseq_PCA_plotly(deseq_output$norm_count, samples2)
+RNAseq_PCA_plotly(deseq_output$norm_count, filtered_samples)
 ```
 
 ## 3D-PCA
@@ -92,13 +68,13 @@ RNAseq_PCA_plotly(deseq_output$norm_count, samples2)
 RNAseq_3D_PCA_plotly(deseq_output$norm_count, filtered_samples)
 ```
 
-## Volcano plot
+`r if(volcano){"## Volcano plot"}`
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=volcano}
 RNAseq_volcano_plotly(deseq_output$deseq2res)
 ```
 
-## MA plot
+`r if(maplot){"## MA plot"}`
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=maplot}
 RNAseq_maplot_plotly(deseq_output$deseq2res)
@@ -125,13 +101,13 @@ RNAseq_heatmap_plotly(deseq_output$deseq2res)
 RNAseq_PCA_ggplot2(deseq_output, filtered_samples)
 ```
 
-## Volcano plot
+`r if(volcano){"## Volcano plot"}`
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=volcano}
 RNAseq_volcano_ggplot2(deseq_output)
 ```
 
-## MA plot
+`r if(maplot){"## MA plot"}`
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=maplot}
 RNAseq_maplot_ggplot2(deseq_output)
@@ -143,21 +119,21 @@ RNAseq_maplot_ggplot2(deseq_output)
 RNAseq_heatmap_ggplot2(deseq_output)
 ```
 
-# Tables {.tabset}
+`r if(sigtable){"# Tables {.tabset}"}`
 
-## Sig. genes
+`r if(sigtable){"## Sig. genes"}`
 
 ```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(deseq_output$deseq2res_sig)
 ```
 
-## Up genes
+`r if(sigtable){"## Up genes"}`
 
 ```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(deseq_output$deseq2res_sig[deseq_output$deseq2res_sig$log2FoldChange > 0,])
 ```
 
-## Down genes
+`r if(sigtable){"## Down genes"}`
 
 ```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(deseq_output$deseq2res_sig[deseq_output$deseq2res_sig$log2FoldChange < 0,])
@@ -167,12 +143,24 @@ table_sig_genes(deseq_output$deseq2res_sig[deseq_output$deseq2res_sig$log2FoldCh
 # download_table()
 cols <- c("ENSEMBL", "SYMBOL", "GENENAME")
 ensemblkeys <- gsub("\\.[0-9]*$", "", deseq_output$deseq2res$gene_id)
-genenames <- select(organism_DB, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
+if (organism == "hsapiens") {
+  library(org.Hs.eg.db)
+  genenames <- AnnotationDbi::select(org.Hs.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
+} else if (organism == "mmusculus") {
+  library(org.Mm.eg.db)
+  genenames <- AnnotationDbi::select(org.Mm.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
+} else if (organism == "rnorvegicus") {
+  library(org.Rn.eg.db)
+  genenames <- AnnotationDbi::select(org.Rn.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
+} else if (organism == "sscrofa") {
+  library(org.Ss.eg.db)
+  genenames <- AnnotationDbi::select(org.Ss.eg.db, keys=ensemblkeys, columns=cols, keytype="ENSEMBL")
+}
 genenames <- genenames[match(ensemblkeys, genenames$ENSEMBL), ]
 deseq_output$deseq2res <- cbind(deseq_output$deseq2res, genenames)
 
-write.csv(deseq_output$deseq2res,paste0(DIR_DGEA, File_stats))
-write.csv(deseq_output$norm_count,paste0(DIR_DGEA, File_norm_expression))
+write.csv(deseq_output$deseq2res,File_stats)
+write.csv(deseq_output$norm_count,File_norm_expression)
 
 wb <- createWorkbook()
 addWorksheet(wb, "DGEA_stats")
@@ -180,7 +168,7 @@ writeData(wb, "DGEA_stats", deseq_output$deseq2res)
 addWorksheet(wb, "norm_exp_quant")
 writeData(wb, "norm_exp_quant", deseq_output$norm_count)
 ## Save workbook to working directory
-saveWorkbook(wb, file = paste0(DIR_DGEA, File_xlsx_res), overwrite = TRUE)
+saveWorkbook(wb, file =File_xlsx_res, overwrite = TRUE)
 ```
 
 # Download statistics
@@ -188,6 +176,13 @@ saveWorkbook(wb, file = paste0(DIR_DGEA, File_xlsx_res), overwrite = TRUE)
 * Download xlsx file for all results: [`r File_xlsx_res`](`r File_xlsx_res`) (However, CSV file is more recommended for robust analysis.)
 * Download CSV file for the statistics of all valid genes in differential expression analysis (ENSEMBL ID, Gene Symbol and Gene name are included): [`r File_stats`](`r File_stats`)
 * Download CSV file for the expression quantification of all genes: [`r File_norm_expression`](`r File_norm_expression`)
+
+# Samplesheet
+
+```{r echo=FALSE, results='asis'}
+kable(filtered_samples) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
+```
 
 # References
 
