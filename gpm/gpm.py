@@ -349,6 +349,9 @@ class GPM():
                         target_file = path.join(group_dir,
                                                 path.basename(template))
                         self.copy_file(source_file, target_file)
+        # Show instructions
+        show_tree(group_dir)
+        show_instructions("analysis", analysis_name)
 
     def run_analysis_codes(self, analysis_name):
         """
