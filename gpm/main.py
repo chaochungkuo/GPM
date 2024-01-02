@@ -3,6 +3,8 @@ from gpm.helper import get_gpm_config
 from gpm.samplesheet import generate_samples
 from gpm.__version__ import __version__
 from gpm.gpm import GPM
+from gpm.exports import check_export_directory, export_empty_folder, \
+                        tar_exports
 
 help_messages = {"demultiplex_raw": "Define the folder of BCL files as the "
                  "raw input for demultiplexing.",
@@ -135,6 +137,48 @@ def analysis(project_config, report, show_list, add_template):
             # pm.run_analysis_codes(add_template)
         pm.update_log()
         pm.write_project_config_file()
+
+
+@main.command()
+@click.argument('export_folder')
+@click.option('-c', '--config', "config", required=False,
+              default='project_config',
+              help="Define the config file of the project.")
+@click.option('-s', '--symprefix', "symprefix", required=False, default="",
+              help="Add the symbolic prefix of all paths.")
+@click.option('-u', '--user', "username", required=False, default=None,
+              help="Define the user name if needed.")
+@click.option('-t', '--tar', "tar", required=False, default=False,
+              is_flag=True, help="Tar the folders for download.")
+def export(export_folder, config, prefix, username, tar):
+    """
+    Export the project to the target folder with symbolic links.
+    """
+    if not config:  # Just an empty folder
+        check_export_directory(export_folder)
+        export_URL = get_gpm_config("URL", "EXPORT_URL")
+        export_empty_folder(export_folder, export_URL, username)
+
+    else:
+        pm = GPM()
+        pm.load_project_config_file(config)
+        pm.export(export_folder, prefix)
+        pm.add_htaccess(export_folder)
+        pm.create_user(export_folder)
+
+        if tar:
+            tar_exports(export_folder, dry_run=False)
+
+
+@main.command()
+@click.argument('export_folder')
+@click.option("-d", "--dry-run", "dry_run", default=False, show_default=True,
+              is_flag=True,
+              help="Dry run without actual execution.")
+def tar_export(export_folder, dry_run):
+    """Tar the sub folders under the export directory with symlinks,
+    except compressed_tar folder."""
+    tar_exports(export_folder, dry_run)
 
 
 @main.command()

@@ -2,15 +2,18 @@ import os
 from os import path
 import sys
 import click
+import glob
 from collections import OrderedDict
 import configparser
 from datetime import datetime
 from gpm.helper import remove_end_slash, get_gpmdata_path, \
                        check_project_name, get_dict_from_configs, \
                        replace_variables_by_dict, check_analysis_name, \
-                       copy_samplesheet
+                       copy_samplesheet, get_gpm_config
 from gpm.messages import show_tree, show_instructions
 from gpm import PROJECT_INI_FILE
+from gpm.exports import check_export_directory, get_htaccess_path, \
+                        htpasswd_create_user
 
 tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                                      "application", "project.ini",
@@ -108,6 +111,21 @@ class GPM():
         new_entry = formatted_timestamp + " >>> " + full_command
         self.logs.append(new_entry)
 
+    def replace_variables_by_project_ini(self, line):
+        for section, options in self.profile.items():
+            if section != "Logs":
+                for tag, value in options.items():
+                    if "PROJECT_"+tag.upper() in line:
+                        res = line.replace("PROJECT_"+tag.upper(), value)
+        return res
+
+    def replace_variable(self, line, config_dict):
+        # project.ini
+        line = self.replace_variables_by_project_ini(line)
+        # configs
+        line = replace_variables_by_dict(line, config_dict)
+        return line
+
     def copy_file(self, source, target):
         """
         Copy a file from source to target with modifying certain key words
@@ -121,15 +139,7 @@ class GPM():
         config_dict = get_dict_from_configs()
         with open(source, 'r') as input_file, open(target, 'w') as output_file:
             for line in input_file:
-                # project.ini
-                for section, options in self.profile.items():
-                    if section != "Logs":
-                        for tag, value in options.items():
-                            if "PROJECT_"+tag.upper() in line:
-                                line = line.replace("PROJECT_"+tag.upper(),
-                                                    value)
-                # configs
-                line = replace_variables_by_dict(line, config_dict)
+                line = self.replace_variable(line, config_dict)
                 output_file.write(line)
 
     def demultiplex(self, method, raw, output):
@@ -366,3 +376,73 @@ class GPM():
             copy_samplesheet(sheet,
                              path.join(dir_analysis, "DGEA",
                                        "samplesheet.csv"))
+
+    def load_export_config(self):
+        self.export_structure = []
+        config_dict = get_dict_from_configs()
+        cfg_path = os.path.join(get_gpmdata_path(), "export.config")
+        with open(cfg_path) as config:
+            for line in config:
+                if line.startswith("#"):
+                    continue
+                else:
+                    ll = [le.strip() for le in line.split(";")]
+                    if len(ll) == 4:
+                        if ll[0] == "all" or ll[0] == self.app:
+                            ll[1] = self.replace_variable(ll[1], config_dict)
+                            self.export_structure.append(ll)
+
+    def export(self, export_dir, symprefix, tar=False):
+        def handle_rename(export_dir, entry):
+            # print(os.path.basename(entry[1]))
+            if entry[3]:
+                target = os.path.join(export_dir, entry[2], entry[3])
+            else:
+                target = os.path.join(export_dir, entry[2],
+                                      os.path.basename(entry[1]))
+            return target
+
+        export_dir = os.path.abspath(export_dir)
+        check_export_directory(export_dir)
+        # Creating soft links of the files
+        self.load_export_config()
+        for entry in self.export_structure:
+            # print(entry)
+            if not entry[1]:  # make the folder
+                target = os.path.join(export_dir, entry[2])
+                if not os.path.exists(target):
+                    os.makedirs(target)
+            else:
+                origin_file = os.path.join(self.base, entry[1])
+                # A directory
+                if os.path.isdir(origin_file):
+                    target = handle_rename(export_dir, entry)
+                    os.symlink(symprefix+origin_file, target,
+                               target_is_directory=True)
+                # A file
+                elif os.path.isfile(origin_file):
+                    target = handle_rename(export_dir, entry)
+                    os.symlink(symprefix+origin_file, target,
+                               target_is_directory=False)
+                # A pattern for many files
+                else:
+                    target_dir = os.path.join(export_dir, entry[2])
+                    if not os.path.exists(target_dir):
+                        os.makedirs(target_dir)
+                    for matching_file in glob.glob(origin_file):
+                        target = os.path.join(target_dir,
+                                              os.path.basename(matching_file))
+                        os.symlink(symprefix+matching_file, target,
+                                   target_is_directory=False)
+
+    def add_htaccess(self, export_dir):
+        htaccess_path = get_htaccess_path()
+        self.copy_file(htaccess_path,
+                       os.path.join(export_dir, ".htaccess"))
+        # shutil.chown(os.path.join(export_dir, ".htaccess"), group=GROUPNAME)
+
+    def create_user(self, export_dir, raw_export=False):
+        export_URL = os.path.join(get_gpm_config("GPM", "EXPORT_URL"),
+                                  self.name)
+        htpasswd_create_user(export_dir, export_URL, self.provider.lower(),
+                             self.app, raw_export)

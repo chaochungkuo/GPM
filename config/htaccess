@@ -1,0 +1,7 @@
+RewriteEngine on
+AuthType Basic
+AuthName "restricted area"
+AuthUserFile /var/www/html/data/GPM_TITLE_NAME/.htpasswd
+require valid-user
+Options +FollowSymLinks
+SetEnv SERVER_ADMIN ckuo@ukaachen.de
