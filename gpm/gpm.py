@@ -388,7 +388,8 @@ class GPM():
                 else:
                     ll = [le.strip() for le in line.split(";")]
                     if len(ll) == 4:
-                        if ll[0] == "all" or ll[0] == self.app:
+                        if ll[0] == "all" or \
+                        ll[0] == self.profile["Project"]["application"]:
                             ll[1] = self.replace_variable(ll[1], config_dict)
                             self.export_structure.append(ll)
 
