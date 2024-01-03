@@ -95,9 +95,9 @@ def relpath(path_file):
         if path_file.startswith(base_dir):
             # Getting the relative path of the directory
             rel_path = os.path.relpath(path_file, base_dir)
-            print("rel_path: "+ rel_path)
+            print("rel_path: " + rel_path)
             path_file = os.path.join("/", rel_path)
-            print("path_file: "+ path_file)
+            print("path_file: " + path_file)
     return path_file
 
 
@@ -119,12 +119,12 @@ def tar_exports(export_folder, dry_run):
             continue
         path_file = os.path.join(export_folder, filename)
         tarfile = os.path.join(compressed_folder, name+"_" + filename + ".tar")
-        print("path_file: "+ path_file)
+        print("path_file: " + path_file)
         if os.path.islink(path_file):
             path_file = os.readlink(path_file)
-            print("path_file link: "+ path_file)
+            print("path_file link: " + path_file)
             path_file = relpath(path_file)
-            print("path_file link: "+ path_file)
+            print("path_file link: " + path_file)
         if os.path.isdir(path_file) and filename != "compressed_tars":
             click.echo(click.style("Tar the folder:", fg='bright_green'))
             click.echo(path_file + click.style(" => ",
@@ -134,16 +134,22 @@ def tar_exports(export_folder, dry_run):
 
 
 def tar_dir(path, tar_name):
-    cmd = " ".join(["tar", "-hcf", tar_name, "-C", os.path.dirname(path),
-                    "--absolute-names", path])
-    ## TODO testing tar link dir
-    result = subprocess.run(cmd, shell=True, 
-                            stdout=subprocess.PIPE, 
-                            stderr=subprocess.PIPE, text=True)
-    print("STDOUT:")
-    print(result.stdout)
-    print("\nSTDERR:")
-    print(result.stderr)
+    # cmd = " ".join(["tar", "-hcf", tar_name, "-C", os.path.dirname(path),
+    #                 "--absolute-names", path])
+    # TODO testing tar link dir
+    cmd = " ".join(["tar cfh - -C", os.path.dirname(path), path,
+                    "-P | pv -s $(du -sb -L ", path, "| awk '{print $1}') >",
+                    tar_name])
+    subprocess.run(cmd, shell=True,
+                   stdout=subprocess.PIPE,
+                   stderr=subprocess.PIPE, text=True)
+    # result = subprocess.run(cmd, shell=True,
+    #                         stdout=subprocess.PIPE,
+    #                         stderr=subprocess.PIPE, text=True)
+    # print("STDOUT:")
+    # print(result.stdout)
+    # print("\nSTDERR:")
+    # print(result.stderr)
     # subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # subprocess.call(cmd, shell=True,
     #                                  stdout=subprocess.DEVNULL)
