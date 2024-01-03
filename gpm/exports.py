@@ -103,11 +103,14 @@ def tar_exports(export_folder, dry_run):
             os.makedirs(compressed_folder)
     # Tar each folder
     for filename in os.listdir(export_folder):
+        if filename.startswith("."):
+            continue
         path_file = os.path.join(export_folder, filename)
         tarfile = os.path.join(compressed_folder, name+"_" + filename + ".tar")
         print("path_file: "+ path_file)
         if os.path.islink(path_file):
             path_file = os.readlink(path_file)
+            print("path_file link: "+ path_file)
             base_dirs = ["/mnt/nextgen", "/mnt/nextgen2", "/mnt/nextgen3"]
             for base_dir in base_dirs:
                 if path_file.startswith(base_dir):
