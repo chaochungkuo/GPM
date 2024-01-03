@@ -144,7 +144,7 @@ def analysis(project_config, report, show_list, add_template):
 @click.option('-c', '--config', "config", required=False,
               default='project_config',
               help="Define the config file of the project.")
-@click.option('-s', '--symprefix', "symprefix", required=False, default="",
+@click.option('-s', '--symprefix', "prefix", required=False, default="",
               help="Add the symbolic prefix of all paths.")
 @click.option('-u', '--user', "username", required=False, default=None,
               help="Define the user name if needed.")
