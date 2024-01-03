@@ -20,8 +20,9 @@ heading_for_report <- c()
 # Define controllers
 generate_Rmd <- TRUE
 render_html <- TRUE
+render_3DPCA <- FALSE
 # Paths
-DIR_base <- "/data/projects/231129_Moellmann_Lehrke_MedI_mRNAseq/"
+DIR_base <- "PROJECT_PROJECT_PATH"
 DIR_analysis <- paste0(DIR_base, "analysis/")
 DIR_DGEA <- paste0(DIR_analysis, "DGEA/")
 setwd(DIR_DGEA)
@@ -34,7 +35,7 @@ countsFromAbundance <- "lengthScaledTPM" # no for 3mRNAseq, lengthScaledTPM for 
 lengthcorrection <- TRUE # FALSE for 3mRNAseq, TRUE for others
 spikein_ERCC <- FALSE
 # Organism
-organism <- "hsapiens" # hsapiens mmusculus rnorvegicus sscrofa
+organism <- "PROJECT_PROCESSING_ORGANISM" # hsapiens mmusculus rnorvegicus sscrofa
 # Parameters
 Fig_width <- 600
 Fig_height <- 400
@@ -57,12 +58,14 @@ samples
 ```{r 3dPCA, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
 description <- "All samples"
 filtered_samples <- samples[complete.cases(samples$group),]
-deseq_output <- run_deseq_salmon(filtered_samples, 
-                                 spikein=spikein_ERCC, 
-                                 paired=paired_test,
-                                 countsFromAbundance=countsFromAbundance,
-                                 lengthcorrection=lengthcorrection)
-Plotly_3D_PCA <- RNAseq_3D_PCA_plotly(deseq_output$norm_count, filtered_samples)
+if ( render_3DPCA == TRUE ) {
+  deseq_output <- run_deseq_salmon(filtered_samples, 
+                                   spikein=spikein_ERCC, 
+                                   paired=FALSE,
+                                   countsFromAbundance=countsFromAbundance,
+                                   lengthcorrection=lengthcorrection)
+  Plotly_3D_PCA <- RNAseq_3D_PCA_plotly(deseq_output$norm_count, filtered_samples)
+}
 ```
 
 
@@ -76,7 +79,7 @@ if ( generate_Rmd == TRUE ) {
   add_DGEA(description=description, 
            tag=filetag, 
            filtered_samples=filtered_samples, 
-           paired=TRUE,
+           paired=FALSE,
            volcano=FALSE, maplot=FALSE, sigtable=FALSE)
 }
 if ( render_html == TRUE ) {
@@ -108,27 +111,7 @@ if ( render_html == TRUE ) {
 heading_for_report <- c(heading_for_report, paste0("### [",description,"](DGEA/DGEA_",filetag,".html)"))
 ```
 
-```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-filetag <- "Placebo_BL_vs_3M"
-description <- str_replace_all(filetag, "_", " ")
-filtered_samples <- samples[samples$group=="Placebo",]
-filtered_samples$time <- factor(filtered_samples$time, levels = c("BL","3M"))
-colnames(filtered_samples) <- c("sample","group","treatment","batch","tube")
-if ( generate_Rmd == TRUE ) {
-  add_DGEA(description=description, 
-           tag=filetag, 
-           filtered_samples=filtered_samples, 
-           paired=TRUE,
-           volcano=TRUE, maplot=TRUE, sigtable=TRUE)
-}
-if ( render_html == TRUE ) {
-  rmarkdown::render(paste0('DGEA_',filetag,'.Rmd'), 
-                    output_format = 'html_document',
-                    output_file = paste0('DGEA_',filetag,'.html'))
-}
-heading_for_report <- c(heading_for_report, paste0("### [",description,"](DGEA/DGEA_",filetag,".html)"))
-```
 
-```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
 cat(heading_for_report, sep = "\n")
 ```
