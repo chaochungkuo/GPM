@@ -380,7 +380,7 @@ class GPM():
     def load_export_config(self):
         self.export_structure = []
         config_dict = get_dict_from_configs()
-        cfg_path = os.path.join(get_gpmdata_path(), "export.config")
+        cfg_path = os.path.join(get_gpmdata_path(), "config/export.config")
         with open(cfg_path) as config:
             for line in config:
                 if line.startswith("#"):
