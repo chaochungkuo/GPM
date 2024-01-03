@@ -414,7 +414,8 @@ class GPM():
                 if not os.path.exists(target):
                     os.makedirs(target)
             else:
-                origin_file = os.path.join(self.base, entry[1])
+                origin_file = os.path.join(self.profile["Project"]["project_path"],
+                                           entry[1])
                 # A directory
                 if os.path.isdir(origin_file):
                     target = handle_rename(export_dir, entry)
