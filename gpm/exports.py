@@ -216,22 +216,32 @@ def tar_dir_distanced(path, tar_name):
 
 
 def tar_folder(input_folder, output_tar):
-    with tarfile.open(output_tar, 'w') as tar:
-        # Get all files and directories in the input folder
-        files_and_dirs = [os.path.join(input_folder, f)
-                          for f in os.listdir(input_folder)]
-        # Set up the tqdm progress bar
-        total_size = sum(get_size(f) for f in files_and_dirs)
-        progress_bar = tqdm(total=total_size,
-                            desc='Creating tar archive',
-                            unit='B', unit_scale=True)
-        for file_or_dir in files_and_dirs:
-            # Add the file or directory to the tar archive
-            tar.add(file_or_dir,
-                    arcname=os.path.relpath(file_or_dir, input_folder))
-            progress_bar.update(get_size(file_or_dir))
-        # Close the progress bar
-        progress_bar.close()
+    if os.path.exists(output_tar):
+        click.echo(output_tar + " exists.")
+    else:
+        with tarfile.open(output_tar, 'w') as tar:
+            # Set up the tqdm progress bar
+            total_size = 0
+            for root, dirs, files in os.walk(input_folder):
+                for name in files + dirs:
+                    full_path = os.path.join(root, name)
+                    total_size += get_size(full_path)
+
+            progress_bar = tqdm(total=total_size,
+                                desc='Creating tar archive',
+                                unit='B', unit_scale=True)
+
+            for root, dirs, files in os.walk(input_folder):
+                for name in files + dirs:
+                    full_path = os.path.join(root, name)
+                    arcname = os.path.relpath(full_path, input_folder)
+                    # Add the file or directory to the tar archive
+                    tar.add(full_path, arcname=arcname)
+                    # Update the progress bar by the size of the added file or dir
+                    progress_bar.update(get_size(full_path))
+
+            # Close the progress bar
+            progress_bar.close()
 
 
 def get_size(path):
