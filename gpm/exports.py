@@ -140,16 +140,16 @@ def tar_dir(path, tar_name):
     cmd = " ".join(["tar cfh - -C", os.path.dirname(path), path,
                     "-P | pv -s $(du -sb -L ", path, "| awk '{print $1}') >",
                     tar_name])
-    subprocess.run(cmd, shell=True,
-                   stdout=subprocess.PIPE,
-                   stderr=subprocess.PIPE, text=True)
-    # result = subprocess.run(cmd, shell=True,
-    #                         stdout=subprocess.PIPE,
-    #                         stderr=subprocess.PIPE, text=True)
-    # print("STDOUT:")
-    # print(result.stdout)
-    # print("\nSTDERR:")
-    # print(result.stderr)
+    # subprocess.run(cmd, shell=True,
+    #                stdout=subprocess.PIPE,
+    #                stderr=subprocess.PIPE, text=True)
+    result = subprocess.run(cmd, shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, text=True)
+    print("STDOUT:")
+    print(result.stdout)
+    print("\nSTDERR:")
+    print(result.stderr)
     # subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # subprocess.call(cmd, shell=True,
     #                                  stdout=subprocess.DEVNULL)
