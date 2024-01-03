@@ -9,6 +9,7 @@ import random
 from gpm.helper import get_gpmdata_path
 import xtarfile as tarfile
 from tqdm import tqdm
+import gzip
 
 
 def check_export_directory(export_folder):
@@ -120,7 +121,8 @@ def tar_exports(export_folder, dry_run, same_server=False):
         if filename.startswith("."):
             continue
         path_file = os.path.join(export_folder, filename)
-        tarfile = os.path.join(compressed_folder, name+"_" + filename + ".tar")
+        tarfile = os.path.join(compressed_folder,
+                               name+"_" + filename + ".tar.gz")
         # print("path_file: " + path_file)
         if os.path.islink(path_file):
             path_file = os.readlink(path_file)
@@ -215,33 +217,31 @@ def tar_dir_distanced(path, tar_name):
     print(result.stderr)
 
 
-def tar_folder(input_folder, output_tar):
-    if os.path.exists(output_tar):
-        click.echo(output_tar + " exists.")
+def tar_folder(input_folder, output_tar_gz):
+    if os.path.exists(output_tar_gz):
+        click.echo(output_tar_gz + " exists.")
     else:
-        with tarfile.open(output_tar, 'w') as tar:
+        with tarfile.open(output_tar_gz, 'w:gz') as tar:
             # Set up the tqdm progress bar
             total_size = 0
             for root, dirs, files in os.walk(input_folder):
                 for name in files + dirs:
                     full_path = os.path.join(root, name)
                     total_size += get_size(full_path)
-
             progress_bar = tqdm(total=total_size,
                                 desc='Creating tar archive',
                                 unit='B', unit_scale=True)
-
             for root, dirs, files in os.walk(input_folder):
                 for name in files + dirs:
                     full_path = os.path.join(root, name)
                     arcname = os.path.relpath(full_path, input_folder)
                     # Add the file or directory to the tar archive
                     tar.add(full_path, arcname=arcname)
-                    # Update the progress bar by the size of the added file or dir
+                    # Update the progress bar by the size
                     progress_bar.update(get_size(full_path))
-
             # Close the progress bar
             progress_bar.close()
+        run_md5sum(output_tar_gz)
 
 
 def get_size(path):
