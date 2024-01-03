@@ -9,6 +9,7 @@ import random
 from gpm.helper import get_gpmdata_path
 import xtarfile as tarfile
 from tqdm import tqdm
+import hashlib
 
 
 def check_export_directory(export_folder):
@@ -240,7 +241,7 @@ def tar_folder(input_folder, output_tar_gz):
                     progress_bar.update(get_size(full_path))
             # Close the progress bar
             progress_bar.close()
-        run_md5sum(output_tar_gz)
+        save_md5_to_file(output_tar_gz)
 
 
 def get_size(path):
@@ -252,3 +253,17 @@ def get_size(path):
     else:
         # If not a symbolic link, get the size directly
         return os.path.getsize(path)
+
+
+def calculate_md5(file_path):
+    md5 = hashlib.md5()
+    with open(file_path, "rb") as file:
+        for chunk in iter(lambda: file.read(4096), b""):
+            md5.update(chunk)
+    return md5.hexdigest()
+
+
+def save_md5_to_file(file_path):
+    md5_checksum = calculate_md5(file_path)
+    with open(file_path+".md5", 'w') as md5_file:
+        md5_file.write(md5_checksum)
