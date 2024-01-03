@@ -221,7 +221,7 @@ def tar_folder(input_folder, output_tar):
         files_and_dirs = [os.path.join(input_folder, f)
                           for f in os.listdir(input_folder)]
         # Set up the tqdm progress bar
-        total_size = sum(os.path.getsize(f) for f in files_and_dirs)
+        total_size = sum(get_size(f) for f in files_and_dirs)
         progress_bar = tqdm(total=total_size,
                             desc='Creating tar archive',
                             unit='B', unit_scale=True)
@@ -229,7 +229,17 @@ def tar_folder(input_folder, output_tar):
             # Add the file or directory to the tar archive
             tar.add(file_or_dir,
                     arcname=os.path.relpath(file_or_dir, input_folder))
-            progress_bar.update(os.path.getsize(file_or_dir))
-
+            progress_bar.update(get_size(file_or_dir))
         # Close the progress bar
         progress_bar.close()
+
+
+def get_size(path):
+    # If path is a symbolic link, get the size of the target file
+    if os.path.islink(path):
+        target_path = os.path.realpath(path)
+        target_stat = os.stat(target_path)
+        return target_stat.st_size
+    else:
+        # If not a symbolic link, get the size directly
+        return os.path.getsize(path)
