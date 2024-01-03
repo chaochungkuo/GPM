@@ -9,7 +9,6 @@ import random
 from gpm.helper import get_gpmdata_path
 import xtarfile as tarfile
 from tqdm import tqdm
-import gzip
 
 
 def check_export_directory(export_folder):
