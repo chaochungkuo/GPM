@@ -120,10 +120,11 @@ def tar_exports(export_folder, dry_run):
         path_file = os.path.join(export_folder, filename)
         tarfile = os.path.join(compressed_folder, name+"_" + filename + ".tar")
         print("path_file: "+ path_file)
-        # if os.path.islink(path_file):
-        path_file = os.readlink(path_file)
-        print("path_file link: "+ path_file)
-        path_file = relpath(path_file)
+        if os.path.islink(path_file):
+            path_file = os.readlink(path_file)
+            print("path_file link: "+ path_file)
+            path_file = relpath(path_file)
+            print("path_file link: "+ path_file)
         if os.path.isdir(path_file) and filename != "compressed_tars":
             click.echo(click.style("Tar the folder:", fg='bright_green'))
             click.echo(path_file + click.style(" => ",
