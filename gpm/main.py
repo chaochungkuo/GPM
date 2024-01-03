@@ -178,7 +178,7 @@ def export(export_folder, config, prefix, username, tar):
 def tar_export(export_folder, dry_run):
     """Tar the sub folders under the export directory with symlinks,
     except compressed_tar folder."""
-    tar_exports(export_folder, dry_run)
+    tar_exports(export_folder, dry_run, same_server=True)
 
 
 @main.command()
