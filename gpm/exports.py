@@ -98,7 +98,7 @@ def relpath(path_file):
             # Getting the relative path of the directory
             rel_path = os.path.relpath(path_file, base_dir)
             print("rel_path: " + rel_path)
-            path_file = os.path.join("/", rel_path)
+            path_file = "/" + os.path.join("/", rel_path)
             print("path_file: " + path_file)
     return path_file
 
