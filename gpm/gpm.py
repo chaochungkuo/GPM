@@ -445,6 +445,8 @@ class GPM():
 
     def create_user(self, export_dir, raw_export=False):
         export_URL = os.path.join(get_gpm_config("URL", "EXPORT_URL"),
-                                  self.name)
-        htpasswd_create_user(export_dir, export_URL, self.provider.lower(),
-                             self.app, raw_export)
+                                  self.profile["Project"]["project_name"])
+        htpasswd_create_user(export_dir, export_URL, 
+                             self.profile["Project"]["name1"].lower(),
+                             self.profile["Project"]["application"], 
+                             raw_export)
