@@ -7,6 +7,8 @@ import subprocess
 import string
 import random
 from gpm.helper import get_gpmdata_path
+import xtarfile as tarfile
+from tqdm import tqdm
 
 
 def check_export_directory(export_folder):
@@ -131,9 +133,9 @@ def tar_exports(export_folder, dry_run, same_server=False):
                                                fg='bright_green') + tarfile)
             if not dry_run:
                 if same_server:
-                    tar_dir(path_file, tarfile)
+                    tar_folder(path_file, tarfile)
                 else:
-                    tar_dir_distanced(path_file, tarfile)
+                    tar_folder(path_file, tarfile)
 
 
 def tar_dir(path, tar_name):
@@ -211,3 +213,23 @@ def tar_dir_distanced(path, tar_name):
     print(result.stdout)
     print("\nSTDERR:")
     print(result.stderr)
+
+
+def tar_folder(input_folder, output_tar):
+    with tarfile.open(output_tar, 'w') as tar:
+        # Get all files and directories in the input folder
+        files_and_dirs = [os.path.join(input_folder, f)
+                          for f in os.listdir(input_folder)]
+        # Set up the tqdm progress bar
+        total_size = sum(os.path.getsize(f) for f in files_and_dirs)
+        progress_bar = tqdm(total=total_size,
+                            desc='Creating tar archive',
+                            unit='B', unit_scale=True)
+        for file_or_dir in files_and_dirs:
+            # Add the file or directory to the tar archive
+            tar.add(file_or_dir,
+                    arcname=os.path.relpath(file_or_dir, input_folder))
+            progress_bar.update(os.path.getsize(file_or_dir))
+
+        # Close the progress bar
+        progress_bar.close()
