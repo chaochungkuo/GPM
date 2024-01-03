@@ -140,51 +140,55 @@ def tar_dir(path, tar_name):
     # cmd = " ".join(["tar", "-hcf", tar_name, "-C", os.path.dirname(path),
     #                 "--absolute-names", path])
     # TODO testing tar link dir
-    tar_basepath = tar_name.replace(".tar", "")
-    cmd = " ".join(["tar cfh - -C", os.path.dirname(path), path,
-                    "-P | pv -s $(du -sb -L ", path, "| awk '{print $1}') >",
-                    tar_name])
-    print(cmd)
-    # subprocess.run(cmd, shell=True,
-    #                stdout=subprocess.PIPE,
-    #                stderr=subprocess.PIPE, text=True)
-    result = subprocess.run(cmd, shell=True,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, text=True)
-    if result.stderr:
-        print("STDOUT:")
-        print(result.stdout)
-        print("\nSTDERR:")
-        print(result.stderr)
-
-        for filename in os.listdir(path):
-            if filename.startswith("."):
-                continue
-            path_file = os.path.join(path, filename)
-            tarfile = os.path.join(path, tar_basepath+"_" + filename + ".tar")
-            print("path_file: " + path_file)
-            if os.path.islink(path_file):
-                path_file = os.readlink(path_file)
-                print("path_file link: " + path_file)
-                path_file = relpath(path_file)
-                print("path_file link: " + path_file)
-
-                cmd = " ".join(["tar cfh - -C", os.path.dirname(path_file),
-                                path_file,
-                                "-P | pv -s $(du -sb -L ", path_file,
-                                "| awk '{print $1}') >",
-                                tarfile])
-                subprocess.run(cmd, shell=True,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, text=True)
-                run_md5sum(tar_name)
-    # subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    # subprocess.call(cmd, shell=True,
-    #                                  stdout=subprocess.DEVNULL)
+    # tar_basepath = tar_name.replace(".tar", "")
+    if os.path.exists(tar_name):
+        click.echo(tar_name + " exists.")
     else:
-        run_md5sum(tar_name)
-    # subprocess.call(cmd, shell=True,
-    #                                  stdout=subprocess.DEVNULL)
+        cmd = " ".join(["tar cfh - -C", os.path.dirname(path), path,
+                        "-P | pv -s $(du -sb -L ", path,
+                        "| awk '{print $1}') >",
+                        tar_name])
+        # print(cmd)
+        # subprocess.run(cmd, shell=True,
+        #                stdout=subprocess.PIPE,
+        #                stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(cmd, shell=True,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, text=True)
+        if result.stderr:
+            print("STDOUT:")
+            print(result.stdout)
+            print("\nSTDERR:")
+            print(result.stderr)
+
+            # for filename in os.listdir(path):
+            #     if filename.startswith("."):
+            #         continue
+            #     path_file = os.path.join(path, filename)
+            #     tarfile = os.path.join(path, tar_basepath+"_" + filename + ".tar")
+            #     print("path_file: " + path_file)
+            #     if os.path.islink(path_file):
+            #         path_file = os.readlink(path_file)
+            #         print("path_file link: " + path_file)
+            #         path_file = relpath(path_file)
+            #         print("path_file link: " + path_file)
+
+            #         cmd = " ".join(["tar cfh - -C", os.path.dirname(path_file),
+            #                         path_file,
+            #                         "-P | pv -s $(du -sb -L ", path_file,
+            #                         "| awk '{print $1}') >",
+            #                         tarfile])
+            #         subprocess.run(cmd, shell=True,
+            #                        stdout=subprocess.PIPE,
+            #                        stderr=subprocess.PIPE, text=True)
+            #         run_md5sum(tar_name)
+        # subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # subprocess.call(cmd, shell=True,
+        #                                  stdout=subprocess.DEVNULL)
+        else:
+            run_md5sum(tar_name)
+        # subprocess.call(cmd, shell=True,
+        #                                  stdout=subprocess.DEVNULL)
 
 
 def run_md5sum(tar_name):
