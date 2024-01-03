@@ -136,7 +136,15 @@ def tar_exports(export_folder, dry_run):
 def tar_dir(path, tar_name):
     cmd = " ".join(["tar", "-hcf", tar_name, "-C", os.path.dirname(path),
                     "--absolute-names", path])
-    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    ## TODO testing tar link dir
+    result = subprocess.run(cmd, shell=True, 
+                            stdout=subprocess.PIPE, 
+                            stderr=subprocess.PIPE, text=True)
+    print("STDOUT:")
+    print(result.stdout)
+    print("\nSTDERR:")
+    print(result.stderr)
+    # subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # subprocess.call(cmd, shell=True,
     #                                  stdout=subprocess.DEVNULL)
     cmd = " ".join(["md5sum", tar_name, ">", tar_name+".md5"])
