@@ -168,6 +168,8 @@ def export(export_folder, config, prefix, username, tar, gzip):
         pm.export(export_folder, prefix)
         pm.add_htaccess(export_folder)
         pm.create_user(export_folder)
+        pm.update_log()
+        pm.write_project_config_file()
 
         if tar:
             tar_exports(export_folder=export_folder, gzip=gzip,

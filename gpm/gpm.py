@@ -388,8 +388,10 @@ class GPM():
                 else:
                     ll = [le.strip() for le in line.split(";")]
                     if len(ll) == 4:
-                        if ll[0] == "all" or \
-                        ll[0] == self.profile["Project"]["application"]:
+                        if (
+                            ll[0] == "all" or
+                            ll[0] == self.profile["Project"]["application"]
+                        ):
                             ll[1] = self.replace_variable(ll[1], config_dict)
                             self.export_structure.append(ll)
 
@@ -414,24 +416,26 @@ class GPM():
                 if not os.path.exists(target):
                     os.makedirs(target)
             else:
-                origin_file = os.path.join(self.profile["Project"]["project_path"],
-                                           entry[1])
+                origin_f = os.path.join(
+                    self.profile["Project"]["project_path"],
+                    entry[1]
+                )
                 # A directory
-                if os.path.isdir(origin_file):
+                if os.path.isdir(origin_f):
                     target = handle_rename(export_dir, entry)
-                    os.symlink(symprefix+origin_file, target,
+                    os.symlink(symprefix+origin_f, target,
                                target_is_directory=True)
                 # A file
-                elif os.path.isfile(origin_file):
+                elif os.path.isfile(origin_f):
                     target = handle_rename(export_dir, entry)
-                    os.symlink(symprefix+origin_file, target,
+                    os.symlink(symprefix+origin_f, target,
                                target_is_directory=False)
                 # A pattern for many files
                 else:
                     target_dir = os.path.join(export_dir, entry[2])
                     if not os.path.exists(target_dir):
                         os.makedirs(target_dir)
-                    for matching_file in glob.glob(origin_file):
+                    for matching_file in glob.glob(origin_f):
                         target = os.path.join(target_dir,
                                               os.path.basename(matching_file))
                         os.symlink(symprefix+matching_file, target,
@@ -446,7 +450,7 @@ class GPM():
     def create_user(self, export_dir, raw_export=False):
         export_URL = os.path.join(get_gpm_config("URL", "EXPORT_URL"),
                                   self.profile["Project"]["project_name"])
-        htpasswd_create_user(export_dir, export_URL, 
+        htpasswd_create_user(export_dir, export_URL,
                              self.profile["Project"]["name1"].lower(),
-                             self.profile["Project"]["application"], 
+                             self.profile["Project"]["application"],
                              raw_export)

@@ -141,7 +141,8 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
                 if same_server:
                     tar_folder(path_file, tarfile, gzip)
                 else:
-                    tar_folder_from_project(path_file, tarfile, gzip, prefix=prefix)
+                    tar_folder_from_project(path_file, tarfile, gzip,
+                                            prefix=prefix)
 
 
 def tar_folder(input_folder, output_tar, gzip):
