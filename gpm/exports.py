@@ -189,7 +189,7 @@ def tar_folder_from_project(input_folder, output_tar, gzip):
             for root, dirs, files in os.walk(input_folder):
                 for name in files+dirs:
                     full_path = os.path.join(root, name)
-                    if os.islink(full_path):
+                    if os.path.islink(full_path):
                         print("islink")
                         softlink_path = os.readlink(full_path)
                         print(softlink_path)
