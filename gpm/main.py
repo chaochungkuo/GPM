@@ -1,4 +1,5 @@
 import click
+from gpm.clean import clean_folders
 from gpm.helper import get_gpm_config
 from gpm.samplesheet import generate_samples
 from gpm.__version__ import __version__
@@ -193,7 +194,7 @@ def tar_export(export_folder, dry_run, gzip):
 
 
 @main.command()
-@click.argument('target_folders', nargs=1)
+@click.argument('target_folders', nargs=-1)
 @click.option("-d", "--dry-run", "dry_run", default=False, show_default=True,
               is_flag=True,
               help="Dry run without actual execution.")
@@ -201,10 +202,18 @@ def tar_export(export_folder, dry_run, gzip):
               help="Filter the folders by the date in its name.")
 @click.option("-a", "--after-date", "after", default="",
               help="Filter the folders by the date in its name.")
-def clean(target_folders, dry_run, before, after):
+@click.option("-v", "--v", "show_total", default=True, show_default=True,
+              is_flag=True, help="Show total size under the target folder.")
+@click.option("-vv", "--vv", "show_each_file", default=False,
+              show_default=True,
+              is_flag=True, help="Show the size of each file.")
+def clean(target_folders, dry_run, before, after, show_total, show_each_file):
     """Clean the given folders by deleting the patterns defined in gpm.ini:
-    {}""".format(", ".join(get_gpm_config("GPM", "GPM_REPORTS")))
-    pass
+    {}""".format(", ".join(get_gpm_config("CLEAN", "PATTERNS")))
+    print(target_folders)
+    clean_folders(target_folders,
+                  show_total=show_total, show_each_file=show_each_file)
+
     # Filter folders
     # Iterate each folder and each pattern (one pattern per line, with size)
     # Clean or not
