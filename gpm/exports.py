@@ -50,15 +50,18 @@ def htpasswd_create_user(export_folder, url, username,
         if app and not raw_export:
             if app in ["RNAseq", "tRNAseq", "mRNAseq", "3mRNAseq"]:
                 app = "RNAseq"
-            click.echo("".join(["URL:\t", url,
-                                "/3_Reports/analysis/Analysis_Report_",
-                                app, ".html"]))
+            export_URL = "".join(["URL:\t", url,
+                                  "/3_Reports/analysis/Analysis_Report_",
+                                  app, ".html"])
         else:
-            click.echo("URL:\t" + url)
+            export_URL = url
+        click.echo("URL:\t" + export_URL)
         click.echo("user:\t" + username)
         click.echo("password:\t" + password)
+        return username, password
     else:
         click.echo("Skip setting htpasswd")
+        return None, None
 
 
 def create_user(export_folder, export_URL, username):

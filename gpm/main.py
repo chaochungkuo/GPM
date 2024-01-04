@@ -181,14 +181,33 @@ def export(export_folder, config, prefix, username, tar, gzip):
 @click.option("-d", "--dry-run", "dry_run", default=False, show_default=True,
               is_flag=True,
               help="Dry run without actual execution.")
-@click.option("-gz", "--gzip", "gzip", default=False, show_default=True,
+@click.option("-g", "--gzip", "gzip", default=False, show_default=True,
               is_flag=True,
               help="Generate tar.gz instead of tar.")
 def tar_export(export_folder, dry_run, gzip):
     """Tar the sub folders under the export directory with symlinks,
-    except compressed_tar folder."""
+    except compressed_tar folder. This command should be executed on
+    export server."""
     tar_exports(export_folder=export_folder, gzip=gzip,
                 dry_run=dry_run, same_server=True)
+
+
+@main.command()
+@click.argument('target_folders', nargs=1)
+@click.option("-d", "--dry-run", "dry_run", default=False, show_default=True,
+              is_flag=True,
+              help="Dry run without actual execution.")
+@click.option("-b", "--before-date", "before", default="",
+              help="Filter the folders by the date in its name.")
+@click.option("-a", "--after-date", "after", default="",
+              help="Filter the folders by the date in its name.")
+def clean(target_folders, dry_run, before, after):
+    """Clean the given folders by deleting the patterns defined in gpm.ini:
+    {}""".format(", ".join(get_gpm_config("GPM", "GPM_REPORTS")))
+    pass
+    # Filter folders
+    # Iterate each folder and each pattern (one pattern per line, with size)
+    # Clean or not
 
 
 @main.command()
