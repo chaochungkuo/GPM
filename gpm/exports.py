@@ -176,6 +176,7 @@ def tar_folder(input_folder, output_tar, gzip):
 
 
 def tar_folder_from_project(input_folder, output_tar, gzip, prefix):
+    paths_for_tar = []
     if gzip:
         tar_mode = 'w:gz'
     else:
@@ -199,20 +200,21 @@ def tar_folder_from_project(input_folder, output_tar, gzip, prefix):
                         print("    "+softlink_path)
                         # linked_name = os.basename(full_path)
                         total_size += get_size(softlink_path)
+                        paths_for_tar.append([softlink_path, name])
                     else:
-                        print("    notlink")
+                        print("    not link")
                         total_size += get_size(full_path)
+                        paths_for_tar.append([full_path, name])
+            print(paths_for_tar)
             progress_bar = tqdm(total=total_size,
                                 desc='Creating tar archive',
                                 unit='B', unit_scale=True)
-            for root, dirs, files in os.walk(input_folder):
-                for name in files:
-                    full_path = os.path.join(root, name)
-                    arcname = os.path.relpath(full_path, input_folder)
-                    # Add the file or directory to the tar archive
-                    tar.add(full_path, arcname=arcname)
-                    # Update the progress bar by the size
-                    progress_bar.update(get_size(full_path))
+
+            for full_path, arcname in paths_for_tar:
+                # Add the file or directory to the tar archive
+                tar.add(full_path, arcname=arcname)
+                # Update the progress bar by the size
+                progress_bar.update(get_size(full_path))
             # Close the progress bar
             progress_bar.close()
         save_md5_to_file(output_tar)
