@@ -140,83 +140,6 @@ def tar_exports(export_folder, dry_run, same_server=False):
                     tar_folder(path_file, tarfile)
 
 
-def tar_dir(path, tar_name):
-    # cmd = " ".join(["tar", "-hcf", tar_name, "-C", os.path.dirname(path),
-    #                 "--absolute-names", path])
-    # TODO testing tar link dir
-    # tar_basepath = tar_name.replace(".tar", "")
-    if os.path.exists(tar_name):
-        click.echo(tar_name + " exists.")
-    else:
-        cmd = " ".join(["tar cfh - -C", os.path.dirname(path), path,
-                        "-P | pv -s $(du -sb -L ", path,
-                        "| awk '{print $1}') >",
-                        tar_name])
-        # print(cmd)
-        # subprocess.run(cmd, shell=True,
-        #                stdout=subprocess.PIPE,
-        #                stderr=subprocess.PIPE, text=True)
-        result = subprocess.run(cmd, shell=True,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, text=True)
-        if result.stderr:
-            print("STDOUT:")
-            print(result.stdout)
-            print("\nSTDERR:")
-            print(result.stderr)
-
-            # for filename in os.listdir(path):
-            #     if filename.startswith("."):
-            #         continue
-            #     path_file = os.path.join(path, filename)
-            #     tarfile = os.path.join(path, tar_basepath+"_" + filename + ".tar")
-            #     print("path_file: " + path_file)
-            #     if os.path.islink(path_file):
-            #         path_file = os.readlink(path_file)
-            #         print("path_file link: " + path_file)
-            #         path_file = relpath(path_file)
-            #         print("path_file link: " + path_file)
-
-            #         cmd = " ".join(["tar cfh - -C", os.path.dirname(path_file),
-            #                         path_file,
-            #                         "-P | pv -s $(du -sb -L ", path_file,
-            #                         "| awk '{print $1}') >",
-            #                         tarfile])
-            #         subprocess.run(cmd, shell=True,
-            #                        stdout=subprocess.PIPE,
-            #                        stderr=subprocess.PIPE, text=True)
-            #         run_md5sum(tar_name)
-        # subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        # subprocess.call(cmd, shell=True,
-        #                                  stdout=subprocess.DEVNULL)
-        else:
-            run_md5sum(tar_name)
-        # subprocess.call(cmd, shell=True,
-        #                                  stdout=subprocess.DEVNULL)
-
-
-def run_md5sum(tar_name):
-    cmd = " ".join(["md5sum", tar_name, ">", tar_name+".md5"])
-    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-
-def tar_dir_distanced(path, tar_name):
-    cmd = " ".join(["tar cfh - -C", os.path.dirname(path), path,
-                    "-P | pv -s $(du -sb -L ", path, "| awk '{print $1}') >",
-                    tar_name])
-    print(cmd)
-    # subprocess.run(cmd, shell=True,
-    #                stdout=subprocess.PIPE,
-    #                stderr=subprocess.PIPE, text=True)
-    result = subprocess.run(cmd, shell=True,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, text=True)
-    print("STDOUT:")
-    print(result.stdout)
-    print("\nSTDERR:")
-    print(result.stderr)
-
-
 def tar_folder(input_folder, output_tar_gz):
     if os.path.exists(output_tar_gz):
         click.echo(output_tar_gz + " exists.")
@@ -224,14 +147,14 @@ def tar_folder(input_folder, output_tar_gz):
         with tarfile.open(output_tar_gz, 'w:gz') as tar:
             # Set up the tqdm progress bar
             total_size = 0
-            for root, dirs, files in os.walk(input_folder):
+            for root, dirs, files in os.walk(input_folder, followlinks=True):
                 for name in files:
                     full_path = os.path.join(root, name)
                     total_size += get_size(full_path)
             progress_bar = tqdm(total=total_size,
                                 desc='Creating tar archive',
                                 unit='B', unit_scale=True)
-            for root, dirs, files in os.walk(input_folder):
+            for root, dirs, files in os.walk(input_folder, followlinks=True):
                 for name in files:
                     full_path = os.path.join(root, name)
                     arcname = os.path.relpath(full_path, input_folder)
@@ -261,20 +184,25 @@ def tar_folder_from_project(input_folder, output_tar_gz, project_path):
             # Set up the tqdm progress bar
             total_size = 0
             for root, dirs, files in os.walk(input_folder):
-                for name in files + dirs:
+                for name in files:
                     full_path = os.path.join(root, name)
                     print(full_path)
                     if os.islink(full_path):
                         print("islink")
                         linked_name = os.basename(full_path)
                         local_linked = search_name_in_path(linked_name)
-
-                    total_size += get_size(full_path)
+                        if local_linked:
+                            total_size += get_size(local_linked)
+                        else:  # Not found in the project
+                            print("Not found in the project: " + full_path)
+                            continue
+                    else:
+                        total_size += get_size(full_path)
             progress_bar = tqdm(total=total_size,
                                 desc='Creating tar archive',
                                 unit='B', unit_scale=True)
             for root, dirs, files in os.walk(input_folder):
-                for name in files + dirs:
+                for name in files:
                     full_path = os.path.join(root, name)
                     arcname = os.path.relpath(full_path, input_folder)
                     # Add the file or directory to the tar archive
