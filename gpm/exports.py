@@ -273,8 +273,9 @@ def get_size(path):
         target_path = os.path.realpath(path)
         target_stat = os.stat(target_path)
         return target_stat.st_size
+    elif os.path.isdir(path):
+        return get_folder_size(path)
     else:
-        # If not a symbolic link, get the size directly
         return os.path.getsize(path)
 
 
@@ -290,3 +291,12 @@ def save_md5_to_file(file_path):
     md5_checksum = calculate_md5(file_path)
     with open(file_path+".md5", 'w') as md5_file:
         md5_file.write(md5_checksum)
+
+
+def get_folder_size(folder_path):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(folder_path):
+        for filename in filenames:
+            file_path = os.path.join(dirpath, filename)
+            total_size += os.path.getsize(file_path)
+    return total_size
