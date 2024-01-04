@@ -175,10 +175,13 @@ def export(export_folder, config, prefix, username, tar):
 @click.option("-d", "--dry-run", "dry_run", default=False, show_default=True,
               is_flag=True,
               help="Dry run without actual execution.")
-def tar_export(export_folder, dry_run):
+@click.option("-gz", "--gzip", "gzip", default=False, show_default=True,
+              is_flag=True,
+              help="Generate tar.gz instead of tar.")
+def tar_export(export_folder, dry_run, gzip):
     """Tar the sub folders under the export directory with symlinks,
     except compressed_tar folder."""
-    tar_exports(export_folder, dry_run, same_server=True)
+    tar_exports(export_folder, dry_run, gzip, same_server=True)
 
 
 @main.command()

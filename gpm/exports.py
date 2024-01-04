@@ -104,7 +104,7 @@ def relpath(path_file):
     return path_file
 
 
-def tar_exports(export_folder, dry_run, same_server=False):
+def tar_exports(export_folder, dry_run, gzip, same_server=False):
     if export_folder == ".":
         export_folder = os.getcwd()
     export_folder = export_folder.rstrip("/")
@@ -121,8 +121,12 @@ def tar_exports(export_folder, dry_run, same_server=False):
         if filename.startswith("."):
             continue
         path_file = os.path.join(export_folder, filename)
-        tarfile = os.path.join(compressed_folder,
-                               name+"_" + filename + ".tar.gz")
+        if gzip:
+            tarfile = os.path.join(compressed_folder,
+                                   name+"_" + filename + ".tar.gz")
+        else:
+            tarfile = os.path.join(compressed_folder,
+                                   name+"_" + filename + ".tar")
         # print("path_file: " + path_file)
         if os.path.islink(path_file):
             path_file = os.readlink(path_file)
@@ -135,16 +139,20 @@ def tar_exports(export_folder, dry_run, same_server=False):
                                                fg='bright_green') + tarfile)
             if not dry_run:
                 if same_server:
-                    tar_folder(path_file, tarfile)
+                    tar_folder(path_file, tarfile, gzip)
                 else:
-                    tar_folder(path_file, tarfile)
+                    tar_folder(path_file, tarfile, gzip)
 
 
-def tar_folder(input_folder, output_tar_gz):
-    if os.path.exists(output_tar_gz):
-        click.echo(output_tar_gz + " exists.")
+def tar_folder(input_folder, output_tar, gzip):
+    if gzip:
+        tar_mode = 'w:gz'
     else:
-        with tarfile.open(output_tar_gz, 'w:gz') as tar:
+        tar_mode = 'w'
+    if os.path.exists(output_tar):
+        click.echo(output_tar + " exists.")
+    else:
+        with tarfile.open(output_tar, tar_mode) as tar:
             # Set up the tqdm progress bar
             total_size = 0
             for root, dirs, files in os.walk(input_folder, followlinks=True):
@@ -164,7 +172,7 @@ def tar_folder(input_folder, output_tar_gz):
                     progress_bar.update(get_size(full_path))
             # Close the progress bar
             progress_bar.close()
-        save_md5_to_file(output_tar_gz)
+        save_md5_to_file(output_tar)
 
 
 def tar_folder_from_project(input_folder, output_tar_gz, project_path):
