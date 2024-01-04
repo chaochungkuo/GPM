@@ -150,7 +150,10 @@ def analysis(project_config, report, show_list, add_template):
               help="Define the user name if needed.")
 @click.option('-t', '--tar', "tar", required=False, default=False,
               is_flag=True, help="Tar the folders for download.")
-def export(export_folder, config, prefix, username, tar):
+@click.option("-g", "--gzip", "gzip", default=False, show_default=True,
+              is_flag=True,
+              help="Generate tar.gz instead of tar.")
+def export(export_folder, config, prefix, username, tar, gzip):
     """
     Export the project to the target folder with symbolic links.
     """
@@ -167,7 +170,8 @@ def export(export_folder, config, prefix, username, tar):
         pm.create_user(export_folder)
 
         if tar:
-            tar_exports(export_folder, dry_run=False, same_server=False)
+            tar_exports(export_folder, gzip, dry_run=False,
+                        same_server=False)
 
 
 @main.command()
