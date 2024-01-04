@@ -104,7 +104,7 @@ def relpath(path_file):
     return path_file
 
 
-def tar_exports(export_folder, dry_run, gzip, same_server=False):
+def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
     if export_folder == ".":
         export_folder = os.getcwd()
     export_folder = export_folder.rstrip("/")
@@ -141,7 +141,7 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False):
                 if same_server:
                     tar_folder(path_file, tarfile, gzip)
                 else:
-                    tar_folder_from_project(path_file, tarfile, gzip)
+                    tar_folder_from_project(path_file, tarfile, gzip, prefix=prefix)
 
 
 def tar_folder(input_folder, output_tar, gzip):
@@ -175,7 +175,7 @@ def tar_folder(input_folder, output_tar, gzip):
         save_md5_to_file(output_tar)
 
 
-def tar_folder_from_project(input_folder, output_tar, gzip):
+def tar_folder_from_project(input_folder, output_tar, gzip, prefix):
     if gzip:
         tar_mode = 'w:gz'
     else:
@@ -193,7 +193,12 @@ def tar_folder_from_project(input_folder, output_tar, gzip):
                         print("islink")
                         softlink_path = os.readlink(full_path)
                         print(softlink_path)
+                        if softlink_path.startswith(prefix):
+                            softlink_path = softlink_path.replace(prefix, "")
+                        print(softlink_path)
                         # linked_name = os.basename(full_path)
+                        total_size += get_size(softlink_path)
+                    else:
                         total_size += get_size(full_path)
             sys.exit()
             progress_bar = tqdm(total=total_size,

@@ -171,7 +171,7 @@ def export(export_folder, config, prefix, username, tar, gzip):
 
         if tar:
             tar_exports(export_folder=export_folder, gzip=gzip,
-                        dry_run=False, same_server=False)
+                        dry_run=False, same_server=False, prefix=prefix)
 
 
 @main.command()
