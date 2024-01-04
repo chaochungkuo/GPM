@@ -225,8 +225,50 @@ def tar_folder(input_folder, output_tar_gz):
             # Set up the tqdm progress bar
             total_size = 0
             for root, dirs, files in os.walk(input_folder):
+                for name in files:
+                    full_path = os.path.join(root, name)
+                    total_size += get_size(full_path)
+            progress_bar = tqdm(total=total_size,
+                                desc='Creating tar archive',
+                                unit='B', unit_scale=True)
+            for root, dirs, files in os.walk(input_folder):
+                for name in files:
+                    full_path = os.path.join(root, name)
+                    arcname = os.path.relpath(full_path, input_folder)
+                    # Add the file or directory to the tar archive
+                    tar.add(full_path, arcname=arcname)
+                    # Update the progress bar by the size
+                    progress_bar.update(get_size(full_path))
+            # Close the progress bar
+            progress_bar.close()
+        save_md5_to_file(output_tar_gz)
+
+
+def tar_folder_from_project(input_folder, output_tar_gz, project_path):
+    def search_name_in_path(query_name):
+        res = None
+        for root, dirs, files in os.walk(project_path):
+            for name in dirs+files:
+                if query_name == os.basename(name):
+                    res = os.path.join(root, name)
+                    break
+        return res
+
+    if os.path.exists(output_tar_gz):
+        click.echo(output_tar_gz + " exists.")
+    else:
+        with tarfile.open(output_tar_gz, 'w:gz') as tar:
+            # Set up the tqdm progress bar
+            total_size = 0
+            for root, dirs, files in os.walk(input_folder):
                 for name in files + dirs:
                     full_path = os.path.join(root, name)
+                    print(full_path)
+                    if os.islink(full_path):
+                        print("islink")
+                        linked_name = os.basename(full_path)
+                        local_linked = search_name_in_path(linked_name)
+
                     total_size += get_size(full_path)
             progress_bar = tqdm(total=total_size,
                                 desc='Creating tar archive',
