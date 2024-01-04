@@ -170,8 +170,8 @@ def export(export_folder, config, prefix, username, tar, gzip):
         pm.create_user(export_folder)
 
         if tar:
-            tar_exports(export_folder, gzip, dry_run=False,
-                        same_server=False)
+            tar_exports(export_folder=export_folder, gzip=gzip,
+                        dry_run=False, same_server=False)
 
 
 @main.command()
@@ -185,7 +185,8 @@ def export(export_folder, config, prefix, username, tar, gzip):
 def tar_export(export_folder, dry_run, gzip):
     """Tar the sub folders under the export directory with symlinks,
     except compressed_tar folder."""
-    tar_exports(export_folder, dry_run, gzip, same_server=True)
+    tar_exports(export_folder=export_folder, gzip=gzip,
+                dry_run=dry_run, same_server=True)
 
 
 @main.command()
