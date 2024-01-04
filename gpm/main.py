@@ -167,7 +167,7 @@ def export(export_folder, config, prefix, username, tar):
         pm.create_user(export_folder)
 
         if tar:
-            tar_exports(export_folder, dry_run=False)
+            tar_exports(export_folder, dry_run=False, same_server=False)
 
 
 @main.command()

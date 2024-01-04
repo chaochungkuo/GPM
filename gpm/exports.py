@@ -141,7 +141,7 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False):
                 if same_server:
                     tar_folder(path_file, tarfile, gzip)
                 else:
-                    tar_folder(path_file, tarfile, gzip)
+                    tar_folder_from_project(path_file, tarfile, gzip)
 
 
 def tar_folder(input_folder, output_tar, gzip):
@@ -175,7 +175,44 @@ def tar_folder(input_folder, output_tar, gzip):
         save_md5_to_file(output_tar)
 
 
-def tar_folder_from_project(input_folder, output_tar_gz, project_path):
+def tar_folder_from_project(input_folder, output_tar, gzip):
+    if gzip:
+        tar_mode = 'w:gz'
+    else:
+        tar_mode = 'w'
+    if os.path.exists(output_tar):
+        click.echo(output_tar + " exists.")
+    else:
+        with tarfile.open(output_tar, tar_mode) as tar:
+            # Set up the tqdm progress bar
+            total_size = 0
+            for root, dirs, files in os.walk(input_folder):
+                for name in files+dirs:
+                    full_path = os.path.join(root, name)
+                    if os.islink(full_path):
+                        print("islink")
+                        softlink_path = os.readlink(full_path)
+                        print(softlink_path)
+                        # linked_name = os.basename(full_path)
+                        total_size += get_size(full_path)
+            sys.exit()
+            progress_bar = tqdm(total=total_size,
+                                desc='Creating tar archive',
+                                unit='B', unit_scale=True)
+            for root, dirs, files in os.walk(input_folder, followlinks=True):
+                for name in files:
+                    full_path = os.path.join(root, name)
+                    arcname = os.path.relpath(full_path, input_folder)
+                    # Add the file or directory to the tar archive
+                    tar.add(full_path, arcname=arcname)
+                    # Update the progress bar by the size
+                    progress_bar.update(get_size(full_path))
+            # Close the progress bar
+            progress_bar.close()
+        save_md5_to_file(output_tar)
+
+
+def tar_folder_from_project2(input_folder, output_tar_gz, project_path):
     def search_name_in_path(query_name):
         res = None
         for root, dirs, files in os.walk(project_path):
