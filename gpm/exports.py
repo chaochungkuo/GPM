@@ -188,23 +188,24 @@ def tar_folder_from_project(input_folder, output_tar, gzip, prefix):
             total_size = 0
             for root, dirs, files in os.walk(input_folder):
                 for name in files+dirs:
+                    print(name)
                     full_path = os.path.join(root, name)
                     if os.path.islink(full_path):
-                        print("islink")
+                        print("    islink")
                         softlink_path = os.readlink(full_path)
-                        print(softlink_path)
+                        print("    "+softlink_path)
                         if softlink_path.startswith(prefix):
                             softlink_path = softlink_path.replace(prefix, "")
-                        print(softlink_path)
+                        print("    "+softlink_path)
                         # linked_name = os.basename(full_path)
                         total_size += get_size(softlink_path)
                     else:
+                        print("    notlink")
                         total_size += get_size(full_path)
-            sys.exit()
             progress_bar = tqdm(total=total_size,
                                 desc='Creating tar archive',
                                 unit='B', unit_scale=True)
-            for root, dirs, files in os.walk(input_folder, followlinks=True):
+            for root, dirs, files in os.walk(input_folder):
                 for name in files:
                     full_path = os.path.join(root, name)
                     arcname = os.path.relpath(full_path, input_folder)
