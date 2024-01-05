@@ -210,9 +210,12 @@ def tar_export(export_folder, dry_run, gzip):
 def clean(target_folders, dry_run, show_total, show_each_file):
     """Clean the given folders by deleting the patterns defined in gpm.ini:
     {}""".format(", ".join(get_gpm_config("CLEAN", "PATTERNS")))
-    click.echo("Following files/folders could be cleaned:")
-    clean_folders(target_folders, dry=dry_run,
-                  show_total=show_total, show_each_file=show_each_file)
+    if not target_folders:
+        click.echo("No folders is provided.")
+    else:
+        click.echo("Following files/folders could be cleaned:")
+        clean_folders(target_folders, dry=dry_run,
+                      show_total=show_total, show_each_file=show_each_file)
 
 
 @main.command()
