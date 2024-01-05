@@ -1,3 +1,4 @@
+import os
 import click
 from gpm.clean import clean_folders
 from gpm.helper import get_gpm_config
@@ -210,7 +211,7 @@ def tar_export(export_folder, dry_run, gzip):
 def clean(target_folders, dry_run, show_total, show_each_file):
     """Clean the given folders by deleting the patterns defined in gpm.ini:
     {}""".format(", ".join(get_gpm_config("CLEAN", "PATTERNS")))
-    if not target_folders:
+    if len(target_folders) == 1 and not os.path.isdir(target_folders[0]):
         click.echo("No folders is provided.")
     else:
         click.echo("Following files/folders could be cleaned:")

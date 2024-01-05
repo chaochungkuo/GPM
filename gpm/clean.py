@@ -27,7 +27,10 @@ def clean_folders(target_folders, show_total, show_each_file, dry=False):
                                                 matching_file))
             if show_total:
                 click.echo(get_human_readable_size(total_size))
-    if not dry:
+    if not paths_to_be_cleaned:
+        click.echo("No files/folders match the defined patterns.")
+        click.echo(get_gpm_config("CLEAN", "PATTERNS"))
+    elif not dry:
         question_text = "Do you want to clean all the above files/folders?" \
                         "(Not revertible)"
         user_response = ask_yes_no_question(question_text)
