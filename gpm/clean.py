@@ -28,7 +28,8 @@ def clean_folders(target_folders, show_total, show_each_file, dry=False):
             if show_total:
                 click.echo(get_human_readable_size(total_size))
     if not dry:
-        question_text = "Do you want to clean all the above files/folders?"
+        question_text = "Do you want to clean all the above files/folders?" \
+                        "(Not revertible)"
         user_response = ask_yes_no_question(question_text)
         if user_response:
             for paths_to_delete in paths_to_be_cleaned:
