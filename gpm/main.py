@@ -198,10 +198,10 @@ def tar_export(export_folder, dry_run, gzip):
 @click.option("-d", "--dry-run", "dry_run", default=False, show_default=True,
               is_flag=True,
               help="Dry run without actual execution.")
-@click.option("-b", "--before-date", "before", default="",
-              help="Filter the folders by the date in its name.")
-@click.option("-a", "--after-date", "after", default="",
-              help="Filter the folders by the date in its name.")
+# @click.option("-b", "--before-date", "before", default="",
+#               help="Filter the folders by the date in its name.")
+# @click.option("-a", "--after-date", "after", default="",
+#               help="Filter the folders by the date in its name.")
 @click.option("-v", "--v", "show_total", default=True, show_default=True,
               is_flag=True, help="Show total size under the target folder.")
 @click.option("-vv", "--vv", "show_each_file", default=False,
@@ -213,10 +213,6 @@ def clean(target_folders, dry_run, before, after, show_total, show_each_file):
     click.echo("Following files/folders could be cleaned:")
     clean_folders(target_folders, dry=dry_run,
                   show_total=show_total, show_each_file=show_each_file)
-
-    # Filter folders
-    # Iterate each folder and each pattern (one pattern per line, with size)
-    # Clean or not
 
 
 @main.command()
