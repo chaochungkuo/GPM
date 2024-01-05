@@ -203,12 +203,10 @@ def tar_export(export_folder, dry_run, gzip):
 #               help="Filter the folders by the date in its name.")
 # @click.option("-a", "--after-date", "after", default="",
 #               help="Filter the folders by the date in its name.")
-@click.option("-v", "--v", "show_total", default=True, show_default=True,
-              is_flag=True, help="Show total size under the target folder.")
-@click.option("-vv", "--vv", "show_each_file", default=False,
+@click.option("-v", "--v", "show_each_file", default=False,
               show_default=True,
               is_flag=True, help="Show the size of each file.")
-def clean(target_folders, dry_run, show_total, show_each_file):
+def clean(target_folders, dry_run, show_each_file):
     """Clean the given folders by deleting the patterns defined in gpm.ini:
     {}""".format(", ".join(get_gpm_config("CLEAN", "PATTERNS")))
     if len(target_folders) == 1 and not os.path.isdir(target_folders[0]):
@@ -216,7 +214,7 @@ def clean(target_folders, dry_run, show_total, show_each_file):
     else:
         click.echo("Following files/folders could be cleaned:")
         clean_folders(target_folders, dry=dry_run,
-                      show_total=show_total, show_each_file=show_each_file)
+                      show_each_file=show_each_file)
 
 
 @main.command()

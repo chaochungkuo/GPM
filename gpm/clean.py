@@ -7,7 +7,7 @@ import click
 from gpm.helper import get_gpm_config
 
 
-def clean_folders(target_folders, show_total, show_each_file, dry=False):
+def clean_folders(target_folders, show_each_file, dry=False):
     regex_patterns = get_gpm_config("CLEAN", "PATTERNS")
     paths_to_be_cleaned = []
     for folder in target_folders:  # Iterate folders
@@ -25,8 +25,7 @@ def clean_folders(target_folders, show_total, show_each_file, dry=False):
                         readable_size = get_human_readable_size(size_bytes)
                         click.echo("[{}] {}".format(readable_size.rjust(10),
                                                     matching_file))
-                if show_total:
-                    click.echo(get_human_readable_size(total_size))
+                click.echo(get_human_readable_size(total_size))
     if not paths_to_be_cleaned:
         click.echo("No files/folders match the defined patterns.")
         click.echo(get_gpm_config("CLEAN", "PATTERNS"))
