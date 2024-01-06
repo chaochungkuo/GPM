@@ -39,7 +39,7 @@ def main():
     """The Genomic Project Manager is a powerful tool designed
        to streamline and automate bioinformatic workflows within a
        core facility.\n
-       Contact: chao-chung.kuo@rwth-aachen.de\n
+       Contact: chao-chung.kuo@rwth-aachen.de
        Github: https://github.com/chaochungkuo/GPM
     """
     pass
@@ -208,8 +208,7 @@ def tar_export(export_folder, dry_run, gzip):
               show_default=True,
               is_flag=True, help="Show the size of each file.")
 def clean(target_folders, dry_run, show_each_file):
-    """Clean the given folders by deleting the patterns defined in gpm.ini:
-    {}""".format(", ".join(get_gpm_config("CLEAN", "PATTERNS")))
+    """Clean the given folders by deleting the patterns defined in gpm.ini."""
     if len(target_folders) == 1 and not os.path.isdir(target_folders[0]):
         click.echo("No folders is provided.")
     else:
