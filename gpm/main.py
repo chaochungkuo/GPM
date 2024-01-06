@@ -218,6 +218,32 @@ def clean(target_folders, dry_run, show_each_file):
 
 
 @main.command()
+@click.argument('target_folders', nargs=-1)
+@click.argument('archive_destination')
+@click.option("-d", "--dry-run", "dry_run", default=False, show_default=True,
+              is_flag=True,
+              help="Dry run without actual execution.")
+@click.option("-v", "--v", "show_each_file", default=False,
+              show_default=True,
+              is_flag=True, help="Show details.")
+def archive(target_folders, dry_run, show_each_file):
+    """
+    Archive the given folders to the archive destination and delete the
+    original folders. This should be done after cleaning by gpm clean.
+    """
+    if len(target_folders) == 1 and not os.path.isdir(target_folders[0]):
+        click.echo("No folders is provided.")
+    else:
+        # show total size of folders
+        # copy every files
+        # check every file by md5sum
+        # confirm to delete the original
+        # delete original
+
+        pass
+
+
+@main.command()
 @click.argument('samplesheet')
 @click.argument('fastq_dir')
 @click.option('-st', default="unstranded", show_default=True,
