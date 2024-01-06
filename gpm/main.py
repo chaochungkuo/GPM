@@ -1,5 +1,6 @@
 import os
 import click
+from gpm.archive import archive_folders
 from gpm.clean import clean_folders
 from gpm.helper import get_gpm_config
 from gpm.samplesheet import generate_samples
@@ -218,29 +219,24 @@ def clean(target_folders, dry_run, show_each_file):
 
 
 @main.command()
-@click.argument('target_folders', nargs=-1)
+@click.argument('source_folders', nargs=-1)
 @click.argument('archive_destination')
 @click.option("-d", "--dry-run", "dry_run", default=False, show_default=True,
               is_flag=True,
               help="Dry run without actual execution.")
-@click.option("-v", "--v", "show_each_file", default=False,
+@click.option("-v", "--verbose", "verbose", default=False,
               show_default=True,
               is_flag=True, help="Show details.")
-def archive(target_folders, dry_run, show_each_file):
+def archive(source_folders, archive_destination, dry_run, verbose):
     """
     Archive the given folders to the archive destination and delete the
     original folders. This should be done after cleaning by gpm clean.
     """
-    if len(target_folders) == 1 and not os.path.isdir(target_folders[0]):
+    if len(source_folders) == 1 and not os.path.isdir(source_folders[0]):
         click.echo("No folders is provided.")
     else:
-        # show total size of folders
-        # copy every files
-        # check every file by md5sum
-        # confirm to delete the original
-        # delete original
-
-        pass
+        archive_folders(source_folders, archive_destination,
+                        dry=dry_run, verbose=verbose)
 
 
 @main.command()

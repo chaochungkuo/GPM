@@ -5,7 +5,7 @@ import hashlib
 import filecmp
 
 
-def archive_folders(source_folders, target_directory, show_each_file,
+def archive_folders(source_folders, destination_folder,
                     dry=False, verbose=False):
     for folder in source_folders:  # Iterate folders
         if os.path.isdir(folder):
@@ -14,15 +14,17 @@ def archive_folders(source_folders, target_directory, show_each_file,
             click.echo("[{}] {}".format(
                 folder_size.rjust(10),
                 folder))
-    if not dry:
-        question_text = "Target directory:\n"+target_directory+"\n\n" \
+    if dry:
+        click.echo("This is just a dry run. Nothing is executed.")
+    else:
+        question_text = "Target directory:\n"+destination_folder+"\n\n" \
                         "Do you want to archive (copy to the destination " \
                         "directory and delete the source) all the above " \
                         "folders? "
         user_response = ask_yes_no_question(question_text)
         if user_response:
             for folder in source_folders:
-                target_path = os.path.join(target_directory,
+                target_path = os.path.join(destination_folder,
                                            os.path.basename(folder))
                 # copy folder
                 message = "Copy to " + target_path
@@ -38,7 +40,12 @@ def archive_folders(source_folders, target_directory, show_each_file,
                     print("Everything is identical.")
                 else:
                     print("Folders are not identical.")
-                # delete source
+            # delete source
+            question_text = "Do you want to delete the source folders now?"
+            user_response = ask_yes_no_question(question_text)
+            if user_response:
+                for folder in source_folders:
+                    delete_files_and_folders(folder)
 
 
 def copy_folder(source_folder, destination_folder, verbose=False):
