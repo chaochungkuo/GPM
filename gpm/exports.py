@@ -32,7 +32,7 @@ def get_htaccess_path():
 
 
 def htpasswd_create_user(export_folder, url, username,
-                         app=None, raw_export=False):
+                         app=None):
     """Create the new user in the target directory with password"""
     export_base_path = Path(export_folder).parent.absolute()
     if os.path.exists(os.path.join(export_base_path, ".htpasswd")):
@@ -47,10 +47,10 @@ def htpasswd_create_user(export_folder, url, username,
         click.echo(click.style("Create new user for export directory:",
                                fg='bright_green'))
         click.echo("Directory:\t" + export_folder)
-        if app and not raw_export:
+        if app:
             if app in ["RNAseq", "tRNAseq", "mRNAseq", "3mRNAseq"]:
                 app = "RNAseq"
-            export_URL = "".join(["URL:\t", url,
+            export_URL = "".join([url,
                                   "/3_Reports/analysis/Analysis_Report_",
                                   app, ".html"])
         else:
