@@ -202,6 +202,17 @@ class GPM():
         show_tree(demultiplex_path)
         show_instructions("demultiplex", method)
 
+    def update_project_name(self, name):
+        check_project_name(name)
+        names = name.split("_")
+        self.profile["Project"]["date"] = names[0]
+        self.profile["Project"]["name1"] = names[1]
+        self.profile["Project"]["name2"] = names[2]
+        self.profile["Project"]["institute"] = names[3]
+        self.profile["Project"]["application"] = names[4]
+        self.profile["Project"]["project_name"] = name
+        self.profile["Project"]["project_string"] = " ".join(names)
+
     def init_project(self, name):
         """
         Initiate a project by creating a new folder, load the project.ini,
@@ -213,15 +224,7 @@ class GPM():
         :return: None
         """
         # Check name
-        check_project_name(name)
-        names = name.split("_")
-        self.profile["Project"]["date"] = names[0]
-        self.profile["Project"]["name1"] = names[1]
-        self.profile["Project"]["name2"] = names[2]
-        self.profile["Project"]["institute"] = names[3]
-        self.profile["Project"]["application"] = names[4]
-        self.profile["Project"]["project_name"] = name
-        self.profile["Project"]["project_string"] = " ".join(names)
+        self.update_project_name(name)
         # Create project folder
         current_dir = os.getcwd()
         project_path = path.join(current_dir, name)
@@ -407,6 +410,9 @@ class GPM():
 
         export_dir = os.path.abspath(export_dir)
         check_export_directory(export_dir)
+        # Load export name to project.ini
+        export_name = os.path.basename(export_dir)
+        self.update_project_name(export_name)
         # Creating soft links of the files
         self.load_export_config()
         for entry in self.export_structure:
@@ -459,3 +465,6 @@ class GPM():
         self.profile["Export"]["export_URL"] = export_URL
         self.profile["Export"]["export_user"] = export_user
         self.profile["Export"]["export_password"] = export_password
+
+    def update_username(self, username):
+        self.profile["Export"]["export_user"] = username
