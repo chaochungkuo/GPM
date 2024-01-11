@@ -31,7 +31,8 @@ Configuration
 
 GPM will copy the config files and the templates into ``~/gpmdata/``. Its structure is as below:
 
-.. code-block:: console
+.. code-block:: shell
+
    ~/gpmdata/
    ├── analysis
    ├── config
@@ -45,13 +46,13 @@ GPM will copy the config files and the templates into ``~/gpmdata/``. Its struct
 
 Here we would like to introduce you these 5 configuration files under ``~/gpmdata/config``. You can find all the explanation as comments in each file.
 
-- [gpm.ini](https://github.com/chaochungkuo/GPM/blob/main/config/gpm.ini): Define the configurations for GPM itself globally.
-- [environment.ini](https://github.com/chaochungkuo/GPM/blob/main/config/environment.ini): Define the paths of programs or configuration for the machine where you run GPM.
-- [analysis.config](https://github.com/chaochungkuo/GPM/blob/main/config/analysis.config): This file define the group, name, and files for all analyses. This file doesn't need to be modified in most cases, except you want to add new analysis.
-- [export.config](https://github.com/chaochungkuo/GPM/blob/main/config/export.config): This file define the behavior for `gpm export`. This file doesn't need to be modified in most cases, except you want to add new analysis.
-- [htaccess](https://github.com/chaochungkuo/GPM/blob/main/config/htaccess): This file will be copied into every export folder by `gpm export`.
+- `gpm.ini <https://github.com/chaochungkuo/GPM/blob/main/config/gpm.ini>`_: Define the configurations for GPM itself globally.
+- `environment.ini <https://github.com/chaochungkuo/GPM/blob/main/config/environment.ini>`_: Define the paths of programs or configuration for the machine where you run GPM.
+- `analysis.config <https://github.com/chaochungkuo/GPM/blob/main/config/analysis.config>`_: This file define the group, name, and files for all analyses. This file doesn't need to be modified in most cases, except you want to add new analysis.
+- `export.config <https://github.com/chaochungkuo/GPM/blob/main/config/export.config>`_: This file define the behavior for `gpm export`. This file doesn't need to be modified in most cases, except you want to add new analysis.
+- `htaccess <https://github.com/chaochungkuo/GPM/blob/main/config/htaccess>`_: This file will be copied into every export folder by `gpm export`.
 
-Add user.config
----------------
+Add user configs
+----------------
 
 Any modification on those config files will be overwritten when you install GPM again. In order to keep your changes, you can create a new config file with ".user" at the end of the file name. For example, GPM will load `gpm.ini.user` prior `gpm.ini` if `gpm.ini.user` exists.
