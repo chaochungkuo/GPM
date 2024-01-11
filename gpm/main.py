@@ -169,6 +169,8 @@ def export(export_folder, config, prefix, username, tar, gzip):
         pm = GPM()
         pm.load_project_config_file(config)
         pm.export(export_folder, prefix)
+        if username:
+            pm.update_username(username)
         pm.add_htaccess(export_folder)
         pm.create_user(export_folder)
         pm.update_log()
