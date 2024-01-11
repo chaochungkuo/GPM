@@ -12,7 +12,7 @@ To use GPM, first install it using pip:
 
    $ pip install genomicspm
 
-By default, some template data will be copied under `~/gpmdata/`. If you want to change this behavior, please define `GPMDATA`:
+By default, some template data will be copied under ``~/gpmdata/``. If you want to change this behavior, please define ``GPMDATA``:
 
 .. code-block:: console
 
@@ -29,7 +29,7 @@ You can test your installation by:
 Configuration
 -------------
 
-GPM will copy the config files and the templates into `~/gpmdata/`. Its structure is as below:
+GPM will copy the config files and the templates into ``~/gpmdata/``. Its structure is as below:
 
 .. code-block:: shell
 
@@ -44,7 +44,7 @@ GPM will copy the config files and the templates into `~/gpmdata/`. Its structur
    ├── demultiplex
    └── processing
 
-Here we would like to introduce you these 5 configuration files under `~/gpmdata/config`. You can find all the explanation as comments in each file.
+Here we would like to introduce you these 5 configuration files under ``~/gpmdata/config``. You can find all the explanation as comments in each file.
 
 - `gpm.ini <https://github.com/chaochungkuo/GPM/blob/main/config/gpm.ini>`_: Define the configurations for GPM itself globally.
 - `environment.ini <https://github.com/chaochungkuo/GPM/blob/main/config/environment.ini>`_: Define the paths of programs or configuration for the machine where you run GPM.

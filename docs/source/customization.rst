@@ -7,7 +7,7 @@ Please refer to `Add user.config <https://gpm.readthedocs.io/en/latest/usage.htm
 
 Customize your own author information
 ----------------
-You can edit `gpm.ini` or `gpm.ini.user` on the lines below:
+You can edit ``gpm.ini`` or ``gpm.ini.user`` on the lines below:
 
 .. code-block:: shell
 
@@ -19,7 +19,7 @@ You can add multiple persons with proper indentation.
 
 Customize your own institute information
 ----------------
-You can edit `gpm.ini` or `gpm.ini.user` on the lines below:
+You can edit ``gpm.ini`` or ``gpm.ini.user`` on the lines below:
 
 .. code-block:: shell
 
