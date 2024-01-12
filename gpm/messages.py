@@ -43,6 +43,15 @@ gpm_messages["processing"]["nfcore_3mRNAseq"] = [
     "   bash run_nfcore_3mrnaseq.sh"
 ]
 
+gpm_messages["processing"]["nfcore_mRNAseq"] = [
+    "1. Generate samplesheet.csv with the following command:",
+    "   gpm samplesheet_rnaseq --help",
+    "2. Check and modify run_nfcore_rnaseq.sh",
+    "3. Run run_nfcore_rnaseq.sh with the command below: ",
+    "   (Recommend to run it in screen session)",
+    "   bash run_nfcore_rnaseq.sh"
+]
+
 gpm_messages["analysis"]["DGEA_RNAseq"] = [
     "1. Generate analysis/samplesheet.csv with all sample information.",
     "   You can try to modify the samplesheet.csv from nfcore pipeline:",
