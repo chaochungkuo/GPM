@@ -1,0 +1,21 @@
+Sequencing instrument	
+MiSeq®               Forward strand
+NextSeq®             Reverse complement
+iSeq® 100            Reverse complement
+HiSeq® X             Reverse complement
+
+NovaSeq®	
+1.0 reagents	      Forward strand
+1.5 reagents	      Reverse complement
+
+MiniSeq®	
+Rapid Reagents	      Forward strand
+Standard Reagents    Reverse complement
+
+HiSeq 2500 or 2000	
+Paired End Flowcell  Forward strand
+Single Read Flowcell Reverse complement
+
+HiSeq 3000 or 4000	
+Paired End Flowcell  Reverse complement
+Single Read Flowcell Forward strand
