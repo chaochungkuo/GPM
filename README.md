@@ -52,7 +52,7 @@ Now, you are ready to run nfcore and process your data.
 Generate the analysis report for the given application:
 
 ```bash
-gpm analysis project.ini --application RNAseq
+gpm analysis project.ini --report RNAseq
 ```
 
 An Rmd file, **Analysis_Report_RNAseq.Rmd**, will be added under the _analysis_ folder. Now you can explore available analyses provided by GPM by:
@@ -67,6 +67,51 @@ Now you can select the analysis you want by name and add a set of files for **DG
 gpm analysis project.ini --add DGEA_RNAseq
 ```
 
+Whenever you want to add additional analyses, you can simply repeat the steps above. For example, now we can add **GSEA_hallmarkgenes**.
+
+```bash
+gpm analysis project.ini --add GSEA_hallmarkgenes
+```
+
 With its flexibility and scalability, GPM accelerates the template creation process and encourages code reuse.
+
+### 4. Export
+
+After you finish the analyses and reports, now you want to export all the results either to a web server or another local folder. No files will be copied, instead, they will be soft linked only.
+
+Below command is used for exporting the results to a new folder in a web server:
+
+```bash
+gpm export --config project.ini --symprefix /mnt/nextgen/ --tar /path/to/web/server/folder/
+```
+
+Or, you can export the results to another folder locally.
+
+```bash
+gpm export --config project.ini --tar /path/to/a/local/folder/
+```
+
+### 5. Clean
+
+After you finish the analysis, you might want to clean the temporary files which you don't want to archive. The files for cleaning are defined by regex pattern in `gpm.ini`, section `[CLEAN]` and the key `PATTERNS`,
+
+```bash
+gpm clean /path/to/the/folder/
+```
+
+### 6. Archive
+
+When everything is done and you want to archive the scripts and codes to another place, you can use the command below:
+
+```bash
+gpm archive -v SOURCE_FOLDERS /target/archive/folder/
+```
+
+You can use wild cards to define the source folders, such as:
+
+```bash
+gpm archive -v 2306* /target/archive/folder/
+```
+
 
 For additional tutorials and HowTo guides, refer to the documentation site: [gpm.readthedocs.io](https://gpm.readthedocs.io/)
