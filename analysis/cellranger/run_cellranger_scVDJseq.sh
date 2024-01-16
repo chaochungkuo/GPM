@@ -22,5 +22,5 @@ cd ../
 
 # Soft link multiQC
 # Because FASTQ path for scVDJseq targets to the directory of FASTQ files, we have to go upward to the parent directory
-PATH_FASTQ=$(cut -d "/" -f 1,2,3,4 <<< PROJECT_FASTQ_DIR)
+PATH_FASTQ=$(cut -d "/" -f 1,2,3,4 <<< PROJECT_FASTQ_PATH)
 ln -s ${PATH_FASTQ}/multiqc/ ../multiqc

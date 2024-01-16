@@ -2,7 +2,7 @@ conda activate schashtag
 
 EXP_CELL=5000
 NUM_THREADS=N_CORES
-FASTQ_DIR="PROJECT_FASTQ_DIR"
+FASTQ_DIR="PROJECT_FASTQ_PATH"
 for FASTQ in ${FASTQ_DIR}/*R1_001.fastq.gz; do
   name=$(basename "$FASTQ" | cut -d'_' -f1,2)
   echo $name
