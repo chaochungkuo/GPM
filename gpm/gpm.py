@@ -256,6 +256,8 @@ class GPM():
             click.echo(processing_path)
         else:
             os.mkdir(processing_path)
+        if fastq:
+            self.update_fastq_path(fastq)
         # Copy the method
         source_dir = path.join(get_gpmdata_path(), "processing", method)
         for filename in os.listdir(source_dir):
@@ -468,3 +470,6 @@ class GPM():
 
     def update_username(self, username):
         self.profile["Export"]["export_user"] = username
+
+    def update_fastq_path(self, fastq_path):
+        self.profile["Demultiplexing"]["demultiplex_path"] = fastq_path

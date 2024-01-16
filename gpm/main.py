@@ -88,6 +88,8 @@ def init(from_config, fastq, name, processing):
     pm.init_project(name)
     if processing:
         pm.processing(processing, fastq)
+    if fastq:
+        pm.update_fastq_path(fastq)
     pm.update_log()
     pm.write_project_config_file()
 
