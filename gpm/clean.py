@@ -13,6 +13,8 @@ def clean_folders(target_folders, show_each_file, dry=False):
     for folder in target_folders:  # Iterate folders
         if os.path.isdir(folder):
             folder_size = get_file_or_folder_size(folder)
+            if not folder_size:
+                continue
             folder_size = get_human_readable_size(folder_size)
             matching_files = search_files_by_patterns(folder,
                                                       regex_patterns)
@@ -78,15 +80,23 @@ def get_human_readable_size(size_bytes):
 
 
 def get_file_or_folder_size(path):
-    if os.path.isfile(path):
-        # If it's a file, get its size directly
-        size_bytes = os.path.getsize(path)
-    elif os.path.isdir(path):
-        # If it's a directory, sum up the sizes of all files in it
-        size_bytes = sum(os.path.getsize(os.path.join(root, file))
-                         for root, dirs, files in os.walk(path)
-                         for file in files)
-    return size_bytes
+    try:
+        if os.path.isfile(path):
+            # If it's a file, get its size directly
+            size_bytes = os.path.getsize(path)
+        elif os.path.isdir(path):
+            # If it's a directory, sum up the sizes of all files in it
+            size_bytes = sum(os.path.getsize(os.path.join(root, file))
+                             for root, dirs, files in os.walk(path)
+                             for file in files)
+        else:
+            # Handle the case when neither a file nor a directory exists
+            raise FileNotFoundError(f"No such file or directory: {path}")
+        return size_bytes
+
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        return None  # You can choose to return a default value or handle it as needed
 
 
 def ask_yes_no_question(question):
