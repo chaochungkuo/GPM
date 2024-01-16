@@ -12,7 +12,7 @@ def clean_folders(target_folders, show_each_file, dry=False):
     paths_to_be_cleaned = []
     for folder in target_folders:  # Iterate folders
         if os.path.isdir(folder):
-            folder_size = get_file_or_folder_size(folder)
+            folder_size = get_file_or_folder_size(folder, show_each_file)
             if not folder_size:
                 continue
             folder_size = get_human_readable_size(folder_size)
@@ -24,7 +24,8 @@ def clean_folders(target_folders, show_each_file, dry=False):
                 each_size = {}
 
                 for matching_file in matching_files:
-                    size_bytes = get_file_or_folder_size(matching_file)
+                    size_bytes = get_file_or_folder_size(matching_file,
+                                                         show_each_file)
                     total_size += size_bytes
                     each_size[matching_file] = size_bytes
                 total_size = get_human_readable_size(total_size)
@@ -79,7 +80,7 @@ def get_human_readable_size(size_bytes):
     return "{:.2f} {}".format(size, unit.ljust(2))
 
 
-def get_file_or_folder_size(path):
+def get_file_or_folder_size(path, verbose=False):
     try:
         if os.path.isfile(path):
             # If it's a file, get its size directly
@@ -89,14 +90,11 @@ def get_file_or_folder_size(path):
             size_bytes = sum(os.path.getsize(os.path.join(root, file))
                              for root, dirs, files in os.walk(path)
                              for file in files)
-        else:
-            # Handle the case when neither a file nor a directory exists
-            raise FileNotFoundError(f"No such file or directory: {path}")
         return size_bytes
-
     except FileNotFoundError as e:
-        print(f"Error: {e}")
-        return None  # You can choose to return a default value or handle it as needed
+        if verbose:
+            click.echo(e)
+        return None
 
 
 def ask_yes_no_question(question):
