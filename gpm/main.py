@@ -164,7 +164,9 @@ def export(export_folder, config, prefix, username, tar, gzip):
     if not config:  # Just an empty folder
         check_export_directory(export_folder)
         export_URL = get_gpm_config("URL", "EXPORT_URL")
-        export_empty_folder(export_folder, export_URL, username)
+        export_empty_folder(export_URL=export_URL,
+                            export_dir=export_folder,
+                            username=username)
 
     else:
         pm = GPM()
