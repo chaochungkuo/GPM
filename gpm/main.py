@@ -146,8 +146,7 @@ def analysis(project_config, report, show_list, add_template):
 
 @main.command()
 @click.argument('export_folder')
-@click.option('-c', '--config', "config", required=False,
-              default='project_config',
+@click.option('-c', '--config', "config", required=False, default=False,
               help="Define the config file of the project.")
 @click.option('-s', '--symprefix', "prefix", required=False, default="",
               help="Add the symbolic prefix of all paths.")
