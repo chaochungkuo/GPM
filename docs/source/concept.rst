@@ -10,6 +10,7 @@ Two levels of configuration files
 ----------------
 
 There are two levels of configuration files in GPM:
+
 - Global configuration under `GPMDATA/config/`
     - `environment.ini` by default or `environment.ini.user` if it exists.
     - `gpm.ini` by default or `gpm.ini.user` if it exists.
