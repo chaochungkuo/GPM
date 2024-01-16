@@ -11,10 +11,10 @@ Two levels of configuration files
 
 There are two levels of configuration files in GPM:
 
-- Global configuration under `GPMDATA/config/`
-    - `environment.ini` by default or `environment.ini.user` if it exists.
-    - `gpm.ini` by default or `gpm.ini.user` if it exists.
-- Project-wise configuration as `project.ini`
+- Global configuration under ``GPMDATA/config/``
+    - ``environment.ini`` by default or ``environment.ini.user`` if it exists.
+    - ``gpm.ini`` by default or ``gpm.ini.user`` if it exists.
+- Project-wise configuration as ``project.ini``
 
 All the options defined in the above files are used as the key for inserting their corresponding values while copying any files in GPM in creating reports or adding analysis templates. This offers a flexible way to customize your own script and reports.
 
