@@ -36,7 +36,7 @@ gpm_messages["demultiplex"]["cellranger_atac_mkfastq"] = [
 
 gpm_messages["processing"]["nfcore_3mRNAseq"] = [
     "1. Generate samplesheet.csv with the following command:",
-    "   gpm samplesheet_rnaseq --help",
+    "   gpm samplesheet-rnaseq --help",
     "2. Check and modify run_nfcore_3mrnaseq.sh",
     "3. Run run_nfcore_3mrnaseq.sh with the command below: ",
     "   (Recommend to run it in screen session)",
@@ -45,7 +45,7 @@ gpm_messages["processing"]["nfcore_3mRNAseq"] = [
 
 gpm_messages["processing"]["nfcore_mRNAseq"] = [
     "1. Generate samplesheet.csv with the following command:",
-    "   gpm samplesheet_rnaseq --help",
+    "   gpm samplesheet-rnaseq --help",
     "2. Check and modify run_nfcore_rnaseq.sh",
     "3. Run run_nfcore_rnaseq.sh with the command below: ",
     "   (Recommend to run it in screen session)",
