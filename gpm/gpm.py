@@ -472,4 +472,4 @@ class GPM():
         self.profile["Export"]["export_user"] = username
 
     def update_fastq_path(self, fastq_path):
-        self.profile["Demultiplexing"]["demultiplex_path"] = fastq_path
+        self.profile["Demultiplexing"]["fastq_path"] = fastq_path
