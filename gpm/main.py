@@ -50,7 +50,7 @@ def main():
               help=help_messages["demultiplex_raw"], required=True)
 @click.option('-o', '--output',
               help=help_messages["demultiplex_output"], required=True)
-@click.option('-m', '--method',
+@click.option('-m', '--method', required=True,
               type=click.Choice(get_gpm_config("GPM",
                                                "GPM_DEMULTIPLEX_METHODS"),
                                 case_sensitive=False))
