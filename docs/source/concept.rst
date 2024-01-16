@@ -6,6 +6,7 @@ One project.ini across all phases
 
 In the lifecycle of a project, spanning demultiplexing, processing, analyses, exporting, and archiving, GPM ensures consistent project management by maintaining a single project.ini file across all stages. This file serves as a common thread inherited by subsequent steps, fostering traceability and repeatability for every file and operation.
 
+.. _two_configuration:
 Two levels of configuration files
 ----------------
 
