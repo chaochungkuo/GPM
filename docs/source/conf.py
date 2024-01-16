@@ -2,10 +2,10 @@
 # -- Project information
 
 project = 'GPM'
-copyright = '2023, Chao-Chung Kuo'
+copyright = '2024, Chao-Chung Kuo'
 author = 'Chao-Chung Kuo'
 
-release = "0.5.5"
+release = "0.7.0"
 
 # -- General configuration
 
