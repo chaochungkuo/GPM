@@ -18,10 +18,10 @@ There are two levels of configuration files in GPM:
 
 All the options defined in the above files are used as the key for inserting their corresponding values while copying any files in GPM in creating reports or adding analysis templates. This offers a flexible way to customize your own script and reports.
 
-Keeping everything in projects for repeatability
+Keeping everything in projects for reproducibility
 ----------------
 
-Rather than executing functions directly for a project, GPM's approach involves populating the necessary files and scripts specific to defined tasks. Every file within the project guarantees that analyses remain repeatable, even in the absence of GPM.
+Rather than executing functions directly for a project, GPM's approach involves populating the necessary files and scripts specific to defined tasks. Every file within the project guarantees that analyses remain reproducible, even in the absence of GPM.
 
 Flexible addition of methods in any phase
 ----------------
