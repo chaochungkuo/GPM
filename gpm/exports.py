@@ -87,6 +87,9 @@ def export_empty_folder(export_URL, export_dir, username):
 
     with open(os.path.join(export_dir, ".htaccess"), "w") as f2:
         for line in contents:
+            if "PROJECT_PROJECT_NAME" in line:
+                line = line.replace("PROJECT_PROJECT_NAME",
+                                    os.path.basename(export_dir))
             print(line, file=f2)
     # Create user
     htpasswd_create_user(export_dir,
