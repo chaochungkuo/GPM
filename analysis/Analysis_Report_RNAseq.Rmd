@@ -39,7 +39,7 @@ This document is the summary of the bioinformatic analysis done by Genomic Facil
 
 # Download/Browse the files
 
-1. [Raw Data](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_Data): 
+1. [Raw Data](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data): 
     * BCL files from the sequencer
     * FASTQ files after demultiplexing
 2. [Processed Data](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data): 
