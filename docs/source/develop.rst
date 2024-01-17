@@ -1,19 +1,7 @@
 Development
 =====
 
-How to add a new analysis?
---------------------------
-
-The analysis feature is controlled by two aspects:
-
-- What are the relevant files? Rmd? Jupyter-notebook?
-- What is its name and category?
-
-After you can answer the questions above, you can follow the steps below:
-
-1. Add your files under the category folder in ``GPM/analysis/``.
-2. Define each file in ``GPM/config/analysis.config``.
-
+.. _replaceable_variables:
 Replaceable variables in template files
 ---------------------------------------
 
@@ -31,3 +19,26 @@ There are two levels of configuration: global and project-wise (see :ref:`two_co
     - For example, **fastq_path** should be **PROJECT_FASTQ_PATH** in your codes.
 
 Please refer to other files in ``analysis`` or ``processing`` to learn how to use them.
+
+How to add a new demultiplexing method?
+---------------------------------------
+
+How to add a new processing method?
+-----------------------------------
+
+
+How to add a new analysis?
+--------------------------
+
+The analysis feature is controlled by two aspects:
+
+- What are the relevant files? Rmd? Jupyter-notebook?
+- What is its name and category?
+
+After you can answer the questions above, you can follow the steps below:
+
+1. Add your files under the category folder in ``GPM/analysis/``.
+2. Define each file in ``GPM/config/analysis.config``.
+
+Please read through :ref:`replaceable_variables`) to learn how to utilize the variables managed by GPM.                                                                                                  
+
