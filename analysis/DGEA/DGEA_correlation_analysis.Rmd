@@ -1,7 +1,7 @@
 ---
 title: "DGEA Correlation Analysis"
 author:
-GPM_AUTHORS
+RMD_AUTHORS
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:

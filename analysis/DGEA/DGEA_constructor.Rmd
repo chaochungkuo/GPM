@@ -22,12 +22,12 @@ generate_Rmd <- TRUE
 render_html <- TRUE
 render_3DPCA <- FALSE
 # Paths
-DIR_base <- "PROJECT_PROJECT_PATH"
+DIR_base <- "PROJECT_PROJECT_PATH/"
 DIR_analysis <- paste0(DIR_base, "analysis/")
 DIR_DGEA <- paste0(DIR_analysis, "DGEA/")
 setwd(DIR_DGEA)
-DIR_salmon <- paste0(DIR_base, "nfcore_RNAseq/results/star_salmon/")
-FILE_tx2gene <- paste0(DIR_base, "nfcore_RNAseq/results/star_salmon/salmon_tx2gene.tsv")
+DIR_salmon <- paste0(DIR_base, "PROJECT_PROCESSING_METHOD/results/star_salmon/")
+FILE_tx2gene <- paste0(DIR_base, "PROJECT_PROCESSING_METHOD/results/star_salmon/salmon_tx2gene.tsv")
 # Load functions
 source(paste0(DIR_DGEA, "DGEA_RNAseq_functions.R"))
 # DESeq2

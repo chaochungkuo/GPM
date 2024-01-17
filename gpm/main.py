@@ -146,7 +146,7 @@ def analysis(project_config, report, show_list, add_template):
 
 @main.command()
 @click.argument('export_folder')
-@click.option('-c', '--config', "config", required=False, default=False,
+@click.option('-c', '--config', "config", required=False, default="",
               help="Define the config file of the project.")
 @click.option('-s', '--symprefix', "prefix", required=False, default="",
               help="Add the symbolic prefix of all paths.")
@@ -161,7 +161,7 @@ def export(export_folder, config, prefix, username, tar, gzip):
     """
     Export the project to the target folder with symbolic links.
     """
-    if not config:  # Just an empty folder
+    if config == "":  # Just an empty folder
         check_export_directory(export_folder)
         export_URL = get_gpm_config("URL", "EXPORT_URL")
         export_empty_folder(export_URL=export_URL,
