@@ -462,8 +462,7 @@ class GPM():
             export_dir,
             export_URL,
             self.profile["Project"]["name1"].lower(),
-            self.profile["Project"]["application"],
-            raw_export)
+            self.profile["Project"]["application"])
         self.profile["Export"]["export_URL"] = export_URL
         self.profile["Export"]["export_user"] = export_user
         self.profile["Export"]["export_password"] = export_password
