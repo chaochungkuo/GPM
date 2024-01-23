@@ -6,7 +6,7 @@ PATH_NEXTFLOW run nf-core/scrnaseq -r 2.5.1 -profile docker \
     --input samplesheet.csv \
     --outdir results \
     --genome GRCh38 \
-    --cellranger_index {cellranger-genome-reference} \ 
+    --cellranger_index REFDATA_CELLRANGER/refdata-gex-GRCh38-2020-A \ 
     --aligner cellranger  \
     --protocol 10XV3
 
