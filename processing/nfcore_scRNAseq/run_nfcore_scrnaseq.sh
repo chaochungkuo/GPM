@@ -1,6 +1,8 @@
 ################## test script ##################
 # PATH_NEXTFLOW run nf-core/scrnaseq -profile test,docker
 
+################## GPM samplesheet #####################
+# gpm samplesheet-scrnaseq -sn true -si 2 samplesheet.csv PROJECT_FASTQ_PATH
 
 PATH_NEXTFLOW run nf-core/scrnaseq -r 2.5.1 -profile docker \
     --input samplesheet.csv \
@@ -9,7 +11,6 @@ PATH_NEXTFLOW run nf-core/scrnaseq -r 2.5.1 -profile docker \
     --cellranger_index REFDATA_CELLRANGER/refdata-gex-GRCh38-2020-A \ 
     --aligner cellranger  \
     --protocol 10XV3
-
 
 # Options for --genome:
 # GRCh38, GRCm39, mm10
