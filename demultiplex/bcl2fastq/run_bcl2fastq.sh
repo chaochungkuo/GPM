@@ -16,6 +16,10 @@ PATH_BCL2FASTQ \
 mkdir -p ./fastqc
 find * -maxdepth 1 -name "*.fastq.gz" | parallel -j N_CORES "fastqc {} -o ./fastqc"
 
+###### Running fastq_screen ######################################
+mkdir -p ./fastq_screen
+fastq_screen --outdir ./fastq_screen --threads N_CORES */*.fastq.gz *.fastq.gz
+
 ###### Running MultiQC #####################################
 mkdir -p multiqc
 multiqc -f . -o ./multiqc
