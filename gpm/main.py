@@ -3,7 +3,7 @@ import click
 from gpm.archive import archive_folders
 from gpm.clean import clean_folders
 from gpm.helper import get_gpm_config
-from gpm.samplesheet import generate_samples
+from gpm.samplesheet import generate_samples, fastq_dir_to_samplesheet
 from gpm.__version__ import __version__
 from gpm.gpm import GPM
 from gpm.exports import check_export_directory, export_empty_folder, \
@@ -264,6 +264,37 @@ def samplesheet_rnaseq(samplesheet, fastq_dir, st, r1, r2, se, sn, sd, si):
     """Generate sample sheet for nf-core RNAseq pipeline."""
     generate_samples(st, fastq_dir, samplesheet,
                      r1, r2, se, sn, sd, si)
+
+
+@main.command()
+@click.argument('samplesheet')
+@click.argument('fastq_dir')
+@click.option('-r1', default="_R1_001.fastq.gz", show_default=True,
+              help="File extension for read 1.")
+@click.option('-r2', default="_R2_001.fastq.gz", show_default=True,
+              help="File extension for read 2.")
+@click.option('-se', default=False, show_default=True,
+              help=help_messages["samplesheet_se"])
+@click.option('-sn', default=False, show_default=True,
+              help=help_messages["samplesheet_sn"])
+@click.option('-sd', default="_", show_default=True,
+              help="Delimiter to use to sanitise sample name.")
+@click.option('-si', default=1, show_default=True,
+              help=help_messages["samplesheet_si"])
+def samplesheet_scrnaseq(samplesheet, fastq_dir, r1, r2, se, sn, sd, si):
+    """Generate sample sheet for nf-core single cell RNAseq pipeline."""
+    fastq_dir_to_samplesheet(
+        fastq_dir=fastq_dir,
+        samplesheet_file=samplesheet,
+        strandedness="",
+        read1_extension=r1,
+        read2_extension=r2,
+        single_end=se,
+        sanitise_name=sn,
+        sanitise_name_delimiter=sd,
+        sanitise_name_index=si,
+        sc=True
+    )
 
 
 if __name__ == '__main__':

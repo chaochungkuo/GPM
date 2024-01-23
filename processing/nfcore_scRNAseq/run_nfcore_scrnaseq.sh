@@ -2,7 +2,7 @@
 # PATH_NEXTFLOW run nf-core/scrnaseq -profile test,docker
 
 
-PATH_NEXTFLOW run nf-core/scrnaseq -profile docker \
+PATH_NEXTFLOW run nf-core/scrnaseq -r 2.5.1 -profile docker \
     --input samplesheet.csv \
     --outdir results \
     --genome GRCh38 \
