@@ -12,10 +12,17 @@ MERGED_DIR="./merged_fastq"
 mkdir -p $MERGED_DIR
 echo $samples
 for sample in $samples; do
-  echo -e "${sample}\tMerging R1"
-  cat ${FASTQ_DIR}/${sample}_S*_L*_R1_001.fastq.gz > ${MERGED_DIR}/${sample}_Merged_R1_001.fastq.gz
-  echo -e "${sample}\tMerging R2"
-  cat ${FASTQ_DIR}/${sample}_S*_L*_R2_001.fastq.gz > ${MERGED_DIR}/${sample}_Merged_R2_001.fastq.gz
+  if [[ "$sample" != "Undetermined" ]]; then
+    echo -e "${sample}\tMerging R1"
+    cat ${FASTQ_DIR}/${sample}_S*_L*_R1_001.fastq.gz > ${MERGED_DIR}/${sample}_Merged_R1_001.fastq.gz
+    echo -e "${sample}\tMerging R2"
+    cat ${FASTQ_DIR}/${sample}_S*_L*_R2_001.fastq.gz > ${MERGED_DIR}/${sample}_Merged_R2_001.fastq.gz
+  else
+    echo -e "Undetermined\tMerging R1"
+    cat mkfastq/outs/fastq_path/Undetermined_S*_L*_R1_001.fastq.gz > ${MERGED_DIR}/Undetermined_Merged_R1_001.fastq.gz
+    echo -e "Undetermined\tMerging R2"
+    cat mkfastq/outs/fastq_path/Undetermined_S*_L*_R2_001.fastq.gz > ${MERGED_DIR}/Undetermined_Merged_R2_001.fastq.gz
+  fi
 done
 
 ###### Running FASTQC ######################################
