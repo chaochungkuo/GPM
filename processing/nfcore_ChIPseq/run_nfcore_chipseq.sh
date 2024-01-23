@@ -2,10 +2,10 @@
 # PATH_NEXTFLOW run nf-core/chipseq -profile test,docker
 
 PATH_NEXTFLOW run nf-core/chipseq -r 2.0.0 -profile docker \
-     --input samplesheet.csv \
-     --single_end --fragment_size 300 \
+     --input samplesheet.csv --outdir results \
+     --fragment_size 300 --read_length 75 \
      --blacklist /data/genomes/chipseq_blacklists/v3.0/hg38-blacklist.v3.bed \
-     --genome GENCODE_GRCh38_v44 --macs_gsize 2.9e9
+     --genome GENCODE_GRCh38_v44 --macs_gsize 2913022398
 
 # Other optional parameters:
 # --narrow_peak
