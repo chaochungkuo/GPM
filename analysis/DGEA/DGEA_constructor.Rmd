@@ -33,7 +33,7 @@ source(paste0(DIR_DGEA, "DGEA_RNAseq_functions.R"))
 # DESeq2
 countsFromAbundance <- "lengthScaledTPM" # no for 3mRNAseq, lengthScaledTPM for others
 lengthcorrection <- TRUE # FALSE for 3mRNAseq, TRUE for others
-spikein_ERCC <- FALSE
+norm_spikein_ERCC <- FALSE
 # Organism
 organism <- "PROJECT_PROCESSING_ORGANISM" # hsapiens mmusculus rnorvegicus sscrofa
 # Parameters
@@ -42,7 +42,7 @@ Fig_height <- 400
 CUTOFF_Quantification <- 20
 CUTOFF_ADJP <- 0.05
 save(DIR_base, DIR_analysis, DIR_DGEA, DIR_salmon, FILE_tx2gene, 
-     countsFromAbundance, lengthcorrection, spikein_ERCC,
+     countsFromAbundance, lengthcorrection, norm_spikein_ERCC,
      organism, 
      Fig_width, Fig_height, CUTOFF_Quantification, CUTOFF_ADJP,
      file = "DGEA_settings.RData")
@@ -60,7 +60,7 @@ description <- "All samples"
 filtered_samples <- samples[complete.cases(samples$group),]
 if ( render_3DPCA == TRUE ) {
   deseq_output <- run_deseq_salmon(filtered_samples, 
-                                   spikein=spikein_ERCC, 
+                                   spikein=norm_spikein_ERCC, 
                                    paired=FALSE,
                                    countsFromAbundance=countsFromAbundance,
                                    lengthcorrection=lengthcorrection)

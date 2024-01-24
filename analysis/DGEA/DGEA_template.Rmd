@@ -49,7 +49,7 @@ Differential gene expression analysis is done with DESEQ2 package in R [@love201
 This analysis is done with DGEA_PAIRED data.
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-deseq_output <- run_deseq_salmon(filtered_samples, spikein=spikein_ERCC, paired=paired,
+deseq_output <- run_deseq_salmon(filtered_samples, spikein=norm_spikein_ERCC, paired=paired,
                                  countsFromAbundance=countsFromAbundance,
                                  lengthcorrection=lengthcorrection)
 ```
@@ -80,9 +80,9 @@ RNAseq_volcano_plotly(deseq_output$deseq2res)
 RNAseq_maplot_plotly(deseq_output$deseq2res)
 ```
 
-`r if(spikein_ERCC){"## MA plot of spike in"}`
+`r if(norm_spikein_ERCC){"## MA plot of spike in"}`
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=spikein_ERCC&maplot}
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=norm_spikein_ERCC&maplot}
 RNAseq_maplot_plotly_ERCC(deseq_output$res_combined_ERCC)
 ```
 
