@@ -30,7 +30,7 @@ def archive_folders(source_folders, destination_folder,
                 message = "Copy to " + target_path
                 styled_message = click.style(message, fg='bright_green')
                 click.echo(styled_message)
-                copy_folder(folder, target_path, verbose)
+                copy_folder(folder, target_path, verbose=True)
                 # check all files and directories
                 message = "Check all files and directories are identical... "
                 styled_message = click.style(message, fg='bright_green')
