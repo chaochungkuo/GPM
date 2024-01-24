@@ -21,10 +21,10 @@ library("readr")
 require("tidyr")
 options(warn = -1)
 
-DIR_base <- "GPM_DIR_BASE/"
+DIR_base <- "PROJECT_PROJECT_PATH/"
 ```
 
-![](RWTH_IZKF_GF_Logo_rgb.png)
+![](RMD_INSTITUTE_LOGO)
 
 This document is the summary of the basic bacterial genome assembly done by Genomic Core Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration.
 
@@ -46,31 +46,31 @@ The following contents are provided after the basic assembly analysis of the bac
 
 The raw sequencing data were demultiplexed. QC assessment was applied on the resulted fastq files. Bellow is the resulted multiQC[@Ewels2016-pr] report:
 
-[MultiQC reports](GPM_URL_3_Reports/multiqc/multiqc_report.html)
+[MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/multiqc/multiqc_report.html)
 
 # Contamination check
 
 The raw data from a genome sequencing could contain DNA from contaminating organisms. In this step, sequencing results were scanned using metagenomic analysis tool Kraken2[@Wood2019-er] to identify potential contamination.
 
-[Contamination reports](GPM_URL_2_Processed_data/Kraken2)
+[Contamination reports](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/Kraken2)
 
 # Genome Assembly
 
 Unicycler[@Wick2017-us] was applied to assemble the short sequencing reads. The assembled scaffolds fasta files are listed bellow:
 
-[Assembled scaffolds](GPM_URL_2_Processed_data/assembly)
+[Assembled scaffolds](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/assembly)
 
 # Assembly quality assessment
 
 The quality of the assembled contigs were evaluated by QUAST[@Gurevich2013-tw] with the following report:
 
-[Assembly quality report](GPM_URL_2_Processed_data/QUAST/other_files/report.html)
+[Assembly quality report](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/QUAST/other_files/report.html)
 
 # Annotation the assembled genome
 
 The assemblies are annotated by Prokka[@Seemann2014-ic].
 
-[Assembly quality report](GPM_URL_2_Processed_data/Prokka)
+[Assembly quality report](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/Prokka)
 
 # References
 

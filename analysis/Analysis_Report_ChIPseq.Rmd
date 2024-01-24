@@ -20,7 +20,7 @@ library("heatmaply")
 library("readr")
 options(warn = -1)
 
-DIR_base <- "GPM_DIR_BASE/"
+DIR_base <- "PROJECT_PROJECT_PATH/"
 DIR_project <- paste0(DIR_base, "analysis/")
 DIR_salmon <- paste0(DIR_base, "nfcore/results/star_salmon/")
 FILE_scaled_ct <- paste0(DIR_salmon, "salmon.merged.gene_counts_scaled.tsv")
@@ -69,15 +69,15 @@ After deliverying this report, we can schedule a short meeting to discuss the re
 
 Please click the hyperlinked list below:
 
-1. [Raw Data](GPM_URL_1_Raw_data): 
+1. [Raw Data](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data): 
     * BCL files from the sequencer
     * FASTQ files after demultiplexing
-2. [Processed Data](GPM_URL_2_Processed_data): 
+2. [Processed Data](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data): 
     * BAM files after alignment
     * BigWig files after normalization
     * Quantification tables from the counts of reads or quantification of the expressions
-3. [Reports](GPM_URL_3_Reports):
-    * [MultiQC reports](GPM_URL_3_Reports/multiqc/multiqc_report.html) for the quality check
+3. [Reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports):
+    * [MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/multiqc/multiqc_report.html) for the quality check
     * Basic analysis of the Genomics Facility (This report)
 4. [Compressed files for download](GPM_URL_TAR):
     * Three tar files are available for download for the above three folders.
@@ -88,7 +88,7 @@ In the command line environment, you can also download everything by the command
 wget -r --user USERNAME --password PASSWORD -A '*.tar' GPM_URL_TAR
 ```
 
-Please make sure that you store these data in a lab-wise level. Genomics Facility won't store your data forever and these data should still be accessible even after someone leaves your lab. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
+Please make sure that you store these data in a lab-wise level. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
 
 # Method description
 

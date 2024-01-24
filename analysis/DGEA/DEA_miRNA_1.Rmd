@@ -31,7 +31,7 @@ library('openxlsx')
 library(AnnotationDbi, warn.conflicts = FALSE)
 options(warn = -1)
 
-DIR_base <- "GPM_DIR_BASE/"
+DIR_base <- "PROJECT_PROJECT_PATH/"
 DIR_project <- paste0(DIR_base, "analysis/")
 
 source(paste0(DIR_project, "report_functions.R"))
