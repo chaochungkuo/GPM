@@ -1,5 +1,5 @@
 ---
-title: "GPM_PROJECTNAME"
+title: "PROJECT_PROJECT_STRING"
 author:
 RMD_AUTHORS
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
@@ -34,7 +34,7 @@ URL_base <- "https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_s
 ```
 
 
-![](https://www.medizin.rwth-aachen.de/global/show_document.asp?id=aaaaaaaaaawfyoe)
+![](RMD_INSTITUTE_LOGO)
 
 This document is the summary of the bioinformatic analysis done by Genomic Core Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration. If these results are used in any poster or publications, please acknowledge our core facility with the text below:
 

@@ -54,7 +54,7 @@ Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/service
 3. [Reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports):
     * [MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/nfcore_scRNAseq/results/multiqc/multiqc_report.html) for the quality check
     * Basic analysis of the Genomics Facility (This report)
-4. [Compressed files for download](GPM_URL_TAR):
+4. [Compressed files for download](EXPORT_URL/PROJECT_PROJECT_NAME/compressed_tar/):
     * Three tar files are available for download the above three folders.
 
 In the command line environment, you can also download everything by the commands below with the given username and password from us:

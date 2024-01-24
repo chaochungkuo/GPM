@@ -1,5 +1,5 @@
 ---
-title: "GPM_PROJECTNAME"
+title: "PROJECT_PROJECT_STRING"
 author:
 RMD_AUTHORS
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
