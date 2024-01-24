@@ -82,13 +82,13 @@ def fastq_dir_to_samplesheet(
         sample = sanitize_sample(read1_file, read1_extension)
         if sample not in read_dict:
             read_dict[sample] = {"R1": [], "R2": []}
-        read_dict[sample]["R1"].append(read1_file)
+        read_dict[sample]["R1"].append(os.path.join(fastq_dir, read1_file))
 
     # Get read 2 files
     if not single_end:
         for read2_file in get_fastqs(read2_extension):
             sample = sanitize_sample(read2_file, read2_extension)
-            read_dict[sample]["R2"].append(read2_file)
+            read_dict[sample]["R2"].append(os.path.join(fastq_dir, read2_file))
 
     # Write to file
     if len(read_dict) > 0:
