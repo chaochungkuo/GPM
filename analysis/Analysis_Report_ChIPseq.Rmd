@@ -51,10 +51,11 @@ Please click the hyperlinked list below:
 1. [Raw Data](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data): 
     * BCL files from the sequencer
     * FASTQ files after demultiplexing
+    * [MultiQC for FASTQ files](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data/FASTQ_multiQC)
 2. [Processed Data](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data): 
     * BAM files after alignment
     * BigWig files after normalization
-    * Quantification tables from the counts of reads or quantification of the expressions
+    * BED files for peaks by MACS2
     * The complete output from nfcore/chipseq pipeline
 3. [Reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports):
     * [MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/multiqc/multiqc_report.html) for the quality check
@@ -72,7 +73,7 @@ Please make sure that you store these data in a lab-wise level. Please refer to 
 
 # Method description
 
-FASTQ files were generated using bcl2fastq (Illumina). To facilitate reproducible analysis, samples were processed using the publicly available nf-core/ChIP-Seq pipeline version 2.0.0 [@ewels2020nf] implemented in Nextflow 23.10.1 [@di2017nextflow] using Docker 24.0.7 [@merkel2014docker] with the minimal command. In brief, lane-level reads were trimmed using Trim Galore 0.6.7 [@felix_krueger_2021_5127899] and aligned to the human genome (GRCh38.p13) using BWA 0.7.17 [@li2010fast]. Peaking calling was performed by MACS2 [@zhang2008model]. All analysis was performed using custom scripts in R version 4.2.2. 
+FASTQ files were generated using bcl2fastq (Illumina). To facilitate reproducible analysis, samples were processed using the publicly available [nf-core/ChIP-Seq pipeline](https://nf-co.re/chipseq/) version 2.0.0 [@ewels2020nf] implemented in Nextflow 23.10.1 [@di2017nextflow] using Docker 24.0.7 [@merkel2014docker] with the minimal command. In brief, lane-level reads were trimmed using Trim Galore 0.6.7 [@felix_krueger_2021_5127899] and aligned to the human genome (GRCh38.v44) using BWA 0.7.17 [@li2010fast]. Peaking calling was performed by MACS2 2.2.7 [@zhang2008model]. All analysis was performed using custom scripts in R version 4.2.2. 
 
 
 # References
