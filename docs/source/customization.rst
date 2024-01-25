@@ -1,6 +1,7 @@
 Customization
 =====
 
+.. _customize_user_configs:
 Customize your own config files
 ----------------
 Any modification on those config files will be overwritten when you install GPM again. In order to keep your changes, you can create a new config file with ".user" at the end of the file name. For example, GPM will load ``gpm.ini.user`` prior ``gpm.ini`` if ``gpm.ini.user`` exists.

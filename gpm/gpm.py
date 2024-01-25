@@ -9,7 +9,7 @@ from datetime import datetime
 from gpm.helper import remove_end_slash, get_gpmdata_path, \
                        check_project_name, get_dict_from_configs, \
                        replace_variables_by_dict, check_analysis_name, \
-                       copy_samplesheet, get_gpm_config
+                       copy_samplesheet, get_gpm_config, append_file_to_another
 from gpm.messages import show_tree, show_instructions
 from gpm import PROJECT_INI_FILE
 from gpm.exports import check_export_directory, get_htaccess_path, \
@@ -265,6 +265,18 @@ class GPM():
             target_file = path.join(processing_path, filename)
             if path.isfile(file_path):
                 self.copy_file(source=file_path, target=target_file)
+        # insert nextflow.config
+        if "nfcore" in method:
+            gpm_nextflow_config = path.join(get_gpmdata_path(),
+                                            "config", "nextflow.config")
+            process_nextflow_config = path.join(processing_path,
+                                                "nextflow.config")
+            if path.exists(process_nextflow_config):
+                append_file_to_another(gpm_nextflow_config,
+                                       process_nextflow_config)
+            else:
+                self.copy_file(source=gpm_nextflow_config,
+                               target=process_nextflow_config)
         # Update project.ini
         self.profile["Processing"]["processing_path"] = processing_path
         self.profile["Processing"]["processing_method"] = method

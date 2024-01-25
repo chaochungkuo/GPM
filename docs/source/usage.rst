@@ -68,3 +68,17 @@ After you have FASTQ files, you can initiate a new project by ``gpm init``. Plea
    gpm init --help
 
 This command will create the ``project.ini`` and 
+
+
+nextflow.config
+---------------
+
+GPM is able to manage both global and pipeline-specific ``nextflow.config`` file. Its approach is the followings:
+
+If "nfcore" is included in the method, GPM will check:
+- If no pipeline-specific ``nextflow.config`` exists, GPM will copy one from ``GPMDATA/config/nextflow.config`` to the working processing method.
+- If there is a pipeline-specific ``nextflow.config``, GPM will append the content of ``GPMDATA/config/nextflow.config`` to the pipeline-specific ``nextflow.config``.
+
+Note that ``GPMDATA/config/nextflow.config`` can also be customized as ``GPMDATA/config/nextflow.config.user`` according to :ref:`customize_user_configs`.
+
+For example, some parameters across the whole server (*max_time* or *max_cpus*) can be defined in ``GPMDATA/config/nextflow.config``. Some pipeline specific parameters can be defined in each method folder in ``nfcore_*/nextflow.config``.

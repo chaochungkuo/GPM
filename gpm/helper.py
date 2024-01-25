@@ -166,3 +166,11 @@ def copy_samplesheet(source_samplesheet, target_samplesheet):
                   "Please generate the samplesheet.csv manually."
         click.echo(click.style(warning,
                    fg='red'))
+
+
+def append_file_to_another(file1, file2):
+    with open(file1, 'r') as source_file:
+        source_content = source_file.read()
+    # Append the content to the destination file
+    with open(file2, 'a') as destination_file:
+        destination_file.write(source_content)
