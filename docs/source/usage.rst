@@ -81,6 +81,4 @@ If "nfcore" is included in the method, GPM will check:
 
 - If there is a pipeline-specific ``nextflow.config``, GPM will append the content of ``GPMDATA/config/nextflow.config`` to the pipeline-specific ``nextflow.config``.
 
-Note that ``GPMDATA/config/nextflow.config`` can also be customized as ``GPMDATA/config/nextflow.config.user`` according to :ref:`customize_user_configs`.
-
-For example, some parameters across the whole server (*max_time* or *max_cpus*) can be defined in ``GPMDATA/config/nextflow.config``. Some pipeline specific parameters can be defined in each method folder in ``nfcore_*/nextflow.config``.
+Note that ``GPMDATA/config/nextflow.config`` can also be customized as ``GPMDATA/config/nextflow.config.user`` according to :ref:`customize_user_configs`. For example, some parameters across the whole server (*max_time* or *max_cpus*) can be defined in ``GPMDATA/config/nextflow.config``. Some pipeline specific parameters can be defined in each method folder in ``nfcore_*/nextflow.config``.
