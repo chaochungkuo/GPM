@@ -115,7 +115,7 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
         export_folder = os.getcwd()
     export_folder = export_folder.rstrip("/")
     name = os.path.basename(export_folder)
-    compressed_folder = os.path.join(export_folder, "compressed_tars")
+    compressed_folder = os.path.join(export_folder, "compressed_tar")
     # Create compressed_tar folder
     if not os.path.exists(compressed_folder):
         click.echo(click.style("Create the folder:", fg='bright_green'))
@@ -139,7 +139,7 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
             # print("path_file link: " + path_file)
             # path_file = relpath(path_file)
             print("path_file link: " + path_file)
-        if os.path.isdir(path_file) and filename != "compressed_tars":
+        if os.path.isdir(path_file) and filename != "compressed_tar":
             click.echo(click.style("Tar the folder:", fg='bright_green'))
             click.echo(path_file + click.style(" => ",
                                                fg='bright_green') + tarfile)
