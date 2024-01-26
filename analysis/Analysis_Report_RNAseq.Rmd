@@ -31,11 +31,11 @@ source(paste0(DIR_analysis, "report_functions.R"))
 
 This document is the summary of the bioinformatic analysis done by Genomic Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration. If these results are used in any poster or publications, please acknowledge our core facility with the text below:
 
-    > This work was supported by the Genomics Facility, a core facility of the Interdisciplinary Center for Clinical Research (IZKF) Aachen within the Faculty of Medicine at RWTH Aachen University.
+> This work was supported by the Genomics Facility, a core facility of the Interdisciplinary Center for Clinical Research (IZKF) Aachen within the Faculty of Medicine at RWTH Aachen University.
 
-    Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
+Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
 
-    ***
+***
 
 # Download/Browse the files
 
