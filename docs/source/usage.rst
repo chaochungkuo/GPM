@@ -52,23 +52,6 @@ Here we would like to introduce you these 5 configuration files under ``~/gpmdat
 - `export.config <https://github.com/chaochungkuo/GPM/blob/main/config/export.config>`_: This file define the behavior for ``gpm export``. This file doesn't need to be modified in most cases, except you want to add new analysis.
 - `htaccess <https://github.com/chaochungkuo/GPM/blob/main/config/htaccess>`_: This file will be copied into every export folder by ``gpm export``.
 
-Workflow
------------
-
-If you start with BCL raw data, you should start with:
-
-.. code-block:: shell
-   gpm demultiplex --help
-
-By defining the method for demultiplexing, the template scripts and files will be generated as well as the instructions.
-
-After you have FASTQ files, you can initiate a new project by ``gpm init``. Please check the help message by:
-
-.. code-block:: shell
-   gpm init --help
-
-This command will create the ``project.ini`` and 
-
 
 nextflow.config
 ---------------

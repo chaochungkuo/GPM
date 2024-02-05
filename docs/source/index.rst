@@ -19,6 +19,8 @@ One of the key challenges in genomics research is the efficient reuse of analysi
 Documentation is another critical aspect of genomic analyses, ensuring transparency, reproducibility, and the transfer of knowledge. GPM incorporates robust documentation features that allow researchers to capture and share detailed procedures, parameters, and outcomes associated with their analyses. This not only aids in project continuity but also provides an invaluable resource for researchers looking to replicate or build upon existing analyses.
 
 In summary, GPM emerges as a pivotal tool in the genomics landscape, addressing the challenges posed by the rapid evolution of NGS technologies. By offering a centralized platform for project management, script reuse, and documentation, GPM empowers researchers to navigate the complexities of genomic analyses with efficiency, adaptability, and enhanced collaboration, ultimately advancing the field of genomics.
+
+
 Contents
 --------
 
