@@ -20,6 +20,7 @@ By defining the method for demultiplexing, the template scripts and files will b
    gpm demultiplex --method cellranger_mkfastq --raw /path/to/BCL/folder --output /path/where/new/folder/is/created
 
 This command will create a folder with the same name as the BCL folder under the defined output folder, and then add the following files in it:
+
 - run_cellranger_mkfastq.sh
 - run_merge_lanes.sh
 - samplesheet_cellranger.csv
