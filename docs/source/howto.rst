@@ -17,7 +17,9 @@ By defining the method for demultiplexing, the template scripts and files will b
 
 .. code-block:: shell
 
-   gpm demultiplex --method cellranger_mkfastq --raw /path/to/BCL/folder --output /path/where/new/folder/is/created
+   gpm demultiplex --method cellranger_mkfastq \
+   --raw /path/to/BCL/folder \
+   --output /path/where/new/folder/is/created
 
 This command will create a folder with the same name as the BCL folder under the defined output folder, and then add the following files in it:
 
@@ -50,4 +52,16 @@ This command will create the ``project.ini`` and
 
 
 Analysis
-----------
+--------
+
+
+Export
+------
+
+
+Clean
+-----
+
+
+Archive
+-------
