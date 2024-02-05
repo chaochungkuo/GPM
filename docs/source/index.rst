@@ -27,6 +27,7 @@ Contents
 .. toctree::
    concept
    usage
+   howto
    customization
    develop
 
