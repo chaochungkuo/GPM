@@ -10,11 +10,13 @@ Demultiplex
 If you start with BCL raw data, you should start with:
 
 .. code-block:: shell
+
    gpm demultiplex --help
 
 By defining the method for demultiplexing, the template scripts and files will be generated as well as the instructions. For example, if you want to run ``cellranger_mkfastq``, you can do:
 
 .. code-block:: shell
+
    gpm demultiplex --method cellranger_mkfastq --raw /path/to/BCL/folder --output /path/where/new/folder/is/created
 
 This command will create a folder with the same name as the BCL folder under the defined output folder, and then add the following files in it:
@@ -27,6 +29,7 @@ This command will create a folder with the same name as the BCL folder under the
 These files are everything you need for this task and you need to go through these files and follow the instruction inside to modify it for your need. Then you can run it with:
 
 .. code-block:: shell
+
    bash run_cellranger_mkfastq.sh
 
 .. note::  It is recommended to run the command within a detachable session such as screen or tmux.
@@ -39,6 +42,7 @@ Processing
 After you have FASTQ files, you can initiate a new project by ``gpm init``. Please check the help message by:
 
 .. code-block:: shell
+
    gpm init --help
 
 This command will create the ``project.ini`` and 
