@@ -20,12 +20,29 @@ There are two levels of configuration: global and project-wise (see :ref:`two_co
 
 Please refer to other files in ``analysis`` or ``processing`` to learn how to use them.
 
+
 How to add a new demultiplexing method?
 ---------------------------------------
+
+When you want to add a new method for demultiplexing, please follow the steps below:
+
+1. Add a folder under ``demultiplex/`` with a clear and meaningful name. This name must be distinguishable and clear.
+2. Add the template scripts and files into this folder with proper variables. Please refer to :ref:`replaceable_variables`.
+3. Add this method name into ``GPM_DEMULTIPLEX_METHODS`` in ``gpm.ini``.
+
+Please test it by ``gpm demultiplex --help``.
+
 
 How to add a new processing method?
 -----------------------------------
 
+When you want to add a new method for processing the data, please follow the steps below:
+
+1. Add a folder under ``processing/`` with a clear and meaningful name. This name must be distinguishable and clear.
+2. Add the template scripts and files into this folder with proper variables. Please refer to :ref:`replaceable_variables`.
+3. Add this method name into ``GPM_PROCESSING_METHODS`` in ``gpm.ini``.
+
+Please test it by ``gpm processing --help``.
 
 How to add a new analysis?
 --------------------------
@@ -40,5 +57,5 @@ After you can answer the questions above, you can follow the steps below:
 1. Add your files under the category folder in ``GPM/analysis/``.
 2. Define each file in ``GPM/config/analysis.config``.
 
-Please read through :ref:`replaceable_variables`) to learn how to utilize the variables managed by GPM.                                                                                                  
+Please read through :ref:`replaceable_variables` to learn how to utilize the variables managed by GPM.                                                                                                  
 
