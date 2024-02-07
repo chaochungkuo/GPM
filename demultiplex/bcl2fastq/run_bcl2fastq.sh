@@ -22,4 +22,4 @@ fastq_screen --outdir ./fastq_screen --threads N_CORES */*.fastq.gz *.fastq.gz
 
 ###### Running MultiQC #####################################
 mkdir -p multiqc
-multiqc -f ../fastq_screen/ -o ./multiqc
+multiqc -f ./fastq_screen/ -o ./multiqc
