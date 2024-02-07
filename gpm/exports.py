@@ -6,7 +6,7 @@ import click
 import subprocess
 import string
 import random
-from gpm.helper import get_gpmdata_path
+from gpm.helper import get_gpmdata_path, get_gpm_config
 import xtarfile as tarfile
 from tqdm import tqdm
 import hashlib
@@ -50,9 +50,10 @@ def htpasswd_create_user(export_folder, url, username,
         if app:
             if app in ["RNAseq", "tRNAseq", "mRNAseq", "3mRNAseq"]:
                 app = "RNAseq"
-            export_URL = "".join([url,
-                                  "/3_Reports/analysis/Analysis_Report_",
-                                  app, ".html"])
+            if app in get_gpm_config("GPM", "GPM_REPORTS"):
+                export_URL = "".join([url,
+                                    "/3_Reports/analysis/Analysis_Report_",
+                                    app, ".html"])
         else:
             export_URL = url
         click.echo("URL:\t" + export_URL)
