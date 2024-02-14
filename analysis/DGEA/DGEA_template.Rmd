@@ -32,9 +32,9 @@ library(kableExtra)
 library(AnnotationDbi, warn.conflicts = FALSE)
 options(warn = -1)
 
-source("DGEA_RNAseq_functions.R")
 load("DGEA_settings.RData")
 load("SAMPLE_RData")
+source("DGEA_RNAseq_functions.R")
 
 Tag_this_analysis <- "DGEA_FILETAG"
 File_stats <- paste0('DGEA_',Tag_this_analysis,'_genes_stats.csv')
