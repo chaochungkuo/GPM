@@ -50,10 +50,11 @@ def htpasswd_create_user(export_folder, url, username,
         if app:
             if app in ["RNAseq", "tRNAseq", "mRNAseq", "3mRNAseq"]:
                 app = "RNAseq"
-            if app in get_gpm_config("GPM", "GPM_REPORTS"):
-                export_URL = "".join([url,
-                                    "/3_Reports/analysis/Analysis_Report_",
-                                    app, ".html"])
+            for repo_app in get_gpm_config("GPM", "GPM_REPORTS"):
+                if repo_app.lower() == app.lower():
+                    export_URL = "".join([url,
+                        "/3_Reports/analysis/Analysis_Report_",
+                        repo_app, ".html"])
         else:
             export_URL = url
         click.echo("URL:\t" + export_URL)
