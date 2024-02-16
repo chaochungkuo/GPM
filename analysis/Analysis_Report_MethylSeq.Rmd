@@ -53,10 +53,9 @@ Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/service
     * [Bismark Reports](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/nfcore_methylseq/results/bismark/reports/) - Single-sample and [summary analysis reports](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/nfcore_methylseq/results/bismark/summary/bismark_summary_report.html)
     * [Qualimap](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/nfcore_methylseq/results/qualimap/) - Tool for genome alignments QC
     * Preseq - Tool for estimating sample complexity
-    * [MultiQC](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/multiqc/multiqc_report.html) - Aggregate report describing results and QC from the whole pipeline
+    * [MultiQC](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/nfcore_methylseq/results/multiqc/bismark/multiqc_report.html) - Aggregate report describing results and QC from the whole pipeline
     * Pipeline information - Report metrics generated during the workflow execution
 3. [Reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports):
-    * [MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/multiqc/multiqc_report.html) for the quality check
     * Basic analysis of the Genomics Facility (This report)
 4. [Compressed files for download](EXPORT_URL/PROJECT_PROJECT_NAME/compressed_tar/):
     * Three tar files are available for download the above three folders.
