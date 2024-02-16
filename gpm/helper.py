@@ -38,7 +38,8 @@ def check_project_name(name):
         sys.exit()
     # app
     app = split_name[4]
-    if app not in get_gpm_config("GPM", "GPM_APPLICATIONS"):
+    app_options = [x.lower() for x in get_gpm_config("GPM", "GPM_APPLICATIONS")]
+    if app.lower() not in app_options:
         click.echo("Unsupported application. Please take one from below:")
         click.echo(", ".join(get_gpm_config("GPM", "GPM_APPLICATIONS")))
         sys.exit()
