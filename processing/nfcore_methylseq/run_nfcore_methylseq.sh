@@ -9,7 +9,9 @@ if [ "$#" -gt 0 ] && [ "$1" = "--test" ]; then
   -profile test,docker --outdir results
 else
   ################## GPM samplesheet #####################
-  # gpm samplesheet-rnaseq -st 'forward' -sn true -si 2 samplesheet.csv PROJECT_FASTQ_PATH
+  # Because the format is the same as nfcore scRNAseq, we can use the same
+  # command gpm samplesheet-scrnaseq to generate samplesheet.csv
+  # gpm samplesheet-scrnaseq -sn true -si 1 samplesheet.csv PROJECT_FASTQ_PATH
 
   ################## Run nfcore pipeline #################
   PATH_NEXTFLOW run nf-core/methylseq -r $nfcore_version -profile docker -c nextflow.config \
