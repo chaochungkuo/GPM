@@ -18,6 +18,7 @@ def clean_folders(target_folders, show_each_file, dry=False):
             folder_size = get_human_readable_size(folder_size)
             matching_files = search_files_by_patterns(folder,
                                                       regex_patterns)
+            matching_files = list(set(matching_files))
             if matching_files:
                 paths_to_be_cleaned += matching_files
                 total_size = 0
