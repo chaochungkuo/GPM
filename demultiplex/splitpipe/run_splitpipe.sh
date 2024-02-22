@@ -37,21 +37,23 @@ PATH_SPLITPIPE \
     --genome_dir /newvolume/genomes/hg38_GRCm39/ \
     --fq1 ./sublibraries_FASTQ/s1_S1_R1_001.fastq.gz \
     --output_dir ./results_s1/ \
-    --sample NAME1 A1-A6 \
-    --sample NAME2 C1-C6 \
-    --sample NAME3 D1-D6
+    --sample sample1 A1-A3 \
+    --sample sample2 A4-A6 \
+    --sample sample3 A7-A9 \
+    --sample sample4 A10-A12
 
-# Sublibrary 2 and so on...
-# PATH_SPLITPIPE \
-#     --nthreads N_CORES \
-#     --mode all \
-#     --chemistry v2 \
-#     --genome_dir /newvolume/genomes/hg38_GRCm39/ \
-#     --fq1 ./sublibraries_FASTQ/s2_S1_R1_001.fastq.gz \
-#     --output_dir ./results_s1/ \
-#     --sample NAME1 A1-A6 \
-#     --sample NAME2 C1-C6 \
-#     --sample NAME3 D1-D6
+# Sublibrary 2
+PATH_SPLITPIPE \
+    --nthreads N_CORES \
+    --mode all \
+    --chemistry v2 \
+    --genome_dir /newvolume/genomes/hg38_GRCm39/ \
+    --fq1 ./sublibraries_FASTQ/s2_S2_R1_001.fastq.gz \
+    --output_dir ./results_s2/ \
+    --sample sample1 A1-A3 \
+    --sample sample2 A4-A6 \
+    --sample sample3 A7-A9 \
+    --sample sample4 A10-A12
 
 # --sample <sample name> <wells> specifies the sample name and corresponding wells in which each sample was loaded into the first round of barcoding. Each of these lines consists of the sample command line flag followed by a name and a specification of which wells to include. To see formatting rules for specifying well subsets, call split-pipe --explain. Only valid wells for the chosen kit are allowed. By default, a combined analysis of all samples (named 'all-sample') is also performed by the pipeline.
 
