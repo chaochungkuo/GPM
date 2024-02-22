@@ -55,6 +55,8 @@ def htpasswd_create_user(export_folder, url, username,
                     export_URL = "".join([url,
                         "/3_Reports/analysis/Analysis_Report_",
                         repo_app, ".html"])
+                else:
+                    export_URL = url
         else:
             export_URL = url
         click.echo("URL:\t" + export_URL)
