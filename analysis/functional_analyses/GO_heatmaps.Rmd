@@ -16,6 +16,8 @@ bibliography: references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
+options(repos = BiocManager::repositories())
 Tag_this_analysis <- "Heatmap_GOs"
 
 load("data.RData")
@@ -24,25 +26,25 @@ library(data.table)
 library(pheatmap)
 library(openxlsx)
 library(DT)
-
+# library(org.Hs.eg.db)
+# library(org.Mm.eg.db)
 ################# Need to be modified ########################
-exp <- fread("DGEA_All_Samples_norm_exp_quant.csv")
-exp <- exp[,c("V1","gene_id","gene_name",
-             "control_01","control_02","control_03","control_04","control_05",
-             "PAG1h_01","PAG1h_02","PAG1h_03","PAG1h_04","PAG1h_05")]
+DIR_DGEA <- ""
+exp <- fread(paste0(DIR_DGEA, "/DGEA_All_samples_norm_exp_quant.csv")
+# reordering columnsif necessary
+# exp <- exp[,c("V1","gene_id","gene_name",)]
 
-library(org.Mm.eg.db)
-go_terms = c("GO:0060537", "GO:0071560", "GO:0014812", "GO:0033002",
-             "GO:0042692", "GO:0035994", "GO:0003007", "GO:0044344",
-             "GO:0007179", "GO:0070371", "GO:0048738", "GO:0009612",
-             "GO:0045823", "GO:0035051") 
+go_terms = c("GO:0060537", "GO:0071560", "GO:0014812", "GO:0033002") 
 ###############################################################
-
+# Genome data needs to be adjusted below
 get_genes <- function(term) {
-  genes <- select(org.Mm.eg.db, keys = term, keytype = "GO", columns = "SYMBOL")
+  genes <- select(org.Hs.eg.db, keys = term, keytype = "GO", columns = "SYMBOL")
   return(unique(genes$SYMBOL))
 }
 
+fontsize <- 8
+fontsize_row <- 5
+fontsize_col <- 5
 go_heatmap <- function(exp, go_id) {
   sel_genes <- get_genes(go_id)
   hp <- as.data.frame(exp[match(sel_genes, exp$gene_name), c(-1,-2, -3)])
@@ -52,11 +54,15 @@ go_heatmap <- function(exp, go_id) {
     pheatmap(hp,main = paste0("Expression of genes in ", go_id), cluster_cols=F,#annotation_row=annot,
            na_col = "grey", show_rownames = T,labels_row=row.names(hp),#kmeans_k=200,#color = hcl.colors(50, "YlGnBu"),
            legend_labels = "Normalized read counts (log10)",
+           fontsize = fontsize,
+           fontsize_row = fontsize_row, fontsize_col = fontsize_col,
            border_color=NA)
   } else {
     pheatmap(hp,main = paste0("Expression of genes in ", go_id), cluster_cols=F,cluster_rows=F,
            na_col = "grey", show_rownames = T,labels_row=row.names(hp),#kmeans_k=200,#color = hcl.colors(50, "YlGnBu"),
            legend_labels = "Normalized read counts (log10)",
+           fontsize = fontsize,
+           fontsize_row = fontsize_row, fontsize_col = fontsize_col,
            border_color=NA)
   }
   
@@ -68,21 +74,23 @@ go_heatmap <- function(exp, go_id) {
 
 # Heatmap with clustering for DE genes
 
-```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+```{r, echo=FALSE, eval = FALSE, results="hide", warning=FALSE, message=FALSE}
 # Function to generate code chunks and headings
 generate_chunks <- function(GO) {
-  print(GO)
-  cat(paste0("\n### ", GO, "\n"))
-  cat("\n")
-  cat("```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE, fig.width=5, fig.asp = 1, fig.height=3, dpi=600, fig.format='png'}\n")
+  # print(GO)
+  cat(paste0("\n### ", GO, "\n\n"))
+  cat("```{r, echo=FALSE, results='markup', eval=TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3, dpi=400, fig.format='png', fig.asp=1}\n")
   cat(paste0("go_heatmap(exp, '", GO, "')\n"))
-  cat("```\n")
+  cat("```\n\n")
+  # cat("\n")
 }
 
 # The line below will generate the code chunks. If rendering doesn't work,
-# you can copy and paste them in this Rmd report
-# lapply(go_terms, generate_chunks)
+# you can copy and paste them in this Rmd report, and then comment out this line
+lapply(go_terms, generate_chunks)
 ```
+
+<!-- INSERTING code chunks here -->
 
 # R session information
 
