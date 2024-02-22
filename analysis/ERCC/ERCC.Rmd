@@ -29,7 +29,7 @@ options(warn = -1)
 
 source("report_functions.R")
 
-load("data.RData")
+load("../DGEA/DGEA_settings.RData")
 
 Tag_this_analysis <- "ERCC_QC"
 
@@ -71,14 +71,17 @@ corr_figure_btw2samples <- function(title, sample1, sample2) {
    fig
 }
 # https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt
-ercc_groups <- read.csv("Thermofisher_ERCC_cms_095046.txt", sep="\t")
-ct <- fread(paste0(DIR_salmon, "salmon.merged.gene_counts_length_scaled.tsv"))
+ercc_groups <- read.csv("thermofisher_LSG_manuals_cms_095046.txt", sep="\t")
+ct <- fread(paste0(DIR_salmon, "salmon.merged.gene_tpm.tsv"))
 ERCC_ct <- ct[startsWith(ct$gene_id, "ERCC"),]
 ERCC_ct$gene_id <- gsub("_gene","",as.character(ERCC_ct$gene_id))
 # ERCC_ct[,3:8] <- as.numeric(ERCC_ct[,3:8])
+colnames(ERCC_ct) <- unlist(lapply(colnames(ERCC_ct), function(x) gsub("^X0","",x)))
 ```
 
 ### [Back to front page](Analysis_Report_RNAseq.html)
+
+Variation in RNA expression data can be attributed to a variety of factors. In the Genomics Facility we committed to minimizing unwanted biases in quantitative RNA expression analysis. At the same time, we engaged a common set of external RNA controls  ERCC to control and evaluate the variability in RNA sequencing. The controls consist of a set of unlabeled, polyadenylated transcripts (92 transcripts, 250 to 2,000 nt in length) designed to be added to an RNA analysis experiment after sample isolation, in order to measure against defined performance criteria. For more details about the ERCC controls applied, please refer to [the documentation from the manufacture](https://www.thermofisher.com/order/catalog/product/4456739).
 
 ## Dynamic range and lower limit of detection {.tabset}
 
@@ -94,21 +97,27 @@ plot_scatter_spikein <- function(FC_tab, whichmix, sample) {
   sel_sample <- match(sample, colnames(FC_tab))
   sel_mix <- match(mixcol, colnames(FC_tab))
   sel_subgroupID <- match("subgroup", colnames(FC_tab))
-  data <- FC_tab %>% select(1,sel_subgroupID,sel_sample, sel_mix)
-  data[,c(3)] <- log10(data[,c(3)]+1)
+  data <- FC_tab  %>%  dplyr::select(1,sel_subgroupID,sel_sample, sel_mix)
+  data[,c(3)] <- log2(data[,c(3)]+1)
   data <- as.data.frame(data)
   colnames(data) <- c("gene_id","subgroup","norm_readcount","concentration")
-  data$concentration <- log10(data$concentration * 6.02 * 10^23+1)
+  #data$concentration <- log10(data$concentration * 6.02 * 10^23+1)
+  data$concentration <- log2(data$concentration)
+  
   fit <- lm(norm_readcount ~ concentration, data = data)
   data$fit <- fitted(fit)
+  r2 <- round(summary(fit)$adj.r.squared, digits =3)
+  slope <- round(summary(fit)$coefficients[2,1],digits = 3)
+  anno <- paste0("Slope = ",as.character(slope),"\n","R\u00B2 = ", as.character(r2))
   fig <- plot_ly(data = data, x = ~concentration, y = ~norm_readcount,  mode = "markers") %>%
          add_markers(y = ~norm_readcount, color = ~subgroup, colors = "Set1", text=~gene_id) %>% 
          add_trace(x = ~concentration, y = ~fit, mode = "lines", name="Regression", color="organge") %>%
+        add_annotations(x= 10, y = 1,text= anno , showarrow = F )  %>%
          layout(title = paste(sample, whichmix),
                 xaxis = list(zeroline = FALSE,
-                             title=paste("Transcripts in",whichmix,"(log10)")),
+                             title=paste("Concentration in",whichmix,"(log2pM)")),
                 yaxis = list(zeroline = FALSE,
-                             title="Normalized read counts (log10)"))
+                             title="TPM (log2)"))
   return(fig)
 }
 
@@ -173,6 +182,8 @@ plot_scatter_spikein(FC_tab, whichmix = "mix1", sample="SampleA")
 
 
 ## Heatmap
+
+Heatmap for the overall spike-in ERCC expression detected in RNA sequencing.
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.5, fig.height=2}
 heatmap_t <- ERCC_ct[, c(-1,-2)]
