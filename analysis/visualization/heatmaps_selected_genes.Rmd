@@ -1,0 +1,78 @@
+---
+title: "Heatmaps of selected genes"
+author:
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: ../references.bib
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
+options(repos = BiocManager::repositories())
+Tag_this_analysis <- "Heatmap_genes"
+
+library(data.table)
+library(pheatmap)
+library(openxlsx)
+library(DT)
+# library(org.Hs.eg.db)
+# library(org.Mm.eg.db)
+################# Need to be modified ########################
+DIR_DGEA <- ""
+exp <- fread(paste0(DIR_DGEA, "/DGEA_All_samples_norm_exp_quant.csv")
+
+###############################################################
+fontsize <- 8
+fontsize_row <- 5
+fontsize_col <- 5
+
+go_heatmap <- function(exp, sel_genes) {
+  hp <- as.data.frame(exp[match(sel_genes, exp$gene_name), c(-1,-2, -3)])
+  rownames(hp) <- sel_genes
+  hp <- log10(hp+1)
+  if (length(sel_genes) > 1) {
+    pheatmap(hp,main = "Expression of the selected genes", cluster_cols=F,#annotation_row=annot,
+           na_col = "grey", show_rownames = T,labels_row=row.names(hp),#kmeans_k=200,#color = hcl.colors(50, "YlGnBu"),
+           legend_labels = "Normalized read counts (log10)",
+           fontsize = fontsize,
+           fontsize_row = fontsize_row, fontsize_col = fontsize_col,
+           border_color=NA)
+  }
+  
+}
+```
+
+### [Back to front page](../Analysis_Report_RNAseq.html)
+
+Here list the heatmaps according to the selected genes only.
+
+## Ketone
+
+```{r, echo=FALSE, results='markup', eval=TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=2, dpi=400, fig.format='png', fig.asp=0.4}
+sel_genes <- c("ACAT1","BDH1","BDH2","BRCA1","F2","MAPT","OXCT1","PPARG")
+go_heatmap(exp, sel_genes)
+```
+
+## Glycolysis
+
+```{r, echo=FALSE, results='markup', eval=TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=2, dpi=400, fig.format='png', fig.asp=0.5}
+sel_genes <- c("ALDOA","BPGM","ENO1","ENO2","GAPDH","GPI","HK1","HK2","HKDC1","PFKL","PFKM","PGAM1","PGAM2","PGAM4","PGK1","PKLR","PKM","TPI1")
+go_heatmap(exp, sel_genes)
+```
+
+<!-- INSERTING code chunks here -->
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

@@ -12,7 +12,7 @@ output:
     toc_depth: 3
     number_sections: false
     theme: lumen
-bibliography: references.bib
+bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
