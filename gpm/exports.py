@@ -47,6 +47,7 @@ def htpasswd_create_user(export_folder, url, username,
         click.echo(click.style("Create new user for export directory:",
                                fg='bright_green'))
         click.echo("Directory:\t" + export_folder)
+        export_URL = url
         if app:
             if app in ["RNAseq", "tRNAseq", "mRNAseq", "3mRNAseq"]:
                 app = "RNAseq"
@@ -55,10 +56,6 @@ def htpasswd_create_user(export_folder, url, username,
                     export_URL = "".join([url,
                         "/3_Reports/analysis/Analysis_Report_",
                         repo_app, ".html"])
-                else:
-                    export_URL = url
-        else:
-            export_URL = url
         click.echo("URL:\t" + export_URL)
         click.echo("user:\t" + username)
         click.echo("password:\t" + password)
