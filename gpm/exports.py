@@ -140,7 +140,7 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
             # print("path_file link: " + path_file)
             # path_file = relpath(path_file)
             print("path_file link: " + path_file)
-        if os.path.isdir(path_file) and filename != "compressed_tar":
+        if os.path.isdir(path_file) and "compressed_tar" not in filename:
             click.echo(click.style("Tar the folder:", fg='bright_green'))
             click.echo(path_file + click.style(" => ",
                                                fg='bright_green') + tarfile)
