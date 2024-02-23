@@ -16,6 +16,8 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
+options(repos = BiocManager::repositories())
 Tag_this_analysis <- "GSEA_hallmarks"
 pvalueCutoff_GSEA <- 0.01
 load("data.RData")

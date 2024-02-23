@@ -1,0 +1,22 @@
+{
+    "cSpell.words": [
+        "cellranger",
+        "dcmp",
+        "demultiplex",
+        "demultiplexing",
+        "DGEA",
+        "fastq",
+        "fastqs",
+        "fout",
+        "htpasswd",
+        "mkfastq",
+        "multiqc",
+        "nextflow",
+        "nfcore",
+        "rnaseq",
+        "samplesheet",
+        "sanitise",
+        "symprefix",
+        "unstranded"
+    ]
+}

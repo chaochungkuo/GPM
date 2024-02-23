@@ -20,6 +20,8 @@ Reference: [Demultiplexing with hashtag oligos (HTOs)](https://satijalab.org/seu
 
 
 ```{r init, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
+options(repos = BiocManager::repositories())
 library(Seurat)
 library(stringr)
 library(ggplot2)
