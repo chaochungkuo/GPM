@@ -92,6 +92,7 @@ label="ASCs_vs_Pericytes"
 gene_stat_file <- paste0("/data/projects/project/analysis/DGEA/",
                          "DGEA_ASCs_vs_Pericytes_no_both_outliers_genes_stats.csv")
 res <- run_GSEA_hallmark(label, gene_stat_file, pathways)
+# plotGseaTable(pathways, res[[2]], res[[1]], gseaParam=0.5, colwidths = c(7, 2, 0.8, 1.2, 1.2))
 display_hallmark_table(res[[1]])
 ```
 
