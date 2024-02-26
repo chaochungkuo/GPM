@@ -2,7 +2,7 @@
 title: "Gene Set Enrichment Analysis (GSEA)"
 author:
 RMD_AUTHORS
-	date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
     df_print: paged
@@ -16,6 +16,7 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin", sep = ":"))
 Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
 options(repos = BiocManager::repositories())
 Tag_this_analysis <- "GSEA"
@@ -63,7 +64,7 @@ table_GSEAres <- function(gostres_table) {
 
 ```
 
-### [Back to front page](Analysis_Report_RNAseq.html)
+### [Back to front page](../Analysis_Report_RNAseq.html)
 
 GSEA[@subramanian2005gene] is a computational method used in genomics to reveal the biological significance of gene expression data. Unlike traditional methods that analyze single genes, GSEA assesses groups of genes, often organized by biological function or pathway. It identifies whether these gene sets exhibit coordinated changes in expression between experimental conditions. This approach is especially valuable for detecting subtle but meaningful shifts in gene activity. Unlike Gene Ontology (GO) analysis, which categorizes genes based on functional terms, GSEA focuses on the collective behavior of predefined gene sets, making it a powerful tool for uncovering hidden insights in large-scale gene expression datasets.
 

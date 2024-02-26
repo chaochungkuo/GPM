@@ -16,6 +16,7 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin", sep = ":"))
 Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
 options(repos = BiocManager::repositories())
 library(data.table)
@@ -54,7 +55,7 @@ corr_figure <- function(title, xlab, ylab) {
 }
 ```
 
-### [Back to front page](Analysis_Report_RNAseq.html)
+### [Back to front page](../Analysis_Report_RNAseq.html)
 
 If there is a need to modify the figures to fit your particular need (style or color), additional service for customized visualization is needed. The main focus of this report is to present the analysis result to the clients. Any requests beyond this purpose is regarded another service. 
 

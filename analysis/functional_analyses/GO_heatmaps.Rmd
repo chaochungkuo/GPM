@@ -16,6 +16,7 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin", sep = ":"))
 Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
 options(repos = BiocManager::repositories())
 Tag_this_analysis <- "Heatmap_GOs"
@@ -69,7 +70,7 @@ go_heatmap <- function(exp, go_id) {
 }
 ```
 
-### [Back to front page](Analysis_Report_RNAseq.html)
+### [Back to front page](../Analysis_Report_RNAseq.html)
 
 
 # Heatmap with clustering for DE genes

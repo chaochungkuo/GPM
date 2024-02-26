@@ -2,7 +2,7 @@
 title: "GSEA on Hallmark Geneset from MSigDb (directional)"
 author:
 RMD_AUTHORS
-	date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
     df_print: paged
@@ -16,11 +16,11 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin", sep = ":"))
+Sys.getenv("PATH")
 Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
-options(repos = BiocManager::repositories())
 Tag_this_analysis <- "GSEA_hallmarks"
 pvalueCutoff_GSEA <- 0.01
-load("data.RData")
 
 library(dplyr)
 library(DT)
@@ -29,81 +29,87 @@ library('openxlsx')
 library("msigdbr")
 library(fgsea)
 
-if (organism == "hsapiens") {
-  msig <- msigdbr(species = "Homo sapiens", category = "H")
-  pathways = split(x = msig$gene_symbol, f = msig$gs_name)
-} else if (organism == "mmusculus") {
-  msig <- msigdbr(species = "Mus musculus", category = "H")
-  pathways = split(x = msig$gene_symbol, f = msig$gs_name)
-}
-
+organism <- "hsapiens"
+msig <- msigdbr(species = "Homo sapiens", category = "H")
+pathways = split(x = msig$gene_symbol, f = msig$gs_name)
+# organism == "mmusculus"
+# msig <- msigdbr(species = "Mus musculus", category = "H")
+# pathways = split(x = msig$gene_symbol, f = msig$gs_name)
 ```
 
-### [Back to front page](Analysis_Report_RNAseq.html)
+### [Back to front page](../Analysis_Report_RNAseq.html)
 
 GSEA[@subramanian2005gene] is a computational method used in genomics to reveal the biological significance of gene expression data. Unlike traditional methods that analyze single genes, GSEA assesses groups of genes, often organized by biological function or pathway. Instead of browsing all available GO terms in the databases, this analysis focuses only the 50 Hallmark Gene Sets from [MSigDB](https://www.gsea-msigdb.org/gsea/msigdb/index.jsp)[@liberzon2011molecular] with the R package fgsea[@korotkevich2016fast].
 
-# Control_vs_Treatment
-
 ```{r, echo=FALSE, results='markup', warning=FALSE, message=FALSE}
-label="Control_vs_Treatment"
+run_GSEA_hallmark <- function(label, gene_stat_file,pathways) {
+  df = read.csv(gene_stat_file, header=TRUE)
+  geneList <- df$log2FoldChange
+  names(geneList) <- df$gene_name
+  geneList <- na.omit(geneList)
+  geneList <- sort(geneList, decreasing = TRUE)
+  
+  msig_gsea <- fgsea(pathways = pathways,
+                     stats = geneList,
+                     minSize = 15,   # Set to a positive value for enrichment
+                     maxSize = 500,  # Set an appropriate maxSize
+                     nperm = 10000,  # Set an appropriate number of permutations
+                     gseaParam = 0.5)  # Set an appropriate gseaParam
+  
+  msig_gsea <- msig_gsea[order(msig_gsea$padj, decreasing = F)]
+  outdf <- msig_gsea
+  outdf$leadingEdge <- sapply(outdf$leadingEdge, function(sublist) paste(sublist, collapse = ", "))
+  
+  write.table(outdf, file = paste0(Tag_this_analysis, "_", label,"_res.csv"))
+  wb <- createWorkbook()
+  addWorksheet(wb, "GSEA_stats")
+  writeData(wb, "GSEA_stats", outdf)
+  saveWorkbook(wb, file = paste0(Tag_this_analysis, "_", label,"_res.xlsx"), overwrite = TRUE)
+  
+  return(list(msig_gsea, geneList))
+}
 
-GENE_LIST <- paste0("DGEA_", label, "_genes_stats.csv")
-# reading in input from deseq2
-df = read.csv(GENE_LIST, header=TRUE)
-geneList <- df$log2FoldChange
-names(geneList) <- df$gene_name
-geneList <- na.omit(geneList)
-geneList <- sort(geneList, decreasing = TRUE)
-
-msig_gsea <- fgsea(pathways = pathways,
-                   stats = geneList,
-                   minSize = 15,   # Set to a positive value for enrichment
-                   maxSize = 500,  # Set an appropriate maxSize
-                   nperm = 10000,  # Set an appropriate number of permutations
-                   gseaParam = 0.5)  # Set an appropriate gseaParam
-
-msig_gsea <- msig_gsea[order(msig_gsea$padj, decreasing = F)]
-outdf <- msig_gsea
-outdf$leadingEdge <- sapply(outdf$leadingEdge, function(sublist) paste(sublist, collapse = ", "))
-
-write.table(outdf, file = paste0(Tag_this_analysis, "_", label,"_res.csv"))
-wb <- createWorkbook()
-addWorksheet(wb, "GSEA_stats")
-writeData(wb, "GSEA_stats", outdf)
-saveWorkbook(wb, file = paste0(Tag_this_analysis, "_", label,"_res.xlsx"), overwrite = TRUE)
-
-
-DT::datatable(as.data.frame(msig_gsea), extensions = c("FixedColumns"), filter = 'top',
-             options = list( autoWidth = TRUE ,
-                             dom = 'Blftip',
-                             pageLength = 20,
-                             searchHighlight = TRUE,
-                             scrollX = TRUE,
-                             order = list(list(4, 'asc'))
-                             ),
-             class = c('compact cell-border stripe hover') ,
-             rownames = FALSE) %>% formatRound(c("pval","padj","ES", "NES"), 4)
+display_hallmark_table <- function(msig_gsea) {
+  DT::datatable(as.data.frame(msig_gsea), extensions = c("FixedColumns"), filter = 'top',
+                options = list( autoWidth = TRUE ,
+                                dom = 'Blftip',
+                                pageLength = 20,
+                                searchHighlight = TRUE,
+                                scrollX = TRUE,
+                                order = list(list(4, 'asc'))
+                                ),
+                class = c('compact cell-border stripe hover') ,
+                rownames = FALSE) %>% formatRound(c("pval","padj","ES", "NES"), 4)
+}
 ```
 
-Download the full table:
+# ASCs vs Pericytes (N=2)
+
+## Summary
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=FALSE}
+label="ASCs_vs_Pericytes"
+gene_stat_file <- paste0("/data/projects/project/analysis/DGEA/",
+                         "DGEA_ASCs_vs_Pericytes_no_both_outliers_genes_stats.csv")
+res <- run_GSEA_hallmark(label, gene_stat_file, pathways)
+display_hallmark_table(res[[1]])
+```
+
+## Download the full table:
 
 * [`r paste0(Tag_this_analysis, "_", label,"_res.csv")`](`r paste0(Tag_this_analysis, "_", label,"_res.csv")`)
 * [`r paste0(Tag_this_analysis, "_", label,"_res.xlsx")`](`r paste0(Tag_this_analysis, "_", label,"_res.xlsx")`)
 
-
-
-# GSEA Plot of top gene sets
+## GSEA Plot of top gene sets
 
 ```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 for (i in 1:50) {
-  cat("\n### ",  msig_gsea$pathway[i], "\n")
-  p <- plotEnrichment(pathwaysH[[msig_gsea$pathway[i]]], geneList)
+  cat("\n### ",  res[[1]]$pathway[i], "\n")
+  p <- plotEnrichment(pathways[[res[[1]]$pathway[i]]], res[[2]])
   print(p)
   cat("\n")
 }
 ```
-
 
 # Resources
 
