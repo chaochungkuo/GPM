@@ -2,7 +2,7 @@
 title: "Gene Set Enrichment Analysis (GSEA)"
 author:
 RMD_AUTHORS
-	date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
     df_print: paged
@@ -16,11 +16,11 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin", sep = ":"))
 Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
 options(repos = BiocManager::repositories())
 Tag_this_analysis <- "GSEA"
 pvalueCutoff_GO <- 0.01
-load("data.RData")
 
 library(clusterProfiler)
 library(enrichplot)
@@ -29,6 +29,10 @@ library(curl)
 library(DT)
 library(ggplot2)
 library('openxlsx')
+
+DIR_DGEA <- "/data/projects/project/analysis/DGEA/"
+
+organism <- "hsapiens"
 
 if (organism == "hsapiens") {
   library(org.Hs.eg.db)
@@ -43,8 +47,8 @@ if (organism == "hsapiens") {
 
 table_GSEAres <- function(gostres_table) {
   tt <- as.data.frame(gostres_table)
-  tt <- tt[, c("source", "term_id", "term_name", "p_value", "significant", "term_size", "query",
-               "query_size","intersection_size","precision","recall","effective_domain_size","source_order","parents")]
+  tt <- tt[, c("ONTOLOGY","ID","Description","setSize","enrichmentScore","NES","pvalue","p.adjust",
+               "qvalue","rank","leading_edge")]
 
   DT::datatable( tt,
              extensions = c("FixedColumns"),
@@ -55,25 +59,25 @@ table_GSEAres <- function(gostres_table) {
                              searchHighlight = FALSE,
                              scrollX = TRUE,
                              fixedColumns = list(leftColumns = 3),
-                             order = list(list(6))
+                             order = list(list(8))
                              ),
              class = c('compact cell-border stripe hover') ,
-             rownames = FALSE) %>% formatRound(c("p_value", "precision", "recall"), 4)
+             rownames = FALSE) %>% formatRound(c("enrichmentScore","NES","pvalue", "p.adjust", "qvalue"), 4)
 }
 
 ```
 
-### [Back to front page](Analysis_Report_RNAseq.html)
+### [Back to front page](../Analysis_Report_RNAseq.html)
 
 GSEA[@subramanian2005gene] is a computational method used in genomics to reveal the biological significance of gene expression data. Unlike traditional methods that analyze single genes, GSEA assesses groups of genes, often organized by biological function or pathway. It identifies whether these gene sets exhibit coordinated changes in expression between experimental conditions. This approach is especially valuable for detecting subtle but meaningful shifts in gene activity. Unlike Gene Ontology (GO) analysis, which categorizes genes based on functional terms, GSEA focuses on the collective behavior of predefined gene sets, making it a powerful tool for uncovering hidden insights in large-scale gene expression datasets.
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 run_GSEA <- function(label) {
-  GENE_LIST <- paste0("DGEA_", label, "_genes_stats.csv")
+  GENE_LIST <- paste0(DIR_DGEA, "DGEA_", label, "_genes_stats.csv")
   # reading in input from deseq2
   df = read.csv(GENE_LIST, header=TRUE)
   geneList <- df$log2FoldChange
-  names(geneList) <- df$gene_id
+  names(geneList) <- sub('\\.[0-9]*$', '', df$gene_id)
   geneList <- na.omit(geneList)
   geneList <- sort(geneList, decreasing = TRUE)
 
@@ -96,32 +100,30 @@ run_GSEA <- function(label) {
   return(gse)
 }
 
-fnames <- list.files(pattern = "*genes_stats.csv")
+fnames <- list.files(path=DIR_DGEA,
+                     pattern = "*genes_stats.csv")
 fnames <- fnames[fnames !="DGEA_All_Samples_genes_stats.csv"]
 labels <- gsub("DGEA_", "", fnames)
 labels <- gsub("_genes_stats.csv", "", labels)
 
 ```
 
-<!-- # GO analysis among treatments {.tabset} -->
-<!-- ```{r,echo=FALSE, results='asis', warning=FALSE, message=FALSE} -->
-<!-- for (lab in labels) { -->
-<!--   cat("\n## ",  lab, "\n") -->
-<!--   gostres <- run_GO(label=lab) -->
-<!--   gostplot(gostres, capped = FALSE, interactive = TRUE) -->
-<!--   cat("\n") -->
-<!-- } -->
-<!-- ``` -->
 
+# ASCs vs Pericytes
 
-# GROUP_COMPARISON_POINTER
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE, fig.dpi=600, fig.format='png'}
+gostres <- run_GSEA(label="ASCs_vs_Pericytes_no_both_outliers")
+dotplot(gostres, showCategory=10, split=".sign", font.size = 8, label_format=50) + facet_grid(.~.sign)
+table_GSEAres(gostres@result)
+```
 
+## GSEA Plot of top gene sets {.tabset}
 
-# GSEA Plot of top gene sets {.tabset}
 ```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 for (i in 1:10) {
-  cat("\n## ",  GSEAres$Description[i], "\n")
-  p <- gseaplot(GSEAres, by = "all", title = GSEAres$Description[i], geneSetID = i)
+  cat("\n### ",  gostres$Description[i], "\n")
+  p <- gseaplot(gostres, by = "all", title = gostres$Description[i], geneSetID = i)
+  # p <- p + theme(plot.title=element_text(hjust=0.5, size=5))
   print(p)
   cat("\n")
 }
