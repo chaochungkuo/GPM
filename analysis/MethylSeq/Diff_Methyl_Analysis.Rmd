@@ -1,0 +1,86 @@
+---
+title: "Differential methylation analysis"
+author:
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: ../references.bib
+---
+
+### [Back to front page](../Analysis_Report_MethylSeq.html)
+
+This analysis is done according to [@wu2015detection].
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin", sep = ":"))
+Sys.getenv("PATH")
+Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
+Tag_this_analysis <- "DMR"
+pvalueCutoff_DMR <- 0.01
+
+library(ggplot2)
+library(DSS)
+require(bsseq)
+
+# Paths
+DIR_base <- "PROJECT_PROJECT_PATH/"
+DIR_analysis <- paste0(DIR_base, "analysis/")
+DIR_cov <- paste0(DIR_base, "PROJECT_PROCESSING_METHOD/results/bismark/methylation_calls/methylation_coverage/")
+
+file_cov_WT <- paste0(DIR_cov, "WT_1_val_1_bismark_bt2_pe.deduplicated.bismark.cov.gz")
+file_cov_KO <- paste0(DIR_cov, "KO_1_val_1_bismark_bt2_pe.deduplicated.bismark.cov.gz")
+
+dat_WT = read.table(gzfile(file_cov_WT, "r"), header=FALSE)
+dat_WT <- dat_WT[,c(1,2,5,6)]
+colnames(dat_WT) <- c("chr", "pos", "N", "X")
+dat_WT$N <- dat_WT$N + dat_WT$X
+
+dat_KO = read.table(gzfile(file_cov_KO, "r"), header=FALSE)
+dat_KO <- dat_KO[,c(1,2,5,6)]
+colnames(dat_KO) <- c("chr", "pos", "N", "X")
+dat_KO$N <- dat_KO$N + dat_KO$X
+
+BSobj = makeBSseqData( list(dat_WT, dat_KO), c("WT","KO") )
+head(BSobj)
+
+dmlTest = DMLtest(BSobj, group1=c("WT"), group2=c("KO"), smoothing=TRUE)
+head(dmlTest)
+dmls = callDML(dmlTest, p.threshold=0.001)
+head(dmls)
+```
+
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=FALSE}
+plot_data <- data.frame(sample=c(rep("WT", length(dat_WT$N)),
+                                 rep("KO", length(dat_KO$N))),
+                        N=c(dat_WT$N, dat_KO$N))
+plot_data$N_log <- log10(plot_data$N)
+ggplot2::ggplot(plot_data, aes(x=sample, y=N_log)) + 
+  geom_violin(trim=FALSE, fill="gray")+
+  labs(title="Plot of N",x="Group", y = "N (log10)")+
+  geom_boxplot(width=0.1)+
+  theme_classic()
+```
+
+
+# Resources
+
+* [The DSS User’s Guide](https://www.bioconductor.org/packages/devel/bioc/vignettes/DSS/inst/doc/DSS.html)
+
+# References
+
+<div id="refs"></div>
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```
