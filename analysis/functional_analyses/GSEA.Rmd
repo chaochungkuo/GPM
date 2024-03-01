@@ -97,7 +97,7 @@ run_GSEA <- function(label) {
   addWorksheet(wb, "GSEA_stats")
   writeData(wb, "GSEA_stats", gse)
   saveWorkbook(wb, file = paste0(Tag_this_analysis, "_", label,"_res.xlsx"), overwrite = TRUE)
-  return(gse)
+  return(list(geneList, gse))
 }
 
 fnames <- list.files(path=DIR_DGEA,
@@ -112,17 +112,27 @@ labels <- gsub("_genes_stats.csv", "", labels)
 # ASCs vs Pericytes
 
 ```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE, fig.dpi=600, fig.format='png'}
-gostres <- run_GSEA(label="ASCs_vs_Pericytes_no_both_outliers")
-dotplot(gostres, showCategory=10, split=".sign", font.size = 8, label_format=50) + facet_grid(.~.sign)
-table_GSEAres(gostres@result)
+label <- "ASCs_vs_Pericytes_no_both_outliers"
+gostres <- run_GSEA(label=label)
+dotplot(gostres[[2]], showCategory=10, split=".sign", font.size = 8, label_format=50) + facet_grid(.~.sign)
+edox <- setReadable(gostres[[2]], 'org.Hs.eg.db', 'ENSEMBL')
+cnetplot(edox, foldChange=gostres[[1]], cex_label_category = 0.5, node_label='category')
+edo <- pairwise_termsim(gostres[[2]])
+emapplot(edo, showCategory = 20, pie="count", cex_label_category=0.6)
+table_GSEAres(gostres[[2]])
 ```
+
+## Download the full table:
+
+* [`r paste0(Tag_this_analysis, "_", label,"_res.csv")`](`r paste0(Tag_this_analysis, "_", label,"_res.csv")`)
+* [`r paste0(Tag_this_analysis, "_", label,"_res.xlsx")`](`r paste0(Tag_this_analysis, "_", label,"_res.xlsx")`)
 
 ## GSEA Plot of top gene sets {.tabset}
 
 ```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 for (i in 1:10) {
-  cat("\n### ",  gostres$Description[i], "\n")
-  p <- gseaplot(gostres, by = "all", title = gostres$Description[i], geneSetID = i)
+  cat("\n### ",  gostres[[2]]$Description[i], "\n")
+  p <- gseaplot(gostres[[2]], by = "all", title = gostres[[2]]$Description[i], geneSetID = i)
   # p <- p + theme(plot.title=element_text(hjust=0.5, size=5))
   print(p)
   cat("\n")
