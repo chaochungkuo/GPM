@@ -14,9 +14,13 @@
 ################## GPM samplesheet #####################
 # gpm samplesheet -st 'forward' samplesheet.csv PROJECT_FASTQ_PATH/UMI_trimmed
 
-PATH_NEXTFLOW run nf-core/smrnaseq -r 2.0.0 -profile docker \
+PATH_NEXTFLOW run nf-core/smrnaseq -r 2.3.0 -profile docker \
      --input samplesheet.csv --outdir results --mirtrace_species hsa --mirtrace_protocol qiaseq \
-     --three_prime_adapter AACTGTAGGCACCATCAAT --protocol qiaseq \
+     --with_umi \
+     --umitools_extract_method regex \
+     --umitools_bc_pattern '.+(?P<discard_1>AACTGTAGGCACCATCAAT){s<=2}(?P<umi_1>.{12})(?P<discard_2>.*)' \
+     --three_prime_adapter AACTGTAGGCACCATCAAT \
+     --protocol qiaseq \
      --genome GRCh38 \
      --mirna_gtf /data/genomes/hg38/miRNA/hsa.gff3 \
      --mature /data/genomes/spikein/QIASeq_miRNAseq_SpikeIn/mature_with_qiaseq_spikein.fa \
