@@ -20,7 +20,7 @@ cd ./results
 sampleid="sample"
 
 
-CELLRANGER_BASE multi --id=$sampleid \
+PATH_CELLRANGER_BASE multi --id=$sampleid \
                     --csv="PATH_TO_CONFIG_FILE" \
                     --localcores=${Local_Cores} \
                     --localmem=120 
