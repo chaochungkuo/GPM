@@ -28,7 +28,7 @@ DIR_base <- "PROJECT_PROJECT_PATH/"
 DIR_project <- paste0(DIR_base, "analysis/")
 DIR_cellranger <- paste0(DIR_base, "cellranger_cellplex/")
 DIR_multi_output <- paste0(DIR_cellranger, "results/")
-DIR_multi_output_published <- "EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results/"
+DIR_multi_output_published <- "EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/cellranger_cellplex/results/"
 ```
 
 ![](RMD_INSTITUTE_LOGO)
