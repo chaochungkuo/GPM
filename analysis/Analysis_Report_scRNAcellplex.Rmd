@@ -87,10 +87,10 @@ summaryFiles <- vector(mode="list", length=length(samples))
 names(summaryFiles) <- samples
 
 for (i in 1:length(samples)) {
-    if (i ==1){
-        cells <- list.dirs(path = paste0(DIR_multi_output, samples[i]), full.names = F, recursive = F)
+    
+        cells <- list.dirs(path = paste0(DIR_multi_output, samples[i],"/outs/per_sample_outs"), full.names = F, recursive = F)
         summaryFiles[[i]] <- vector(mode="list", length=length(cells))
-    }
+    
     for ( j in 1:length(cells)) {
             summaryFiles[[i]][[j]] <- paste0(DIR_multi_output_published,samples[[i]],"/outs/per_sample_outs/",cells[[j]]",/web_summary.html")
     }
