@@ -121,7 +121,7 @@ hashtag <- demultiplex_GEX(GEX_dir=GEX_dir,
 #### RidgePlot
 
 ```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=5, fig.height=6, fig.format='png'}
-RidgePlot(hashtag, assay = "HTO", features = rownames(hashtag[["HTO"]]), ncol=1)
+RidgePlot(hashtag, assay = "HTO", features = rownames(hashtag[["HTO"]]), ncol=1) + xlab("Hashtag counts (log10)") 
 ```
 
 
