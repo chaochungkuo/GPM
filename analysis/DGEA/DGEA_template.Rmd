@@ -15,7 +15,7 @@ output:
 bibliography: ../references.bib
 ---
 
-```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-setup, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin", sep = ":"))
 Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
 options(repos = BiocManager::repositories())
@@ -51,7 +51,7 @@ Differential gene expression analysis is done with DESEQ2 package in R [@love201
 
 This analysis is done with DGEA_PAIRED data.
 
-```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-deseq, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 deseq_output <- run_deseq_salmon(filtered_samples, spikein=norm_spikein_ERCC, paired=paired,
                                  countsFromAbundance=countsFromAbundance,
                                  lengthcorrection=lengthcorrection)
@@ -61,37 +61,37 @@ deseq_output <- run_deseq_salmon(filtered_samples, spikein=norm_spikein_ERCC, pa
 
 ## PCA
 
-```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 RNAseq_PCA_plotly(deseq_output$norm_count, filtered_samples)
 ```
 
 ## 3D-PCA
 
-```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-3dpca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 RNAseq_3D_PCA_plotly(deseq_output$norm_count, filtered_samples)
 ```
 
 `r if(volcano){"## Volcano plot"}`
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=volcano}
+```{r DGEA_FILETAG-plotly-volcano, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=volcano}
 RNAseq_volcano_plotly(deseq_output$deseq2res)
 ```
 
 `r if(maplot){"## MA plot"}`
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=maplot}
+```{r DGEA_FILETAG-plotly-maplot, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=maplot}
 RNAseq_maplot_plotly(deseq_output$deseq2res)
 ```
 
 `r if(norm_spikein_ERCC){"## MA plot of spike in"}`
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=norm_spikein_ERCC&maplot}
+```{r DGEA_FILETAG-plotly-ercc, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=norm_spikein_ERCC&maplot}
 RNAseq_maplot_plotly_ERCC(deseq_output$res_combined_ERCC)
 ```
 
 ## Heatmap
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-heatmap, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
 RNAseq_heatmap_plotly(deseq_output$deseq2res)
 ```
 
@@ -100,25 +100,25 @@ RNAseq_heatmap_plotly(deseq_output$deseq2res)
 
 ## PCA
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+```{r DGEA_FILETAG-ggplot2-pca, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
 RNAseq_PCA_ggplot2(deseq_output, filtered_samples)
 ```
 
 `r if(volcano){"## Volcano plot"}`
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=volcano}
+```{r DGEA_FILETAG-ggplot2-volcano, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=volcano}
 RNAseq_volcano_ggplot2(deseq_output)
 ```
 
 `r if(maplot){"## MA plot"}`
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=maplot}
+```{r DGEA_FILETAG-ggplot2-maplot, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=maplot}
 RNAseq_maplot_ggplot2(deseq_output)
 ```
 
 ## Heatmap
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+```{r DGEA_FILETAG-ggplot2-heatmap, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
 RNAseq_heatmap_ggplot2(deseq_output)
 ```
 
@@ -126,23 +126,23 @@ RNAseq_heatmap_ggplot2(deseq_output)
 
 `r if(sigtable){"## Sig. genes"}`
 
-```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
+```{r DGEA_FILETAG-table-sig, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(deseq_output$deseq2res_sig)
 ```
 
 `r if(sigtable){"## Up genes"}`
 
-```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
+```{r DGEA_FILETAG-table-up, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(deseq_output$deseq2res_sig[deseq_output$deseq2res_sig$log2FoldChange > 0,])
 ```
 
 `r if(sigtable){"## Down genes"}`
 
-```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
+```{r DGEA_FILETAG-table-down, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(deseq_output$deseq2res_sig[deseq_output$deseq2res_sig$log2FoldChange < 0,])
 ```
 
-```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-table-excel, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # download_table()
 cols <- c("ENSEMBL", "SYMBOL", "GENENAME")
 ensemblkeys <- gsub("\\.[0-9]*$", "", deseq_output$deseq2res$gene_id)
@@ -182,7 +182,7 @@ saveWorkbook(wb, file =File_xlsx_res, overwrite = TRUE)
 
 # Samplesheet
 
-```{r echo=FALSE, results='asis'}
+```{r DGEA_FILETAG-samplesheet, echo=FALSE, results='asis'}
 kable(filtered_samples) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
 ```
@@ -194,6 +194,6 @@ kable(filtered_samples) %>%
 
 # R session information
 
-```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+```{r DGEA_FILETAG-session, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
 sessionInfo()
 ```
