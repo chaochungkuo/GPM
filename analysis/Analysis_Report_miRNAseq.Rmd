@@ -21,6 +21,7 @@ library("readr")
 library(tidyr)
 library(dplyr)
 library(openxlsx)
+library(kableExtra)
 library(data.table)
 options(warn = -1)
 
@@ -50,7 +51,7 @@ In this report, you are able to:
 * Export any tables in this report for gene lists or statistics in various format you want.
 * Get the summary of the method description and citation.
 
-After deliverying this report, we can schedule a short meeting to discuss the result, otherwise, we will close this project with this basic analysis. If you have further request and questions, please don't hestitate to contact us. 
+After delivering this report, we can schedule a short meeting to discuss the result, otherwise, we will close this project with this basic analysis. If you have further request and questions, please don't hesitate to contact us. 
 
 ***
 
@@ -61,12 +62,24 @@ Please click the hyperlinked list below:
 1. [Raw Data](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data): 
     * BCL files from the sequencer
     * FASTQ files after demultiplexing
+    * [MultiQC report for demultiplexing](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data/FASTQ_multiQC)
 2. [Processed Data](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data): 
-    * BAM files after alignment
-    * BigWig files after normalization
-    * Quantification tables from the counts of reads or quantification of the expressions
+    * FastQC - read quality control
+    * UMI-tools extract - UMI barcode extraction
+    * UMI-collapse deduplicate - read deduplication
+    * FastP - adapter trimming
+    * Bowtie2 - contamination filtering
+    * Bowtie - alignment against mature miRNAs and miRNA precursors (hairpins)
+    * SAMtools - alignment result processing and feature counting
+    * edgeR - normalization, MDS plot and sample pairwise distance heatmap
+    * Bowtie - alignment against reference genome for QC purpose
+    * mirtop - miRNA and isomiR annotation
+    * miRDeep2 - known and novel miRNA annotation
+    * miRTrace - a comprehensive tool for QC purpose
+    * MultiQC - aggregate report, describing results of the whole pipeline
+    * Pipeline information - Report metrics generated during the workflow execution
 3. [Reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports):
-    * [MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/nfcore_smrnaseq_results/multiqc/multiqc_report.html) for the quality check
+    * [MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/nfcore_miRNAseq/results/multiqc/multiqc_report.html) for the quality check
     * Basic analysis of the Genomics Facility (This report)
 4. [Compressed files for download](EXPORT_URL/PROJECT_PROJECT_NAME/compressed_tar/):
     * Three tar files are available for download for the above three folders.
