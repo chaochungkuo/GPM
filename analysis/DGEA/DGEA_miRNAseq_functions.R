@@ -2,12 +2,17 @@
 ## miRNAseq
 ###########################################################
 
-miRNAseq_deseq2 <- function(FILE_counts_mature, FILE_counts_hairpin, samples2, sizeFactorSpikeIn=FALSE) {
-  df_counts1 <- t(read.csv(FILE_counts_mature, row.names = 1, header=T, sep=","))[, samples2$sample]
-  df_counts2 <- t(read.csv(FILE_counts_hairpin, row.names = 1, header=T, sep=","))[, samples2$sample]
+miRNAseq_deseq2 <- function(FILE_counts_mature, FILE_counts_hairpin, samples2, sizeFactorSpikeIn=FALSE, paired=FALSE) {
+  df_counts1 <- t(read.csv(FILE_counts_mature, row.names = 1, header=T))[, samples2$sample]
+  df_counts2 <- t(read.csv(FILE_counts_hairpin, row.names = 1, header=T))[, samples2$sample]
   # df_counts <- df_counts1
   df_counts <- rbind(df_counts1, df_counts2)
-  dds <- DESeqDataSetFromMatrix(countData = df_counts, colData = samples2, design = ~group)
+  if (paired) {
+    dds <- DESeqDataSetFromMatrix(countData = df_counts, colData = samples2, design = ~batch + group)
+  } else {
+    dds <- DESeqDataSetFromMatrix(countData = df_counts, colData = samples2, design = ~group)
+  }
+  
   ## With QIAseq miRNA-Seq Spike-in
   if (sizeFactorSpikeIn) {
     sizeFactors(dds) <- sizeFactorSpikeIn
@@ -42,7 +47,6 @@ miRNAseq_PCA_plotly <- function(normalized_counts, samples) {
   labels <- samples$sample
   labels_group <- samples$group
   fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = labels_group, text = labels,
-                 width = Fig_width, height = Fig_height,
                  type = 'scatter', mode = 'markers')
   fig
 }
@@ -56,7 +60,6 @@ miRNAseq_3D_PCA_plotly <- function(normalized_counts, samples) {
   labels <- samples$sample
   labels_group <- samples$group
   fig <- plot_ly(components, x = ~PC1, y = ~PC2,  z = ~PC3,  color = labels_group, text = labels,
-                 width = Fig_width, height = Fig_height,
                  type = 'scatter3d', mode = 'markers')
   fig
 }
@@ -105,11 +108,10 @@ miRNAseq_heatmap_plotly <- function(res_combined) {
   rownames(heatmap_t) <- c()
   heatmaply(heatmap_t, main = "Heatmap of DE miRNAs",
             method = "plotly", #labRow=res_reorder$gene_name,
-            xlab = "Samples", ylab = "miRNA", width = Fig_width, height = Fig_height+200,
+            xlab = "Samples", ylab = "miRNA",
             showticklabels = c(TRUE, FALSE), show_dendrogram = c(FALSE, TRUE),
             key.title = "Scaled\nexpression\nin log10 scale",
-            label_names = c("gene_name", "sample", "Expression"),
-            k_col = 3)
+            label_names = c("gene_name", "sample", "Expression"))
 }
 
 miRNAseq_PCA_ggplot2 <- function(res_miRNA, samples2){
@@ -186,4 +188,54 @@ miRNAseq_heatmap_ggplot2 <- function(res_miRNA){
               axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
               plot.margin = margin(l = 0 + margin_spacer(heatmap_t$sample)))
   fig
+}
+
+###########################################################
+## Output tables
+###########################################################
+
+table_all_normalized_quantified_values <- function(normalized_counts) {
+  datatable( normalized_counts ,
+             extensions = c("Buttons" , "FixedColumns"),
+             filter = 'top',
+             options = list( autoWidth = TRUE ,
+                             dom = 'Blftip',
+                             pageLength = 10,
+                             searchHighlight = FALSE,
+                             buttons = c('copy', 'csv', 'print'),
+                             scrollX = TRUE,
+                             fixedColumns = list(leftColumns = 1)),
+             class = c('compact cell-border stripe hover') ,
+             rownames = FALSE) %>% formatRound(columns = c(-1),digits=2)
+}
+
+table_diffexp_statistics <- function(deseq2res) {
+  datatable( deseq2res ,
+             extensions = c("Buttons" , "FixedColumns"),
+             filter = 'top',
+             options = list( autoWidth = TRUE ,
+                             dom = 'Blftip',
+                             pageLength = 10,
+                             searchHighlight = FALSE,
+                             buttons = c('copy', 'csv', 'print'),
+                             scrollX = TRUE,
+                             fixedColumns = list(leftColumns = 1)),
+             class = c('compact cell-border stripe hover') ,
+             rownames = FALSE) %>% formatRound(c(-1), 2)
+}
+
+table_sig_genes <- function(res_sig, rowname=F) {
+  res <- subset(res_sig, select = -c(sig) )
+  datatable( res ,
+             extensions = c("FixedColumns"),
+             filter = 'top',
+             options = list( autoWidth = TRUE ,
+                             dom = 'Blftip',
+                             pageLength = 10,
+                             searchHighlight = FALSE,
+                             #  buttons = c('copy', 'csv', 'print'),
+                             scrollX = TRUE,
+                             fixedColumns = list(leftColumns = 1)),
+             class = c('compact cell-border stripe hover') ,
+             rownames = rowname) %>% formatRound(c(-1), 2)
 }

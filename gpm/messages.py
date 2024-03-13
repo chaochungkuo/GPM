@@ -70,6 +70,16 @@ gpm_messages["analysis"]["DGEA_RNAseq"] = [
     "3. Insert the headings with hyperlinks in Analysis_Report.Rmd."
 ]
 
+gpm_messages["analysis"]["DGEA_miRNAseq"] = [
+    "1. Generate analysis/samplesheet.csv with all sample information.",
+    "   You can try to modify the samplesheet.csv from nfcore pipeline:",
+    "   cut -d ',' -f 1 nfcore_miRNAseq/samplesheet.csv | \\",
+    "   awk 'BEGIN{FS=OFS=\"_\"} {print $0, $1, $2, $3, $4}' OFS=',' \\",
+    "   > analysis/samplesheet.csv",
+    "2. Modify analysis/DGEA/DGEA_miRNAseq.Rmd and generate sub-reports.",
+    "3. Insert the headings with hyperlinks in Analysis_Report.Rmd."
+]
+
 
 class DisplayablePath(object):
     display_filename_prefix_middle = '├──'
