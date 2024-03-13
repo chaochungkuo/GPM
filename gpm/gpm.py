@@ -469,7 +469,7 @@ class GPM():
         # shutil.chown(os.path.join(export_dir, ".htaccess"), group=GROUPNAME)
 
     def create_user(self, export_dir, raw_export=False):
-        export_URL = os.path.join(get_gpm_config("URL", "EXPORT_URL"),
+        export_URL = os.path.join(get_gpm_config("EXPORT", "EXPORT_URL"),
                                   self.profile["Project"]["project_name"])
         export_user, export_password = htpasswd_create_user(
             export_dir,

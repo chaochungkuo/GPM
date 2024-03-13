@@ -10,6 +10,7 @@ from gpm.helper import get_gpmdata_path, get_gpm_config
 import xtarfile as tarfile
 from tqdm import tqdm
 import hashlib
+import re
 
 
 def check_export_directory(export_folder):
@@ -53,9 +54,10 @@ def htpasswd_create_user(export_folder, url, username,
                 app = "RNAseq"
             for repo_app in get_gpm_config("GPM", "GPM_REPORTS"):
                 if repo_app.lower() == app.lower():
-                    export_URL = "".join([url,
-                        "/3_Reports/analysis/Analysis_Report_",
-                        repo_app, ".html"])
+                    export_URL = "".join(
+                        [url,
+                         "/3_Reports/analysis/Analysis_Report_",
+                         repo_app, ".html"])
         click.echo("URL:\t" + export_URL)
         click.echo("user:\t" + username)
         click.echo("password:\t" + password)
@@ -112,6 +114,9 @@ def relpath(path_file):
 
 
 def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
+    def fits_pattern(filename, pattern):
+        return bool(re.match(pattern.replace("*", ".*"), filename))
+    regex_patterns = get_gpm_config("EXPORT", "TAR_EXPORT_IGNORE")
     if export_folder == ".":
         export_folder = os.getcwd()
     export_folder = export_folder.rstrip("/")
@@ -126,6 +131,10 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
     # Tar each folder
     for filename in os.listdir(export_folder):
         if filename.startswith("."):
+            continue
+        fits_any_pattern = any(fits_pattern(filename, pattern)
+                               for pattern in regex_patterns)
+        if fits_any_pattern:
             continue
         path_file = os.path.join(export_folder, filename)
         if gzip:
