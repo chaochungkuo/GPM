@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "arcname",
         "cellranger",
         "dcmp",
         "demultiplex",
@@ -7,6 +8,7 @@
         "DGEA",
         "fastq",
         "fastqs",
+        "followlinks",
         "fout",
         "htpasswd",
         "mkfastq",
@@ -17,6 +19,7 @@
         "samplesheet",
         "sanitise",
         "symprefix",
+        "tqdm",
         "unstranded"
     ]
 }
