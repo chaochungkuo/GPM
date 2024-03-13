@@ -177,8 +177,13 @@ def tar_folder(input_folder, output_tar, gzip):
             total_size = 0
             for root, dirs, files in os.walk(input_folder, followlinks=True):
                 for name in files:
-                    full_path = os.path.join(root, name)
-                    total_size += get_size(full_path)
+                    fits_any_pattern = any(fits_pattern(name, pattern)
+                                           for pattern in regex_patterns)
+                    if fits_any_pattern:
+                        continue
+                    else:
+                        full_path = os.path.join(root, name)
+                        total_size += get_size(full_path)
             progress_bar = tqdm(total=total_size,
                                 desc='Creating tar archive',
                                 unit='B', unit_scale=True)
