@@ -132,7 +132,6 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
     for filename in os.listdir(export_folder):
         if filename.startswith("."):
             continue
-        print(filename)
         fits_any_pattern = any(fits_pattern(filename, pattern)
                                for pattern in regex_patterns)
         if fits_any_pattern:
@@ -163,6 +162,9 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
 
 
 def tar_folder(input_folder, output_tar, gzip):
+    def fits_pattern(filename, pattern):
+        return bool(re.match(pattern.replace("*", ".*"), filename))
+    regex_patterns = get_gpm_config("EXPORT", "TAR_EXPORT_IGNORE")
     if gzip:
         tar_mode = 'w:gz'
     else:
@@ -182,12 +184,17 @@ def tar_folder(input_folder, output_tar, gzip):
                                 unit='B', unit_scale=True)
             for root, dirs, files in os.walk(input_folder, followlinks=True):
                 for name in files:
-                    full_path = os.path.join(root, name)
-                    arcname = os.path.relpath(full_path, input_folder)
-                    # Add the file or directory to the tar archive
-                    tar.add(full_path, arcname=arcname)
-                    # Update the progress bar by the size
-                    progress_bar.update(get_size(full_path))
+                    fits_any_pattern = any(fits_pattern(name, pattern)
+                                           for pattern in regex_patterns)
+                    if fits_any_pattern:
+                        continue
+                    else:
+                        full_path = os.path.join(root, name)
+                        arcname = os.path.relpath(full_path, input_folder)
+                        # Add the file or directory to the tar archive
+                        tar.add(full_path, arcname=arcname)
+                        # Update the progress bar by the size
+                        progress_bar.update(get_size(full_path))
             # Close the progress bar
             progress_bar.close()
         save_md5_to_file(output_tar)
