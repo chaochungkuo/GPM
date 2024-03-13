@@ -94,10 +94,10 @@ heading_for_report <- c(heading_for_report, paste0("### [",description,"](DGEA/D
 ```
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-filetag <- "Placebo_BL_vs_3M"
+filetag <- "Subtype_Treatment_vs_Control"
 description <- str_replace_all(filetag, "_", " ")
-filtered_samples <- samples[samples$group=="Placebo",]
-filtered_samples$time <- factor(filtered_samples$time, levels = c("BL","3M"))
+filtered_samples <- samples[samples$group=="Subtype",]
+filtered_samples$time <- factor(filtered_samples$time, levels = c("Control","Treatment"))
 colnames(filtered_samples) <- c("sample","group","treatment","batch","tube")
 if ( generate_Rmd == TRUE ) {
   add_DGEA(description=description, 

@@ -65,6 +65,9 @@ Please make sure that you store these data in a lab-wise level. Please refer to 
 
 # Differential Gene Expression Analysis
 
+In 'Group2 vs Group1' analysis, we compare gene expression between Group2 and Group1. 'Up' genes are expressed more in Group2 than Group1, indicating potential biological changes. 'Down' genes show lower expression in Group2, suggesting differences in gene activity.
+
+<!-- INSERTING POINT -->
 
 # Sample Overview
 
@@ -74,8 +77,6 @@ rownames(samples) <- samples$sample
 kable(samples) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
 ```
-
-<!-- INSERTING POINT -->
 
 # References
 
