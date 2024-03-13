@@ -206,7 +206,6 @@ PCA_plotly <- function(scaled_ct, colors) {
   components$PC2 <- -components$PC2
 
   fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = colors,
-                 width = Fig_width, height = Fig_height,
                  type = 'scatter', mode = 'markers', text = components$`rownames(t)`)
   fig
 }
@@ -220,7 +219,6 @@ RNAseq_PCA_plotly <- function(normalized_counts2, samples) {
   labels <- samples$sample
   labels_group <- samples$group
   fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = labels_group, text = labels,
-                 width = Fig_width, height = Fig_height,
                  type = 'scatter', mode = 'markers')
   fig
 }
@@ -234,7 +232,6 @@ RNAseq_3D_PCA_plotly <- function(normalized_counts2, samples) {
   labels <- samples$sample
   labels_group <- samples$group
   fig <- plot_ly(components, x = ~PC1, y = ~PC2,  z = ~PC3,  color = labels_group, text = labels,
-                 width = Fig_width, height = Fig_height,
                  type = 'scatter3d', mode = 'markers')
   fig
 }
@@ -312,7 +309,7 @@ RNAseq_heatmap_plotly <- function(deseq2res) {
   rownames(heatmap_t) <- c()
   heatmaply(heatmap_t, main = heatmap_title,
             method = "plotly",labRow=sig_genes$gene_name,
-            xlab = "Samples", ylab = "Genes", width = Fig_width, height = Fig_height+200,
+            xlab = "Samples", ylab = "Genes",
             showticklabels = c(TRUE, FALSE), show_dendrogram = c(FALSE, TRUE),
             key.title = "Scaled\nexpression\nin log10 scale",
             label_names = c("Gene", "Sample", "Expression"))

@@ -103,15 +103,20 @@ miRNAseq_maplot_plotly <- function(res_combined) {
 }
 
 miRNAseq_heatmap_plotly <- function(res_combined) {
-  res_reorder <- res_miRNA$res_combined[res_miRNA$res_combined$sig == "Sig.", ]
-  heatmap_t <- log10(res_reorder[,10:(dim(res_reorder)[2])]+1)
-  rownames(heatmap_t) <- c()
-  heatmaply(heatmap_t, main = "Heatmap of DE miRNAs",
-            method = "plotly", #labRow=res_reorder$gene_name,
+  sig_genes <- res_combined[res_combined$sig == "Sig.", ]
+  heatmap_title <- "Heatmap of sig. DE miRNAs"
+  if (dim(sig_genes)[1] < 5) {
+    sig_genes <- res_combined[order(res_combined$padj),][1:100,]
+    heatmap_title <- "Heatmap of top 100 miRNAs ranked by adj. p-value"
+  }
+  heatmap_t <- log10(sig_genes[,10:(dim(sig_genes)[2]-1)]+1)
+  rownames(heatmap_t) <- c(sig_genes$gene_name)
+  heatmaply(heatmap_t, main = heatmap_title,
+            method = "plotly",
             xlab = "Samples", ylab = "miRNA",
             showticklabels = c(TRUE, FALSE), show_dendrogram = c(FALSE, TRUE),
             key.title = "Scaled\nexpression\nin log10 scale",
-            label_names = c("gene_name", "sample", "Expression"))
+            label_names = c("miRNA", "Sample", "Expression"))
 }
 
 miRNAseq_PCA_ggplot2 <- function(res_miRNA, samples2){
@@ -168,25 +173,30 @@ miRNAseq_heatmap_ggplot2 <- function(res_miRNA){
     else
       return(0)
   }
-  res_reorder <- res_miRNA$res_combined[res_miRNA$res_combined$sig == "Sig.", ]
-  samples_names <- colnames(res_reorder)[10:(dim(res_reorder)[2])]
-  heatmap_t <- scale(log10(res_reorder[,10:(dim(res_reorder)[2])]+1))
+  sig_genes <- res_miRNA$res_combined[res_miRNA$res_combined$sig == "Sig.", ]
+  heatmap_title <- "Heatmap of sig. DE miRNAs"
+  if (dim(sig_genes)[1] < 5) {
+    sig_genes <- res_miRNA$res_combined[order(res_miRNA$res_combined$padj),][1:100,]
+    heatmap_title <- "Heatmap of top 100 miRNAs ranked by adj. p-value"
+  }
+  samples_names <- colnames(sig_genes)[10:(dim(sig_genes)[2]-1)]
+  heatmap_t <- scale(log10(sig_genes[,10:(dim(sig_genes)[2]-1)]+1))
   ord <- hclust( dist(heatmap_t, method = "euclidean"), method = "ward.D" )$order
-
-  heatmap_t <- cbind(res_reorder$gene_name, as.data.frame(heatmap_t))
+  
+  heatmap_t <- cbind(sig_genes$gene_name, as.data.frame(heatmap_t))
   colnames(heatmap_t)[1] <- "gene_name"
   heatmap_t <- pivot_longer(heatmap_t, cols=2:(dim(heatmap_t)[2]), names_to="sample", values_to="Expression")
-  heatmap_t$gene_name <- factor( heatmap_t$gene_name, levels = res_reorder$gene_name[ord])
+  heatmap_t$gene_name <- factor( heatmap_t$gene_name, levels = sig_genes$gene_name[ord])
   heatmap_t$sample <- factor( heatmap_t$sample, levels = samples_names)
-
+  
   fig <- ggplot(heatmap_t, aes(sample, gene_name, fill=Expression)) +
-        geom_tile() + ggtitle("Heatmap of DE genes") +
-        ylab("Genes") + xlab("Samples") + scale_fill_viridis() +
-        theme(plot.title = element_text(hjust = 0.5),
-              axis.ticks.y = element_blank(),
-              axis.text.y = element_blank(),
-              axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
-              plot.margin = margin(l = 0 + margin_spacer(heatmap_t$sample)))
+    geom_tile() + ggtitle(heatmap_title) +
+    ylab("miRNAs") + xlab("Samples") + scale_fill_viridis() +
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.ticks.y = element_blank(),
+          axis.text.y = element_blank(),
+          axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
+          plot.margin = margin(l = 0 + margin_spacer(heatmap_t$sample)))
   fig
 }
 
