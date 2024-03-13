@@ -132,6 +132,7 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
     for filename in os.listdir(export_folder):
         if filename.startswith("."):
             continue
+        print(filename)
         fits_any_pattern = any(fits_pattern(filename, pattern)
                                for pattern in regex_patterns)
         if fits_any_pattern:
