@@ -192,7 +192,7 @@ heatmap_t <- log10(heatmap_t+1)
 
 heatmaply(heatmap_t, main = "Normalized read counts of spike-in",
           method = "plotly",labRow=ERCC_ct$gene_id,
-          xlab = "Samples", ylab = "Spike-in", width = 1.5, height = 2,
+          xlab = "Samples", ylab = "Spike-in",
           showticklabels = c(TRUE, FALSE), show_dendrogram = c(FALSE, TRUE),
           key.title = "Scaled\nexpression\nin log10 scale",
           label_names = c("Gene", "Sample", "Expression"))
