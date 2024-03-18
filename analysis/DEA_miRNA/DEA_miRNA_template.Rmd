@@ -1,5 +1,5 @@
 ---
-title: "Differential Expression Analysis for miRNAseq in "
+title: "Differential Expression Analysis of miRNAseq for TITLEDESCRIPTION"
 author:
 RMD_AUTHORS
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
@@ -20,47 +20,33 @@ Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin:/us
 Sys.setenv(PKG_CONFIG_PATH = paste(Sys.getenv("PKG_CONFIG_PATH"), "/opt/miniconda3/envs/R4.3.2/lib/pkgconfig/", sep = ":"))
 Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
 options(repos = BiocManager::repositories())
-library("heatmaply")
+library(heatmaply)
 require(dplyr)
 require(DT)
 library(ggplot2)
 library(DESeq2)
-library("tximport")
-library("readr")
-library("tximportData")
+library(tximport)
+library(readr)
+library(tximportData)
 library(stringr)
 library(tidyr)
 library(data.table)
-library('openxlsx')
+library(openxlsx)
 library(AnnotationDbi, warn.conflicts = FALSE)
 options(warn = -1)
 
-DIR_base <- "PROJECT_PROJECT_PATH/"
-DIR_project <- paste0(DIR_base, "analysis/")
-
-source("DGEA_miRNAseq_functions.R")
+load("DEA_miRNA_settings.RData")
+load("SAMPLE_RData")
+source("DEA_miRNA_functions.R")
 # load(paste0(DIR_project, "data.RData"))
-FILE_counts_mature <- paste0(DIR_base, "nfcore_miRNAseq/results/mirna_quant/edger_qc/mature_counts.csv")
-FILE_counts_hairpin <- paste0(DIR_base, "nfcore_miRNAseq/results/mirna_quant/edger_qc/hairpin_counts.csv")
+
 Tag_this_analysis <- "Serum_vs_Urine"
 File_stats <- paste0('DEA_miRNA_',Tag_this_analysis,'_miRNA_stats.csv')
 File_norm_expression <- paste0('DEA_miRNA_',Tag_this_analysis,'_norm_exp_quant.csv')
 File_xlsx_res <- paste0('DEA_miRNA_',Tag_this_analysis,'_res.xlsx')
-CUTOFF_ADJP <- 0.05
-# Fig_width <- 5
-# Fig_height <- 4
-spikein_ERCC <- FALSE
+
 ## Please assign the groups for comparison into labels_group variable and confirm the direction of comparison by level parameter in the function factor, here is just an example
-# Manually define the grouping
-# cut -d ',' -f 1 ../nfcore_miRNAseq/samplesheet.csv | awk 'BEGIN{FS=OFS="_"} {print $0, $1, $2, $3, $4}' OFS=',' > samplesheet.csv
-samples <- read.table("../samplesheet.csv", sep = ",", header = T)
-# colnames(samples) <- c("sample","source","group","endo","id")
-colnames(samples) <- c("sample","group","condition","endo","batch")
-samples$group <- factor(samples$group, levels = c("Serum", "Urine"))
-# Select by columns
-# samples <- samples[samples$macrophages=="M0",]
-# samples$group <- factor(samples$genotype, levels = c("WT","KO"))
-filtered_samples <- samples[!(is.na(samples$group)),]
+
 ```
 
 ### [Back to front page](../Analysis_Report_miRNAseq.html)

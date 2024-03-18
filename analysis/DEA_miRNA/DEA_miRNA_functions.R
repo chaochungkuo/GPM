@@ -1,6 +1,21 @@
 ###########################################################
-## miRNAseq
+## DEA_miRNA
 ###########################################################
+
+add_DGEA <- function(description, tag, filtered_samples, volcano=TRUE, maplot=TRUE, sigtable=TRUE, paired=FALSE) {
+  scripts  <- readLines("DEA_miRNA_template.Rmd")
+  scripts  <- gsub(pattern = "TITLEDESCRIPTION", replace = description, x = scripts)
+  scripts  <- gsub(pattern = "DGEA_FILETAG", replace = tag, x = scripts)
+  if (paired) {scripts  <- gsub(pattern = "DGEA_PAIRED", replace = "paired", x = scripts)} 
+  else {scripts  <- gsub(pattern = "DGEA_PAIRED", replace = "unpaired", x = scripts)}
+  
+  rdata <- paste0("DEA_miRNA_", tag, "_data.RData")
+  filtered_samples <- filtered_samples[complete.cases(filtered_samples$group),]
+  save(filtered_samples, volcano, maplot, sigtable, paired, file = rdata)
+  scripts  <- gsub(pattern = "SAMPLE_RData", replace = rdata, x = scripts)
+  filename <- paste0("DEA_miRNA_",tag)
+  writeLines(scripts, con=paste0(filename,".Rmd"))
+}
 
 miRNAseq_deseq2 <- function(FILE_counts_mature, FILE_counts_hairpin, samples2, sizeFactorSpikeIn=FALSE, paired=FALSE) {
   df_counts1 <- t(read.csv(FILE_counts_mature, row.names = 1, header=T))[, samples2$sample]
