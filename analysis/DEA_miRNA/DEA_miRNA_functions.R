@@ -124,7 +124,7 @@ miRNAseq_heatmap_plotly <- function(res_combined) {
     sig_genes <- res_combined[order(res_combined$padj),][1:100,]
     heatmap_title <- "Heatmap of top 100 miRNAs ranked by adj. p-value"
   }
-  heatmap_t <- log10(sig_genes[,10:(dim(sig_genes)[2]-1)]+1)
+  heatmap_t <- log10(sig_genes[,10:(dim(sig_genes)[2])]+1)
   rownames(heatmap_t) <- c(sig_genes$gene_name)
   heatmaply(heatmap_t, main = heatmap_title,
             method = "plotly",
@@ -194,8 +194,8 @@ miRNAseq_heatmap_ggplot2 <- function(res_miRNA){
     sig_genes <- res_miRNA$res_combined[order(res_miRNA$res_combined$padj),][1:100,]
     heatmap_title <- "Heatmap of top 100 miRNAs ranked by adj. p-value"
   }
-  samples_names <- colnames(sig_genes)[10:(dim(sig_genes)[2]-1)]
-  heatmap_t <- scale(log10(sig_genes[,10:(dim(sig_genes)[2]-1)]+1))
+  samples_names <- colnames(sig_genes)[10:(dim(sig_genes)[2])]
+  heatmap_t <- scale(log10(sig_genes[,10:(dim(sig_genes)[2])]+1))
   ord <- hclust( dist(heatmap_t, method = "euclidean"), method = "ward.D" )$order
   
   heatmap_t <- cbind(sig_genes$gene_name, as.data.frame(heatmap_t))
