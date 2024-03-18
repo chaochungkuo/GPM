@@ -2,6 +2,7 @@
 Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin", sep = ":"))
 Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
 options(repos = BiocManager::repositories())
+library(plotly)
 library(heatmaply)
 library(dplyr)
 library(DT)
@@ -41,8 +42,9 @@ Fig_width <- 600
 Fig_height <- 400
 CUTOFF_Quantification <- 20
 CUTOFF_ADJP <- 0.05
+spikein_ERCC <- FALSE
 save(DIR_base, DIR_analysis, DIR_DGEA, FILE_counts_mature, FILE_counts_hairpin, 
-     organism,
+     organism, spikein_ERCC,
      Fig_width, Fig_height, CUTOFF_Quantification, CUTOFF_ADJP,
      file = "DEA_miRNA_settings.RData")
 ```
@@ -61,8 +63,8 @@ samples
 filetag <- "All_samples"
 description <- str_replace_all(filetag, "_", " ")
 filtered_samples <- samples
-filtered_samples$group <- factor(filtered_samples$group, levels = c("Placebo","Treatment"))
-colnames(filtered_samples) <- c("sample","time","group","batch","tube")
+# filtered_samples$group <- factor(filtered_samples$group, levels = c("Placebo","Treatment"))
+# colnames(filtered_samples) <- c("sample","time","group","batch","tube")
 if ( generate_Rmd == TRUE ) {
   add_DGEA(description=description, 
            tag=filetag, 
