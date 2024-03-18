@@ -15,7 +15,7 @@ output:
 bibliography: ../references.bib
 ---
 
-```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-setup, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin:/usr/bin", sep = ":"))
 Sys.setenv(PKG_CONFIG_PATH = paste(Sys.getenv("PKG_CONFIG_PATH"), "/opt/miniconda3/envs/R4.3.2/lib/pkgconfig/", sep = ":"))
 Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
@@ -53,7 +53,7 @@ File_xlsx_res <- paste0('DEA_miRNA_',Tag_this_analysis,'_res.xlsx')
 
 If there is a need to modify the figures to fit your particular need (style or color), additional service for customized visualization is needed. The main focus of this report is to present the analysis result to the clients. Any requests beyond this purpose is regarded another service. 
 
-```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-samples, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 res_miRNA <- miRNAseq_deseq2(FILE_counts_mature, FILE_counts_hairpin, filtered_samples, paired=TRUE)
 ```
 
@@ -61,37 +61,37 @@ res_miRNA <- miRNAseq_deseq2(FILE_counts_mature, FILE_counts_hairpin, filtered_s
 
 ## PCA
 
-```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 miRNAseq_PCA_plotly(res_miRNA$norm_counts, filtered_samples)
 ```
 
 ## 3D-PCA
 
-```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-3dpca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 miRNAseq_3D_PCA_plotly(res_miRNA$norm_count, filtered_samples)
 ```
 
 ## Volcano plot
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-volcano, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
 miRNAseq_volcano_plotly(res_miRNA$res)
 ```
 
 ## MA plot
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-maplot, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
 miRNAseq_maplot_plotly(res_miRNA$res)
 ```
 
 `r if(spikein_ERCC){"## MA plot of spike in"}`
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=spikein_ERCC}
+```{r DGEA_FILETAG-plotly-maplot-spikein, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=spikein_ERCC}
 MA_plot_ERCC(res_miRNA$res)
 ```
 
 ## Heatmap
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-heatmap, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
 miRNAseq_heatmap_plotly(res_miRNA$res_combined)
 ```
 
@@ -99,25 +99,25 @@ miRNAseq_heatmap_plotly(res_miRNA$res_combined)
 
 ## PCA
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+```{r DGEA_FILETAG-ggplot2-pca, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
 miRNAseq_PCA_ggplot2(res_miRNA, filtered_samples)
 ```
 
 ## Volcano plot
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+```{r DGEA_FILETAG-ggplot2-volcano, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
 miRNAseq_volcano_ggplot2(res_miRNA)
 ```
 
 ## MA plot
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+```{r DGEA_FILETAG-ggplot2-maplot, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
 miRNAseq_maplot_ggplot2(res_miRNA)
 ```
 
 ## Heatmap
 
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+```{r DGEA_FILETAG-ggplot2-heatmap, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
 miRNAseq_heatmap_ggplot2(res_miRNA)
 ```
 
@@ -125,23 +125,23 @@ miRNAseq_heatmap_ggplot2(res_miRNA)
 
 ## Sig. genes
 
-```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-table-sig, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 table_sig_genes(res_miRNA$res_sig)
 ```
 
 ## Up genes
 
-```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-table-up, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 table_sig_genes(res_miRNA$res_sig[res_miRNA$res_sig$log2FoldChange > 0,])
 ```
 
 ## Down genes
 
-```{r, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-table-down, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 table_sig_genes(res_miRNA$res_sig[res_miRNA$res_sig$log2FoldChange < 0,])
 ```
 
-```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-table-excel, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 wb <- createWorkbook()
 addWorksheet(wb, "miRNA_stats")
 writeData(wb, "miRNA_stats", res_miRNA$res, rowNames = TRUE)
@@ -166,6 +166,6 @@ saveWorkbook(wb, file = File_xlsx_res, overwrite = TRUE)
 
 # R session information
 
-```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+```{r DGEA_FILETAG-session, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
 sessionInfo()
 ```
