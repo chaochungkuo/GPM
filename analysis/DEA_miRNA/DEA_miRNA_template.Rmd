@@ -54,7 +54,7 @@ File_xlsx_res <- paste0('DEA_miRNA_',Tag_this_analysis,'_res.xlsx')
 If there is a need to modify the figures to fit your particular need (style or color), additional service for customized visualization is needed. The main focus of this report is to present the analysis result to the clients. Any requests beyond this purpose is regarded another service. 
 
 ```{r DGEA_FILETAG-samples, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-res_miRNA <- miRNAseq_deseq2(FILE_counts_mature, FILE_counts_hairpin, filtered_samples, paired=TRUE)
+res_miRNA <- miRNAseq_deseq2(FILE_counts_mature, FILE_counts_hairpin, filtered_samples, paired=paired)
 ```
 
 # Interactive Figures {.tabset}
