@@ -40,7 +40,7 @@ load("SAMPLE_RData")
 source("DEA_miRNA_functions.R")
 # load(paste0(DIR_project, "data.RData"))
 
-Tag_this_analysis <- "Serum_vs_Urine"
+Tag_this_analysis <- "DGEA_FILETAG"
 File_stats <- paste0('DEA_miRNA_',Tag_this_analysis,'_miRNA_stats.csv')
 File_norm_expression <- paste0('DEA_miRNA_',Tag_this_analysis,'_norm_exp_quant.csv')
 File_xlsx_res <- paste0('DEA_miRNA_',Tag_this_analysis,'_res.xlsx')
@@ -71,15 +71,15 @@ miRNAseq_PCA_plotly(res_miRNA$norm_counts, filtered_samples)
 miRNAseq_3D_PCA_plotly(res_miRNA$norm_count, filtered_samples)
 ```
 
-## Volcano plot
+`r if(volcano){"## Volcano plot"}`
 
-```{r DGEA_FILETAG-plotly-volcano, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-volcano, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=volcano}
 miRNAseq_volcano_plotly(res_miRNA$res)
 ```
 
-## MA plot
+`r if(maplot){"## MA plot"}`
 
-```{r DGEA_FILETAG-plotly-maplot, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-plotly-maplot, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=maplot}
 miRNAseq_maplot_plotly(res_miRNA$res)
 ```
 
@@ -103,15 +103,15 @@ miRNAseq_heatmap_plotly(res_miRNA$res_combined)
 miRNAseq_PCA_ggplot2(res_miRNA, filtered_samples)
 ```
 
-## Volcano plot
+`r if(volcano){"## Volcano plot"}`
 
-```{r DGEA_FILETAG-ggplot2-volcano, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+```{r DGEA_FILETAG-ggplot2-volcano, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=volcano}
 miRNAseq_volcano_ggplot2(res_miRNA)
 ```
 
-## MA plot
+`r if(maplot){"## MA plot"}`
 
-```{r DGEA_FILETAG-ggplot2-maplot, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+```{r DGEA_FILETAG-ggplot2-maplot, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4, eval=maplot}
 miRNAseq_maplot_ggplot2(res_miRNA)
 ```
 
@@ -121,23 +121,23 @@ miRNAseq_maplot_ggplot2(res_miRNA)
 miRNAseq_heatmap_ggplot2(res_miRNA)
 ```
 
-# Tables {.tabset}
+`r if(sigtable){"# Tables {.tabset}"}`
 
-## Sig. genes
+`r if(sigtable){"## Sig. genes"}`
 
-```{r DGEA_FILETAG-table-sig, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-table-sig, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(res_miRNA$res_sig)
 ```
 
-## Up genes
+`r if(sigtable){"## Up genes"}`
 
-```{r DGEA_FILETAG-table-up, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-table-up, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(res_miRNA$res_sig[res_miRNA$res_sig$log2FoldChange > 0,])
 ```
 
-## Down genes
+`r if(sigtable){"## Down genes"}`
 
-```{r DGEA_FILETAG-table-down, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r DGEA_FILETAG-table-down, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE, eval=sigtable}
 table_sig_genes(res_miRNA$res_sig[res_miRNA$res_sig$log2FoldChange < 0,])
 ```
 
