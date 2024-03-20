@@ -167,7 +167,7 @@ This command needs to be executed in the export project folder (web server) and 
 
 - Create ``compressed_tar`` folder
 - Iterate through every subfolders except ``compressed_tar`` and compress each subfolder including softlinked files/folders
-- The file name of the **tar** files is **Project_name**_**Subfolder_name**.tar
+- The file name of the **tar** files is **Project_name_Subfolder_name**.tar
 - ``md5`` file is also generated.
 
 In case you want to re-tar any subfolder, you need to delete that tar file first and redo this step. When you are not sure, you can run the script with ``--dry-run`` to see what is going to happen without actually tarring anything.
