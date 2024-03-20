@@ -1,5 +1,5 @@
 ---
-title: "Quality Control of scRNAseq"
+title: "Quality Control of scRNAseq DESCRIPTION"
 author:
   - Chao-Chung Kuo, Genomics Facility, ckuo@ukaachen.de
   - Lin Gan, Genomics Facility, lgan@ukaachen.de
@@ -36,26 +36,8 @@ echo_param <- FALSE
 ```{r, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
 sample_dir <- "SAMPLE_DIR"
 file_TAG <- "FILE_TAG"
+
 source("scRNAseq_QC_settings.RData")
-
-
-# technology = "ParseBio"
-#
-# hist_vlines = TRUE
-# hist_annotate = TRUE
-# no_breaks = 50
-#
-# nmads = 3
-#
-# subset = FALSE
-# subset_mito = TRUE
-#
-# min_cells = 3
-# min_features = 200
-
-# If NULL, median(feature) +- nmads * mad(feature) is used
-# If high and low are both not NULL, they are used instead, no bounds checking.
-
 nfeatures_low <- NULL
 nfeatures_high <- NULL
 

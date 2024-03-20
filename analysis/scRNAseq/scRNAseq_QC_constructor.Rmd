@@ -16,22 +16,22 @@ heading_for_report <- c()
 ```{r setting, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 # Define controllers
 generate_Rmd <- TRUE
-render_html <- TRUE
-
-
+render_html <- FALSE
 
 # Paths
 DIR_base <- "PROJECT_PROJECT_PATH/"
+
 source(paste0(DIR_base, "scRNA_QC_functions.R"))
 
 #Provide directory where to find the base directory for all samples to search for count matrix, feature, and cell metadata
 DIR_samples <- "PROECCT_PROCESSING_PATH/results/cellranger/mtx_conversions/" # CellRanger standard output
 #ParseBio: "PROECCT_PROCESSING_PATH/results_combined
 
-
-DIR_analysis <- paste0(DIR_base, "analysis/")
+DIR_analysis <- paste0(DIR_base, "Analysis/")
 DIR_QC <- paste0(DIR_analysis, "QC/")
 setwd(DIR_analysis)
+
+
 ```
 
 
@@ -64,7 +64,8 @@ ncounts_high = NULL
 percent_mito_low = NULL
 percent_mito_high = NULL
 
-save(DIR_base, hist_vlines, hist_annotate, no_breaks, nmads, 
+
+save(DIR_base, technology, hist_vlines, hist_annotate, no_breaks, nmads, 
      subset, subset_mito,min_cells, min_features, nfeatures_low, nfeatures_high,
      ncounts_low, ncounts_high, percent_mito_low, percent_mito_high,
      file = "scRNAseq_QC_settings.RData")
@@ -78,21 +79,6 @@ components_list = list(
   "10X" = c("barcodes.tsv.gz", "features.tsv.gz", "matrix.mtx.gz"),
   "ParseBio" = c("all_genes.csv", "cell_metadata.csv", "count_matrix.mtx")
 )
-
-
-#Function to list directories recursively up to n-depth 
-#https://stackoverflow.com/questions/48297440/list-files-recursive-up-to-a-certain-level-in-r
-
-list.dirs.depth.n <- function(p, n) {
-  res <- list.dirs(p, recursive = FALSE)
-  if (n > 1) {
-    add <- list.dirs.depth.n(res, n-1)
-    c(res, add)
-  } else {
-    res
-  }
-}
-
 
 #dir = "/data/projects/240226_Genomics_ParseBioscience_IZKF_FASTQ/results_combined/"
 
@@ -112,12 +98,29 @@ for(directory in directory_list){
 
 }
 
-
 ```
 
 
-```{r generative_reports, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+```{r generate_reports, echo=FALSE, results="hide", warning=FALSE, message=FALSE, eval = generate_Rmd}
 
+#10X : n = 1
+# ParseBio: n = 2
+sample_name_level = 2
+
+for(directory in valid_samples){
+  
+  
+  tag = sample_name_ndepth(directory, sample_name_level)
+  description = gsub(pattern = "_", replacement = " ", x = tag)
+  
+  add_QC(tag = tag, description = description, file_dir = directory, analysis_dir)
+  
+  if ( render_html == TRUE ) {
+  rmarkdown::render(paste0('DGEA_',filetag,'.Rmd'), 
+                    output_format = 'html_document',
+                    output_file = paste0('scRNAseq_QC_',filetag,'.html'))
+}
+}
 
 
 ```
