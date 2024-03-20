@@ -175,6 +175,41 @@ In case you want to re-tar any subfolder, you need to delete that tar file first
 Clean
 -----
 
+GPM also provides clean command to remove the files or folders which you don't want to archive after the projects closed. The regex patterns of those files/folders are defined in ``config/gpm.ini`` section ``[CLEAN]`` by the key ``PATTERNS``. Please read the help message by:
+
+.. code-block:: shell
+
+   gpm clean --help
+
+You can clean multiple projects at the same time:
+
+.. code-block:: shell
+
+   gpm clean ./2022*
+
+Or you can simulate by ``--dry-run``:
+
+.. code-block:: shell
+
+   gpm clean -v -d ./2022*
 
 Archive
 -------
+
+The last stage in the life cycle of a project is archiving, which means to backup the whole project to the archive destination and delete the source files. Please read the help messages:
+
+.. code-block:: shell
+
+   gpm archive --help
+
+You can archive multiple projects at the same time:
+
+.. code-block:: shell
+
+   gpm archive ./2022* /PATH/TO/ARCHIVE/SPACE
+
+If you are not sure how much data will be archived or removed, you can use ``--dry-run``:
+
+.. code-block:: shell
+
+   gpm archive --dry-run --verbose ./2022* /PATH/TO/ARCHIVE/SPACE
