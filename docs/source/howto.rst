@@ -116,9 +116,61 @@ This command will:
 - Generate a ``Analysis_Report_RNAseq.Rmd`` for rendering a html report
 - Create the folder ``analysis/DGEA_RNAseq`` and add the scripts and files needed for this analysis
 
+Then you need to check the files within the analysis folder for learning how to continue the analysis. There might be Rmd or JupyterNotebooks for guiding the analysis.
+
 Export
 ------
 
+After the analysis is done and now you want to export the data to the clients. GPM provides the command ``export`` for soft-linking everything to the export destination (such as web server) and create the ``.htaccess`` and ``.htpasswd`` for your project.
+
+.. note::  The purpose for soft-linking the files is to avoid duplicating any file or folder.
+
+Please check the help message by:
+
+.. code-block:: shell
+
+   gpm export --help
+
+You should run this command from the root of the project folder where ``project.ini`` is.
+
+.. code-block:: shell
+
+   gpm export --config project.ini \
+   --symprefix /mnt/nextgen/
+   /mnt/web/var/www/html/data/YYMMDD_Name1_Name2_Institute_Application
+
+This command will do the followings:
+
+- Load all the information in ``project.ini``
+- Create the folder in the web server ``/mnt/web/var/www/html/data/YYMMDD_Name1_Name2_Institute_Application``
+- Generate ``.htaccess`` in this folder according to your configuration
+- Generate a user and its login credential and write into ``.htpasswd``. This user name will be extracted from the folder name ``Name1`` from ``YYMMDD_Name1_Name2_Institute_Application``. However, you can also specify by ``--user``.
+- Export the folders according to ``config/export.config`` by symbolic links.
+
+.. note::  ``--symprefix`` is crucial here because it defines how the source files are referred from the export destination to the source. In this example, ``/mnt/nextgen/`` refers to the mounting point of the computational server on the web server.
+
+In case you want to create an empty export folder, you can do the following on the web server where you export your data:
+
+.. code-block:: shell
+
+   gpm export --user myclient YYMMDD_Name1_Name2_Institute_Application
+
+This command will still generate ``.htaccess`` and ``.htpasswd``, but leaves the folder empty for you.
+
+Eventually, you can tar those exporting folders for the users to download.
+
+.. code-block:: shell
+
+   gpm tar-export .
+
+This command needs to be executed in the export project folder (web server) and it will:
+
+- Create ``compressed_tar`` folder
+- Iterate through every subfolders except ``compressed_tar`` and compress each subfolder including softlinked files/folders
+- The file name of the **tar** files is **Project_name**_**Subfolder_name**.tar
+- ``md5`` file is also generated.
+
+In case you want to re-tar any subfolder, you need to delete that tar file first and redo this step. When you are not sure, you can run the script with ``--dry-run`` to see what is going to happen without actually tarring anything.
 
 Clean
 -----
