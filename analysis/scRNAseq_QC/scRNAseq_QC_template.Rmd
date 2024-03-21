@@ -262,7 +262,8 @@ seurat_obj <- seurat_obj %>%
 ```
 
 
-`r if(subset){"# Results after removal of low-quality cells {.tabset}"}` `r if(subset){"## PCA"}`
+`r if(subset){"# Results after removal of low-quality cells {.tabset}"}` 
+`r if(subset){"## PCA"}`
 
 ```{r dim_reductionplot_after, eval=subset ,echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
 DimPlot(seurat_obj, reduction = "pca", group.by = "orig.ident") +

@@ -7,7 +7,7 @@ library(readr)
 library(stringr)
 library(tidyr)
 
-# renv::install(c("dplyr", "ggplot2", "readr", "stringr", "tidyr", "Seurat", "knitr", "gridExtra", "scuttle", "kableExtra"))
+# renv::install(c("BiocManager", "dplyr", "ggplot2", "readr", "stringr", "tidyr", "Seurat", "knitr", "gridExtra", "scuttle", "kableExtra"))
 
 
 
@@ -94,6 +94,8 @@ for (directory in directory_list) {
     valid_samples <- c(valid_samples, directory)
   }
 }
+
+valid_samples
 
 # You can edit the valid_samples list here before template generation
 ```
