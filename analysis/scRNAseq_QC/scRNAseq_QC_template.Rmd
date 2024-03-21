@@ -40,7 +40,7 @@ Quality Control of DESCRIPTION. Low-quality cells or cells with probability of b
 sample_dir <- "SAMPLE_DIR"
 file_TAG <- "FILE_TAG"
 
-source("scRNAseq_QC_settings.RData")
+load("scRNAseq_QC_settings.RData")
 nfeatures_low <- NULL
 nfeatures_high <- NULL
 
@@ -61,14 +61,14 @@ readers_factory <- list(
 parser <- readers_factory[[technology]]
 
 if (!is.null(parser)) {
-  obj <- parser(INPUT_DIR)
+  obj <- parser(sample_dir)
 } else {
   stop("Only '10X', '10X_h5', 'ParseBio' are supported! ")
 }
 ```
 
 ```{r, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
-seurat_obj <- CreateSeuratObject(obj, min.cells = min_cells, min.features = min_features, project = basename(INPUT_DIR))
+seurat_obj <- CreateSeuratObject(obj, min.cells = min_cells, min.features = min_features, project = basename(sample_dir))
 seurat_obj[["percent.mito"]] <- PercentageFeatureSet(seurat_obj, pattern = "^MT-")
 seurat_obj[["percent.ribo"]] <- PercentageFeatureSet(seurat_obj, pattern = "^RPS|^RPL")
 ```
@@ -143,6 +143,17 @@ p4 <- histogram_seurat(seurat_obj, "percent.ribo", nmads, hist_vlines, hist_anno
 
 
 (p1 + p2) / (p3 + p4)
+```
+
+
+```{r saving_presubset_obj, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
+save_dir <- "OUTPUT"
+
+# check if sub directory exists
+if (!file.exists(save_dir)) {
+  dir.create(file.path(QC_DIR, save_dir))
+}
+saveRDS(object = seurat_obj, file = file.path(QC_DIR, save_dir, file_TAG, ".RDS"))
 ```
 
 ```{r, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
@@ -292,6 +303,19 @@ FeaturePlot(object = seurat_obj, features = "percent.mito") +
 ```
 
 `r if(subset){"# {-}"}`
+
+
+
+```{r saving_postsubset_obj, echo=echo_param, results='hide', warning=FALSE, message=FALSE, eval = subset}
+save_dir <- "OUTPUT"
+
+# check if sub directory exists
+if (!file.exists(save_dir)) {
+  dir.create(file.path(QC_DIR, save_dir))
+}
+saveRDS(object = seurat_obj, file = file.path(QC_DIR, save_dir, file_TAG, "_subseted.RDS"))
+```
+
 
 # R session information
 

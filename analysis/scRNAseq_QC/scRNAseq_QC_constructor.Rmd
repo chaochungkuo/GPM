@@ -16,7 +16,7 @@ heading_for_report <- c()
 ```{r setting, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 # Define controllers
 generate_Rmd <- TRUE
-render_html <- FALSE
+render_html <- TRUE
 
 # Paths
 DIR_base <- "PROJECT_PROJECT_PATH/"
@@ -44,7 +44,7 @@ no_breaks <- 50
 
 # cell removal parameters
 nmads <- 3 # mean absolution deviations
-subset <- FALSE
+subset <- TRUE
 subset_mito <- TRUE
 
 min_cells <- 3
@@ -65,7 +65,7 @@ percent_mito_high <- NULL
 
 save(DIR_base, technology, hist_vlines, hist_annotate, no_breaks, nmads,
   subset, subset_mito, min_cells, min_features, nfeatures_low, nfeatures_high,
-  ncounts_low, ncounts_high, percent_mito_low, percent_mito_high,
+  ncounts_low, ncounts_high, percent_mito_low, percent_mito_high, DIR_QC,
   file = "scRNAseq_QC_settings.RData"
 )
 ```
