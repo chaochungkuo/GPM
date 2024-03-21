@@ -279,7 +279,8 @@ DimPlot(seurat_obj, reduction = "umap", group.by = "orig.ident") +
   theme(text = element_text(size = 10))
 ```
 
-`r if(subset){"# Confounders after removal of low-quality cells {.tabset}"}` `r if(subset){"## UMAP_nfeatures"}`
+`r if(subset){"# Confounders after removal of low-quality cells {.tabset}"}` 
+`r if(subset){"## UMAP_nfeatures"}`
 
 ```{r featureplot_nfeatures_after, eval=subset, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
 FeaturePlot(object = seurat_obj, features = "nFeature_RNA") +
