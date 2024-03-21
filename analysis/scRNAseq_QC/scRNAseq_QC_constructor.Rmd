@@ -27,9 +27,9 @@ source(paste0(DIR_base, "scRNA_QC_functions.R"))
 DIR_samples <- "PROJECT_PROCESSING_PATH/results/cellranger/mtx_conversions/" # CellRanger standard output
 # ParseBio: "PROJECT_PROCESSING_PATH/results_combined
 
-DIR_analysis <- paste0(DIR_base, "Analysis/")
-DIR_QC <- paste0(DIR_analysis, "QC/")
-setwd(DIR_analysis)
+DIR_analysis <- paste0(DIR_base, "analysis/")
+DIR_QC <- paste0(DIR_analysis, "scRNAseq_QC/")
+setwd(DIR_QC)
 ```
 
 
@@ -105,7 +105,7 @@ for (directory in valid_samples) {
   tag <- sample_name_ndepth(directory, sample_name_level)
   description <- gsub(pattern = "_", replacement = " ", x = tag)
 
-  add_QC(tag = tag, description = description, file_dir = directory, analysis_dir)
+  add_QC(tag = tag, description = description, file_dir = directory, DIR_QC)
 
   if (render_html == TRUE) {
     rmarkdown::render(paste0("DGEA_", filetag, ".Rmd"),
