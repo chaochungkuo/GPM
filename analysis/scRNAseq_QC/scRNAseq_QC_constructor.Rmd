@@ -21,14 +21,13 @@ render_html <- TRUE
 # Paths
 DIR_base <- "PROJECT_PROJECT_PATH/"
 
-source(paste0(DIR_base, "scRNA_QC_functions.R"))
-
 # Provide directory where to find the base directory for all samples to search for count matrix, feature, and cell metadata
 DIR_samples <- "PROJECT_PROCESSING_PATH/results/cellranger/mtx_conversions/" # CellRanger standard output
 # ParseBio: "PROJECT_PROCESSING_PATH/results_combined
 
 DIR_analysis <- paste0(DIR_base, "analysis/")
 DIR_QC <- paste0(DIR_analysis, "scRNAseq_QC/")
+source(paste0(DIR_QC, "scRNA_QC_functions.R"))
 setwd(DIR_QC)
 ```
 
@@ -93,6 +92,8 @@ for (directory in directory_list) {
     valid_samples <- c(valid_samples, directory)
   }
 }
+
+# You can edit the valid_samples list here before template generation
 ```
 
 

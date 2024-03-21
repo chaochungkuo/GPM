@@ -151,9 +151,9 @@ save_dir <- "OUTPUT"
 
 # check if sub directory exists
 if (!file.exists(save_dir)) {
-  dir.create(file.path(QC_DIR, save_dir))
+  dir.create(file.path(DIR_QC, save_dir))
 }
-saveRDS(object = seurat_obj, file = file.path(QC_DIR, save_dir, file_TAG, ".RDS"))
+saveRDS(object = seurat_obj, file = file.path(DIR_QC, save_dir, paste0(file_TAG, ".RDS")))
 ```
 
 ```{r, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
@@ -311,9 +311,9 @@ save_dir <- "OUTPUT"
 
 # check if sub directory exists
 if (!file.exists(save_dir)) {
-  dir.create(file.path(QC_DIR, save_dir))
+  dir.create(file.path(DIR_QC, save_dir))
 }
-saveRDS(object = seurat_obj, file = file.path(QC_DIR, save_dir, file_TAG, "_subseted.RDS"))
+saveRDS(object = seurat_obj, file = file.path(DIR_QC, save_dir, paste0(file_TAG, "_subsetted.RDS")))
 ```
 
 
