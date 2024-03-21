@@ -113,9 +113,9 @@ for (directory in valid_samples) {
   add_QC(tag = tag, description = description, file_dir = directory, DIR_QC)
 
   if (render_html == TRUE) {
-    rmarkdown::render(paste0("DGEA_", filetag, ".Rmd"),
+    rmarkdown::render(paste0("scRNAseq_QC_", tag, ".Rmd"),
       output_format = "html_document",
-      output_file = paste0("scRNAseq_QC_", filetag, ".html")
+      output_file = paste0("scRNAseq_QC_", tag, ".html")
     )
   }
 }
