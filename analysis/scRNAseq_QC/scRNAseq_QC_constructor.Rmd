@@ -24,7 +24,7 @@ render_html <- TRUE
 DIR_base <- "PROJECT_PROJECT_PATH/"
 
 # Provide directory where to find the base directory for all samples to search for count matrix, feature, and cell metadata
-DIR_samples <- "PROJECT_PROCESSING_PATH/results/cellranger/mtx_conversions/" # CellRanger standard output
+DIR_samples <- "PROJECT_PROCESSING_PATH/results/cellranger/count/" # CellRanger standard output
 # ParseBio: "PROJECT_PROCESSING_PATH/results_combined
 
 DIR_analysis <- paste0(DIR_base, "analysis/")

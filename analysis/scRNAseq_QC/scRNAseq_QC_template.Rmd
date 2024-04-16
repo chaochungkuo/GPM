@@ -49,7 +49,7 @@ percent_mito_low <- NULL
 percent_mito_high <- NULL
 ```
 
-```{r FILE_TAG-factory, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
+```{r sample1_outs_filtered_feature_bc_matrix-factory, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
 readers_factory <- list(
   "10X" = Seurat::Read10X,
   "ParseBio" = Seurat::ReadParseBio,
@@ -65,7 +65,7 @@ if (!is.null(parser)) {
 }
 ```
 
-```{r FILE_TAG-seurat_obj_creation, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
+```{r sample1_outs_filtered_feature_bc_matrix-seurat_obj_creation, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
 seurat_obj <- CreateSeuratObject(obj, min.cells = min_cells, min.features = min_features, project = basename(sample_dir))
 seurat_obj[["percent.mito"]] <- PercentageFeatureSet(seurat_obj, pattern = "^MT-")
 seurat_obj[["percent.ribo"]] <- PercentageFeatureSet(seurat_obj, pattern = "^RPS|^RPL")
@@ -73,11 +73,11 @@ seurat_obj[["percent.ribo"]] <- PercentageFeatureSet(seurat_obj, pattern = "^RPS
 
 # Diagnostic plots {.tabset}
 ## Violin Plot
-```{r FILE_TAG-violin_plot, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=8, fig.height=6, fig.format='png'}
-VlnPlot(seurat_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mito", "percent.ribo"), ncol = 2)
+```{r sample1_outs_filtered_feature_bc_matrix-violin_plot, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=8, fig.height=6, fig.format='png'}
+VlnPlot(seurat_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mito", "percent.ribo"), ncol = 2) & theme(axis.text.x = element_blank())
 ```
 
-```{r FILE_TAG-outlier calculation, echo= echo_param, results="hide", warning=FALSE, message=FALSE}
+```{r sample1_outs_filtered_feature_bc_matrix-outlier calculation, echo= echo_param, results="hide", warning=FALSE, message=FALSE}
 if (!is.null(ncounts_low) & !is.null(ncounts_high)) {
   count <- ncounts_low > seurat_obj$nCount_RNA | seurat_obj$nCount_RNA > ncounts_high
 } else {
@@ -99,7 +99,7 @@ if (!is.null(percent_mito_low) & !is.null(percent_mito_high)) {
 
 ## Histograms
 
-```{r FILE_TAG-histograms, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=8, fig.height=6, fig.format='png', }
+```{r sample1_outs_filtered_feature_bc_matrix-histograms, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=8, fig.height=6, fig.format='png', }
 histogram_seurat <- function(obj, variable, n_mad = 3, vlines = FALSE, annotate = FALSE, no_breaks = 30) {
   vec <- obj@meta.data[[variable]]
   mad_features <- mad(vec)
@@ -144,17 +144,7 @@ p4 <- histogram_seurat(seurat_obj, "percent.ribo", nmads, hist_vlines, hist_anno
 ```
 
 
-```{r FILE_TAG-saving_presubset_obj, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
-save_dir <- "OUTPUT"
-
-# check if sub directory exists
-if (!file.exists(save_dir)) {
-  dir.create(file.path(DIR_QC, save_dir))
-}
-saveRDS(object = seurat_obj, file = file.path(DIR_QC, save_dir, paste0(file_TAG, ".RDS")))
-```
-
-```{r FILE_TAG-adding mask, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
+```{r sample1_outs_filtered_feature_bc_matrix-adding mask, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
 seurat_obj@meta.data$features_outlier <- features
 seurat_obj@meta.data$counts_outlier <- count
 seurat_obj@meta.data$mito_outlier <- mito
@@ -172,7 +162,7 @@ seurat_obj@meta.data$outlier <- mask
 
 ## Scatter Plot of Outliers
 
-```{r FILE_TAG-scatter_plots, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=10, fig.height=4, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-scatter_plots, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=10, fig.height=4, fig.format='png'}
 plot1 <- ggplot(as.data.frame(seurat_obj@meta.data), aes(x = nCount_RNA, y = percent.mito, color = mito_outlier)) +
   geom_point(size = 1, alpha = 0.4) +
   theme_classic() +
@@ -187,8 +177,7 @@ plot1 + plot2
 ```
 
 
-
-```{r FILE_TAG-default_analysis_pipeline_before, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
+```{r sample1_outs_filtered_feature_bc_matrix-default_analysis_pipeline_before, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
 seurat_obj <- seurat_obj %>%
   NormalizeData() %>%
   FindVariableFeatures() %>%
@@ -200,29 +189,32 @@ seurat_obj <- seurat_obj %>%
   RunUMAP(dims = 1:20)
 ```
 
+
 # Before removal of low-quality cells {.tabset}
 
 ## PCA
 
-```{r FILE_TAG-dim_reductionplot, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-dim_reductionplot, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3.5, fig.format='png'}
 DimPlot(seurat_obj, reduction = "pca", group.by = "orig.ident") +
   theme_classic() +
-  theme(text = element_text(size = 10))
+  theme(text = element_text(size = 10)) +
+  theme(legend.position = "none")
 ```
 
 ## UMAP
 
-```{r FILE_TAG-dim_red_umap, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-dim_red_umap, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3.5, fig.format='png'}
 DimPlot(seurat_obj, reduction = "umap", group.by = "orig.ident") +
   theme_classic() +
-  theme(text = element_text(size = 10))
+  theme(text = element_text(size = 10)) +
+  theme(legend.position = "none")
 ```
 
 # Confounders before removal of low-quality cells {.tabset}
 
 ## UMAP_nfeatures
 
-```{r FILE_TAG-featureplot_nfeatures, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-featureplot_nfeatures, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
 FeaturePlot(object = seurat_obj, features = "nFeature_RNA") +
   theme_classic() +
   theme(text = element_text(size = 10))
@@ -230,7 +222,7 @@ FeaturePlot(object = seurat_obj, features = "nFeature_RNA") +
 
 ## UMAP_nCounts
 
-```{r FILE_TAG-featureplot_ncounts, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-featureplot_ncounts, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
 FeaturePlot(object = seurat_obj, features = "nCount_RNA") +
   theme_classic() +
   theme(text = element_text(size = 10))
@@ -238,14 +230,27 @@ FeaturePlot(object = seurat_obj, features = "nCount_RNA") +
 
 ## UMAP_percent.mito
 
-```{r FILE_TAG-featureplot_percent.mito, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-featureplot_percent.mito, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
 FeaturePlot(object = seurat_obj, features = "percent.mito") +
   theme_classic() +
   theme(text = element_text(size = 10))
 ```
 
 
-```{r FILE_TAG-subset_followed_by_analysis, echo=echo_param, results='hide', warning=FALSE, message=FALSE, eval= subset}
+```{r sample1_outs_filtered_feature_bc_matrix-saving_presubset_obj, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
+save_dir <- "OUTPUT"
+
+# check if sub directory exists
+if (!file.exists(save_dir)) {
+  dir.create(file.path(DIR_QC, save_dir))
+}
+saveRDS(object = seurat_obj, file = file.path(DIR_QC, save_dir, paste0(file_TAG, ".RDS")))
+```
+
+
+
+
+```{r sample1_outs_filtered_feature_bc_matrix-subset_followed_by_analysis, echo=echo_param, results='hide', warning=FALSE, message=FALSE, eval= subset}
 # Evaluation is controlled via the subset parameter in RMarkdown options
 seurat_obj <- subset(seurat_obj, outlier == FALSE)
 seurat_obj <- seurat_obj %>%
@@ -260,27 +265,30 @@ seurat_obj <- seurat_obj %>%
 ```
 
 
+
 `r if(subset){"# Results after removal of low-quality cells {.tabset}"}` 
 `r if(subset){"## PCA"}`
 
-```{r FILE_TAG-dim_reductionplot_after, eval=subset ,echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-dim_reductionplot_after, eval=subset ,echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3.5, fig.format='png'}
 DimPlot(seurat_obj, reduction = "pca", group.by = "orig.ident") +
   theme_classic() +
-  theme(text = element_text(size = 10))
+  theme(text = element_text(size = 10)) +
+  theme(legend.position = "none")
 ```
 
 `r if(subset){"## UMAP"}`
 
-```{r FILE_TAG-dim_red_umap_after, eval=subset, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-dim_red_umap_after, eval=subset, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3.5, fig.format='png'}
 DimPlot(seurat_obj, reduction = "umap", group.by = "orig.ident") +
   theme_classic() +
-  theme(text = element_text(size = 10))
+  theme(text = element_text(size = 10)) +
+  theme(legend.position = "none")
 ```
 
 `r if(subset){"# Confounders after removal of low-quality cells {.tabset}"}` 
 `r if(subset){"## UMAP_nfeatures"}`
 
-```{r FILE_TAG-featureplot_nfeatures_after, eval=subset, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-featureplot_nfeatures_after, eval=subset, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
 FeaturePlot(object = seurat_obj, features = "nFeature_RNA") +
   theme_classic() +
   theme(text = element_text(size = 10))
@@ -288,7 +296,7 @@ FeaturePlot(object = seurat_obj, features = "nFeature_RNA") +
 
 `r if(subset){"## UMAP_nCounts"}`
 
-```{r FILE_TAG-featureplot_ncounts_after, eval=subset, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-featureplot_ncounts_after, eval=subset, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
 FeaturePlot(object = seurat_obj, features = "nCount_RNA") +
   theme_classic() +
   theme(text = element_text(size = 10))
@@ -296,7 +304,7 @@ FeaturePlot(object = seurat_obj, features = "nCount_RNA") +
 
 `r if(subset){"## UMAP_percent.mito"}`
 
-```{r FILE_TAG-featureplot_percent.mito_after, eval=subset, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
+```{r sample1_outs_filtered_feature_bc_matrix-featureplot_percent.mito_after, eval=subset, echo=echo_param, results='asis', warning=FALSE, message=FALSE, dpi=300, fig.width=4, fig.height=3, fig.format='png'}
 FeaturePlot(object = seurat_obj, features = "percent.mito") +
   theme_classic() +
   theme(text = element_text(size = 10))
@@ -306,7 +314,7 @@ FeaturePlot(object = seurat_obj, features = "percent.mito") +
 
 
 
-```{r FILE_TAG-saving_postsubset_obj, echo=echo_param, results='hide', warning=FALSE, message=FALSE, eval = subset}
+```{r sample1_outs_filtered_feature_bc_matrix-saving_postsubset_obj, echo=echo_param, results='hide', warning=FALSE, message=FALSE, eval = subset}
 save_dir <- "OUTPUT"
 
 # check if sub directory exists
@@ -319,6 +327,6 @@ saveRDS(object = seurat_obj, file = file.path(DIR_QC, save_dir, paste0(file_TAG,
 
 # R session information
 
-```{r FILE_TAG-session info, echo=echo_param, results='markup', warning=FALSE, message=TRUE}
+```{r sample1_outs_filtered_feature_bc_matrix-session info, echo=echo_param, results='markup', warning=FALSE, message=TRUE}
 sessionInfo()
 ```
