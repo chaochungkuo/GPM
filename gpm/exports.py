@@ -136,29 +136,31 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
                                for pattern in regex_patterns)
         if fits_any_pattern:
             continue
-        path_file = os.path.join(export_folder, filename)
-        if gzip:
-            tarfile = os.path.join(compressed_folder,
-                                   name+"_" + filename + ".tar.gz")
         else:
-            tarfile = os.path.join(compressed_folder,
-                                   name+"_" + filename + ".tar")
-        # print("path_file: " + path_file)
-        if os.path.islink(path_file):
-            path_file = os.readlink(path_file)
-            # print("path_file link: " + path_file)
-            # path_file = relpath(path_file)
-            print("path_file link: " + path_file)
-        if os.path.isdir(path_file) and "compressed_tar" not in filename:
-            click.echo(click.style("Tar the folder:", fg='bright_green'))
-            click.echo(path_file + click.style(" => ",
-                                               fg='bright_green') + tarfile)
-            if not dry_run:
-                if same_server:
-                    tar_folder(path_file, tarfile, gzip)
-                else:
-                    tar_folder_from_project(path_file, tarfile, gzip,
-                                            prefix=prefix)
+            path_file = os.path.join(export_folder, filename)
+            if gzip:
+                tarfile = os.path.join(compressed_folder,
+                                       name+"_" + filename + ".tar.gz")
+            else:
+                tarfile = os.path.join(compressed_folder,
+                                       name+"_" + filename + ".tar")
+            # print("path_file: " + path_file)
+            if os.path.islink(path_file):
+                path_file = os.readlink(path_file)
+                # print("path_file link: " + path_file)
+                # path_file = relpath(path_file)
+                print("path_file link: " + path_file)
+            if os.path.isdir(path_file) and "compressed_tar" not in filename:
+                click.echo(click.style("Tar the folder:", fg='bright_green'))
+                click.echo(path_file + click.style(" => ",
+                                                   fg='bright_green') +
+                           tarfile)
+                if not dry_run:
+                    if same_server:
+                        tar_folder(path_file, tarfile, gzip)
+                    else:
+                        tar_folder_from_project(path_file, tarfile, gzip,
+                                                prefix=prefix)
 
 
 def tar_folder(input_folder, output_tar, gzip):
@@ -174,10 +176,15 @@ def tar_folder(input_folder, output_tar, gzip):
             # Set up the tqdm progress bar
             total_size = 0
             for root, dirs, files in os.walk(input_folder, followlinks=True):
+                # Filter root
+                if os.path.basename(root) in regex_patterns:
+                    continue
+                # Filter directories
                 for pattern in regex_patterns:
                     if pattern in dirs:
-                        dirs.remove(pattern)  # Ignore 'renv' folder
+                        dirs.remove(pattern)
                         continue
+                # Iterate files
                 for name in files:
                     full_path = os.path.join(root, name)
                     total_size += get_size(full_path)
@@ -185,6 +192,9 @@ def tar_folder(input_folder, output_tar, gzip):
                                 desc='Creating tar archive',
                                 unit='B', unit_scale=True)
             for root, dirs, files in os.walk(input_folder, followlinks=True):
+                # Filter root
+                if os.path.basename(root) in regex_patterns:
+                    continue
                 for pattern in regex_patterns:
                     if pattern in dirs:
                         dirs.remove(pattern)  # Ignore 'renv' folder

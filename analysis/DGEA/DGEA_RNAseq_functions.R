@@ -109,7 +109,7 @@ simple_sc <- function(count_table, group_base, group_comp) {
 ###########################################################
 
 add_DGEA <- function(description, tag, filtered_samples, volcano=TRUE, maplot=TRUE, sigtable=TRUE, paired=FALSE) {
-  scripts  <- readLines("DEA_miRNA_template.Rmd")
+  scripts  <- readLines("DGEA_template.Rmd")
   scripts  <- gsub(pattern = "TITLEDESCRIPTION", replace = description, x = scripts)
   scripts  <- gsub(pattern = "DGEA_FILETAG", replace = tag, x = scripts)
   if (paired) {scripts  <- gsub(pattern = "DGEA_PAIRED", replace = "paired", x = scripts)} 

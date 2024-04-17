@@ -12,10 +12,12 @@ def clean_folders(target_folders, show_each_file, dry=False):
     paths_to_be_cleaned = []
     for folder in target_folders:  # Iterate folders
         if os.path.isdir(folder):
+            # Get total size
             folder_size = get_file_or_folder_size(folder, show_each_file)
             if not folder_size:
                 continue
             folder_size = get_human_readable_size(folder_size)
+            # Find matching files
             matching_files = search_files_by_patterns(folder,
                                                       regex_patterns)
             matching_files = list(set(matching_files))
@@ -59,6 +61,8 @@ def search_files_by_patterns(root_path, patterns):
         for p in patterns:
             for file_or_folder in fnmatch.filter(files + dirs, p):
                 matching_files.append(os.path.join(root, file_or_folder))
+    matching_files = list(set(matching_files))
+    matching_files = remove_subpaths(matching_files)
     return matching_files
 
 
@@ -124,3 +128,16 @@ def delete_files_and_folders(path):
             print(f"Error deleting folder {path}: {e}")
     else:
         print(f"Path not found: {path}")
+
+
+def remove_subpaths(paths):
+    result = []
+    for path1 in paths:
+        is_subpath = False
+        for path2 in paths:
+            if path1 != path2 and path1 in path2:
+                is_subpath = True
+                break
+        if not is_subpath:
+            result.append(path1)
+    return result
