@@ -37,6 +37,8 @@ def htpasswd_create_user(export_folder, url, username,
     """Create the new user in the target directory with password"""
     export_base_path = Path(export_folder).parent.absolute()
     if os.path.exists(os.path.join(export_base_path, ".htpasswd")):
+        print(os.path.join(export_base_path, ".htpasswd"))
+        print(os.path.join(export_folder, ".htpasswd"))
         shutil.copy(os.path.join(export_base_path, ".htpasswd"),
                     os.path.join(export_folder, ".htpasswd"))
         password = generate_password()
