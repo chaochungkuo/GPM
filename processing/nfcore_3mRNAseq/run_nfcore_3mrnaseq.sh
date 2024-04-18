@@ -12,7 +12,7 @@ else
   # gpm samplesheet-rnaseq -st 'forward' -sn true -si 2 samplesheet.csv PROJECT_FASTQ_PATH
 
   ################## Run nfcore pipeline #################
-  PATH_NEXTFLOW run nf-core/rnaseq -r 3.12.0 -profile docker -c nextflow.config \
+  PATH_NEXTFLOW run nf-core/rnaseq -r ${nfcore_version} -profile docker -c nextflow.config \
   --input samplesheet.csv --outdir results \
   --genome GENCODE_GRCh38_v44 --gencode --featurecounts_group_type gene_type \
   --extra_salmon_quant_args="--noLengthCorrection" \

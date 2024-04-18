@@ -42,6 +42,7 @@ def main():
        Contact: chao-chung.kuo@rwth-aachen.de\n
        Github: https://github.com/chaochungkuo/GPM
     """
+    os.umask(0o002)
     pass
 
 
