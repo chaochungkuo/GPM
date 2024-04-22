@@ -117,7 +117,7 @@ for (directory in valid_samples) {
       output_format = "html_document",
       output_file = paste0("scRNAseq_QC_", tag, ".html")
     )
-    heading_for_report <- c(heading_for_report, paste0("### [",description,"](scRNAseq_QC/scRNAseq_QC_",filetag,".html)"))
+    heading_for_report <- c(heading_for_report, paste0("### [",description,"](scRNAseq_QC_",filetag,".html)"))
 
   }
 }
