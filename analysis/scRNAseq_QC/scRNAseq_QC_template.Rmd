@@ -31,7 +31,7 @@ library(kableExtra)
 echo_param <- FALSE
 ```
 
-### [Back to front page](../Analysis_Report_RNAseq.html)
+### [Back to front page](scRNAseq_QC_report.html)
 Quality Control of DESCRIPTION. Low-quality cells or cells with probability of being duplets are excluded. QC is carried out based on number of reads, detected genes, and mitochondrial gene content per cell.
 
 ```{r FILE_TAG-parameters, echo=echo_param, results='hide', warning=FALSE, message=FALSE}
