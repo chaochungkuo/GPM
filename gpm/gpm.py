@@ -59,11 +59,11 @@ class GPM():
                         continue
                     self.profile[section][tag] = value
         # Check the project.ini path with symbolic link
-        prefix = self.symbolic_profile_path(filepath)
-        print("Detected symbolic link:", prefix)
+        self.prefix = self.symbolic_profile_path(filepath)
+        print("Detected symbolic link:", self.prefix)
         self.exports = self.profile
-        if prefix is not False:
-            self.update_with_symlink(prefix)
+        if self.prefix is not False:
+            self.update_with_symlink(self.prefix)
 
     def symbolic_profile_path(self, filepath):
         if self.profile["Project"]["project.ini"] == filepath:
@@ -456,12 +456,12 @@ class GPM():
                 # A directory
                 if os.path.isdir(origin_f):
                     target = handle_rename(export_dir, entry)
-                    os.symlink(origin_f, target,
+                    os.symlink(self.prefix+origin_f, target,
                                target_is_directory=True)
                 # A file
                 elif os.path.isfile(origin_f):
                     target = handle_rename(export_dir, entry)
-                    os.symlink(origin_f, target,
+                    os.symlink(self.prefix+origin_f, target,
                                target_is_directory=False)
                 # A pattern for many files
                 else:
