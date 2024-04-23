@@ -60,6 +60,7 @@ class GPM():
         # Check the project.ini path with symbolic link
         prefix = self.symbolic_profile_path(filepath)
         print("Detected symbolic link:", prefix)
+        self.exports = self.profile
         if prefix is not False:
             self.update_with_symlink(prefix)
 
@@ -67,22 +68,26 @@ class GPM():
         if self.profile["Project"]["project.ini"] == filepath:
             return False
         else:
-            prefix = filepath.replace(
-                self.profile["Project"]["project.ini"], "")
+            if len(filepath) > len(self.profile["Project"]["project.ini"]):
+                prefix = filepath.replace(
+                    self.profile["Project"]["project.ini"], "")
+            else:
+                prefix = self.profile["Project"]["project.ini"].replace(
+                    filepath, "")
             return prefix
 
     def update_with_symlink(self, prefix):
         """
         Update the project.ini path with symbolic link.
         """
-        for section in self.profile.keys():
-            for tag in self.profile[section].keys():
-                if self.profile[section][tag].startswith("/"):
-                    # self.profile[section][tag] = os.path.join(
-                    #     prefix, self.profile[section][tag])
-                    self.profile[section][tag] = \
-                        prefix + self.profile[section][tag]
-                    # print(self.profile[section][tag])
+        for section in self.exports.keys():
+            for tag in self.exports[section].keys():
+                if self.exports[section][tag].startswith("/"):
+                    # self.exports[section][tag] = os.path.join(
+                    #     prefix, self.exports[section][tag])
+                    self.exports[section][tag] = \
+                        prefix + self.exports[section][tag]
+                    # print(self.exports[section][tag])
 
     def write_project_config_file(self):
         """
