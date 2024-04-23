@@ -82,7 +82,7 @@ class GPM():
                     #     prefix, self.profile[section][tag])
                     self.profile[section][tag] = \
                         prefix + self.profile[section][tag]
-                    print(self.profile[section][tag])
+                    # print(self.profile[section][tag])
 
     def write_project_config_file(self):
         """
