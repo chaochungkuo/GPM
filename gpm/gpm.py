@@ -62,12 +62,12 @@ class GPM():
         self.prefix = self.symbolic_profile_path(filepath)
         print("Detected symbolic link:", self.prefix)
         self.exports = self.profile
-        if self.prefix is not False:
+        if self.prefix != "":
             self.update_with_symlink(self.prefix)
 
     def symbolic_profile_path(self, filepath):
         if self.profile["Project"]["project.ini"] == filepath:
-            return False
+            return ""
         else:
             if len(filepath) > len(self.profile["Project"]["project.ini"]):
                 prefix = filepath.replace(
