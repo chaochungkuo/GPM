@@ -1,7 +1,6 @@
 import os
 import sys
 from pathlib import Path
-import shutil
 import click
 import subprocess
 import string
@@ -116,7 +115,7 @@ def relpath(path_file):
     return path_file
 
 
-def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
+def tar_exports(export_folder, dry_run, gzip, same_server=False):
     def fits_pattern(filename, pattern):
         return bool(re.match(pattern.replace("*", ".*"), filename))
     regex_patterns = get_gpm_config("EXPORT", "TAR_EXPORT_IGNORE")
@@ -159,11 +158,7 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False, prefix=""):
                                                    fg='bright_green') +
                            tarfile)
                 if not dry_run:
-                    if same_server:
-                        tar_folder(path_file, tarfile, gzip)
-                    else:
-                        tar_folder_from_project(path_file, tarfile, gzip,
-                                                prefix=prefix)
+                    tar_folder(path_file, tarfile, gzip)
 
 
 def tar_folder(input_folder, output_tar, gzip):
@@ -209,51 +204,6 @@ def tar_folder(input_folder, output_tar, gzip):
                     tar.add(full_path, arcname=arcname)
                     # Update the progress bar by the size
                     progress_bar.update(get_size(full_path))
-            # Close the progress bar
-            progress_bar.close()
-        save_md5_to_file(output_tar)
-
-
-def tar_folder_from_project(input_folder, output_tar, gzip, prefix):
-    paths_for_tar = []
-    if gzip:
-        tar_mode = 'w:gz'
-    else:
-        tar_mode = 'w'
-    if os.path.exists(output_tar):
-        click.echo(output_tar + " exists.")
-    else:
-        with tarfile.open(output_tar, tar_mode) as tar:
-            # Set up the tqdm progress bar
-            total_size = 0
-            for root, dirs, files in os.walk(input_folder):
-                for name in files+dirs:
-                    print(name)
-                    full_path = os.path.join(root, name)
-                    if os.path.islink(full_path):
-                        print("    islink")
-                        softlink_path = os.readlink(full_path)
-                        print("    "+softlink_path)
-                        if softlink_path.startswith(prefix):
-                            softlink_path = softlink_path.replace(prefix, "")
-                        print("    "+softlink_path)
-                        # linked_name = os.basename(full_path)
-                        total_size += get_size(softlink_path)
-                        paths_for_tar.append([softlink_path, name])
-                    else:
-                        print("    not link")
-                        total_size += get_size(full_path)
-                        paths_for_tar.append([full_path, name])
-            print(paths_for_tar)
-            progress_bar = tqdm(total=total_size,
-                                desc='Creating tar archive',
-                                unit='B', unit_scale=True)
-
-            for full_path, arcname in paths_for_tar:
-                # Add the file or directory to the tar archive
-                tar.add(full_path, arcname=arcname)
-                # Update the progress bar by the size
-                progress_bar.update(get_size(full_path))
             # Close the progress bar
             progress_bar.close()
         save_md5_to_file(output_tar)
