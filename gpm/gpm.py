@@ -14,27 +14,7 @@ from gpm.messages import show_tree, show_instructions
 from gpm import PROJECT_INI_FILE
 from gpm.exports import check_export_directory, get_htaccess_path, \
                         htpasswd_create_user
-
-tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
-                                     "application", "project.ini",
-                                     "project_path", "project_name",
-                                     "project_string"]),
-                        ("Raw data", ["bcl_path"]),
-                        ("Demultiplexing", ["demultiplex_path",
-                                            "fastq_path",
-                                            "fastq_multiqc_path",
-                                            "demultiplex_method"]),
-                        ("Processing", ["processing_path",
-                                        "processing_method",
-                                        "processing_qc_path",
-                                        "organism",
-                                        "genome_assembly"]),
-                        ("Analysis", ["analysis_path",
-                                      "analysis_types"]),
-                        ("Export", ["export_URL",
-                                    "export_user",
-                                    "export_password"]),
-                        ("History", ["logs"])])
+from gpm.project_ini_struc import tags_GPM
 
 
 class GPM():
@@ -77,6 +57,28 @@ class GPM():
                     elif value == "":
                         continue
                     self.profile[section][tag] = value
+        # Check the project.ini path with symbolic link
+        prefix = self.symbolic_profile_path(filepath)
+        if prefix:
+            self.update_with_symlink(prefix)
+
+    def symbolic_profile_path(self, filepath):
+        if self.profile["Project"]["project.ini"] == filepath:
+            return False
+        else:
+            prefix = filepath.replace(
+                self.profile["Project"]["project.ini"], "")
+            return prefix
+
+    def update_with_symlink(self, prefix):
+        """
+        Update the project.ini path with symbolic link.
+        """
+        for section in self.profile.keys():
+            for tag in self.profile[section]:
+                if self.profile[section][tag].startswith("/"):
+                    self.profile[section][tag] = os.path.join(
+                        prefix, self.profile[section][tag])
 
     def write_project_config_file(self):
         """
@@ -407,13 +409,13 @@ class GPM():
                     if len(ll) == 4:
                         if (
                             ll[0] == "all" or
-                            ll[0].lower() == 
+                            ll[0].lower() ==
                             self.profile["Project"]["application"].lower()
                         ):
                             ll[1] = self.replace_variable(ll[1], config_dict)
                             self.export_structure.append(ll)
 
-    def export(self, export_dir, symprefix, tar=False):
+    def export(self, export_dir, tar=False):
         def handle_rename(export_dir, entry):
             # print(os.path.basename(entry[1]))
             if entry[3]:
@@ -444,12 +446,12 @@ class GPM():
                 # A directory
                 if os.path.isdir(origin_f):
                     target = handle_rename(export_dir, entry)
-                    os.symlink(symprefix+origin_f, target,
+                    os.symlink(origin_f, target,
                                target_is_directory=True)
                 # A file
                 elif os.path.isfile(origin_f):
                     target = handle_rename(export_dir, entry)
-                    os.symlink(symprefix+origin_f, target,
+                    os.symlink(origin_f, target,
                                target_is_directory=False)
                 # A pattern for many files
                 else:
@@ -459,7 +461,7 @@ class GPM():
                     for matching_file in glob.glob(origin_f):
                         target = os.path.join(target_dir,
                                               os.path.basename(matching_file))
-                        os.symlink(symprefix+matching_file, target,
+                        os.symlink(matching_file, target,
                                    target_is_directory=False)
 
     def add_htaccess(self, export_dir):

@@ -150,7 +150,7 @@ def analysis(project_config, report, show_list, add_template):
 @click.option('-c', '--config', "config", required=False, default="",
               help="Define the config file of the project.")
 @click.option('-s', '--symprefix', "prefix", required=False, default="",
-              help="Add the symbolic prefix of all paths.")
+              help="Add the symbolic prefix to all symbolic paths.")
 @click.option('-u', '--user', "username", required=False, default=None,
               help="Define the user name if needed.")
 @click.option('-t', '--tar', "tar", required=False, default=False,
@@ -172,7 +172,7 @@ def export(export_folder, config, prefix, username, tar, gzip):
     else:
         pm = GPM()
         pm.load_project_config_file(config)
-        pm.export(export_folder, prefix)
+        pm.export(export_folder)
         if username:
             pm.update_username(username)
         pm.add_htaccess(export_folder)
@@ -182,7 +182,7 @@ def export(export_folder, config, prefix, username, tar, gzip):
 
         if tar:
             tar_exports(export_folder=export_folder, gzip=gzip,
-                        dry_run=False, same_server=False, prefix=prefix)
+                        dry_run=False, same_server=False)
 
 
 @main.command()
