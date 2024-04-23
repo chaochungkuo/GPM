@@ -16,6 +16,7 @@ bibliography: references.bib
 ---
 
 ```{r init, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
 library(dplyr)
 library(kableExtra)
 options(warn = -1)

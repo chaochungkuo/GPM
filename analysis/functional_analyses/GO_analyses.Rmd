@@ -16,6 +16,7 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
 Tag_this_analysis <- "GO"
 pvalueCutoff_GO <- 0.01
 

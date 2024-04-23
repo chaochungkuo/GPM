@@ -16,6 +16,7 @@ bibliography: references.bib
 ---
 
 ```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
 library("heatmaply")
 library("readr")
 options(warn = -1)

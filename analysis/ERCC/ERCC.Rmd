@@ -16,8 +16,7 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3/bin", sep = ":"))
-Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
+source("/etc/rstudio/Rprofile.site")
 library(data.table)
 require(dplyr)
 require(DT)
@@ -131,7 +130,6 @@ samples <- read.csv("../samplesheet.csv")
 for (sample in samples$sample) {
   cat("\n### ",  sample, "\n")
   fig <- plot_scatter_spikein(FC_tab, whichmix = "mix1", sample=sample)
-  # cat(fig)
   cat(htmltools::renderTags(as.widget(fig))$html)
   cat("\n")
 }

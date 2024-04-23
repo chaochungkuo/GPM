@@ -16,9 +16,7 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3.2/bin", sep = ":"))
-Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
-options(repos = BiocManager::repositories())
+source("/etc/rstudio/Rprofile.site")
 Tag_this_analysis <- "GSEA"
 pvalueCutoff_GO <- 0.01
 
