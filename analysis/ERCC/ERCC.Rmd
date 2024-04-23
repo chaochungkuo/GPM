@@ -16,6 +16,8 @@ bibliography: ../references.bib
 ---
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "/opt/miniconda3/envs/R4.3/bin", sep = ":"))
+Sys.setenv(RENV_PATHS_ROOT = "/data/shared_env/renv/")
 library(data.table)
 require(dplyr)
 require(DT)
@@ -26,8 +28,6 @@ library(tidyr)
 library(heatmaply)
 library(plotly)
 options(warn = -1)
-
-source("report_functions.R")
 
 load("../DGEA/DGEA_settings.RData")
 
@@ -83,8 +83,6 @@ colnames(ERCC_ct) <- unlist(lapply(colnames(ERCC_ct), function(x) gsub("^X0","",
 
 Variation in RNA expression data can be attributed to a variety of factors. In the Genomics Facility we committed to minimizing unwanted biases in quantitative RNA expression analysis. At the same time, we engaged a common set of external RNA controls  ERCC to control and evaluate the variability in RNA sequencing. The controls consist of a set of unlabeled, polyadenylated transcripts (92 transcripts, 250 to 2,000 nt in length) designed to be added to an RNA analysis experiment after sample isolation, in order to measure against defined performance criteria. For more details about the ERCC controls applied, please refer to [the documentation from the manufacture](https://www.thermofisher.com/order/catalog/product/4456739).
 
-## Dynamic range and lower limit of detection {.tabset}
-
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.5, fig.height=1}
 FC_tab <- merge(ERCC_ct, ercc_groups, by.x="gene_id", by.y="ERCC.ID")
 
@@ -123,11 +121,27 @@ plot_scatter_spikein <- function(FC_tab, whichmix, sample) {
 
 ```
 
-### SampleA
-
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.2, fig.height=1}
-plot_scatter_spikein(FC_tab, whichmix = "mix1", sample="SampleA")
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+samples <- read.csv("../samplesheet.csv")
 ```
+
+## Dynamic range and lower limit of detection {.tabset}
+
+```{r,echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+for (sample in samples$sample) {
+  cat("\n### ",  sample, "\n")
+  fig <- plot_scatter_spikein(FC_tab, whichmix = "mix1", sample=sample)
+  # cat(fig)
+  cat(htmltools::renderTags(as.widget(fig))$html)
+  cat("\n")
+}
+```
+
+<!-- ### SampleA -->
+
+<!-- ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=1.2, fig.height=1} -->
+<!-- plot_scatter_spikein(FC_tab, whichmix = "mix1", sample="SampleA") -->
+<!-- ``` -->
 
 <!-- ## Ratios between Mix 1 and Mix 2 {.tabset} -->
 
