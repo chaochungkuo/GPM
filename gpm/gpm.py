@@ -40,6 +40,7 @@ class GPM():
         :type filepath: str
         :return: None
         """
+        filepath = os.path.abspath(filepath)
         config = configparser.ConfigParser()
         config.read(filepath)
         # Retrieve values from the configuration file
