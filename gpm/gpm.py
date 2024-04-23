@@ -78,8 +78,10 @@ class GPM():
         for section in self.profile.keys():
             for tag in self.profile[section].keys():
                 if self.profile[section][tag].startswith("/"):
-                    self.profile[section][tag] = os.path.join(
-                        prefix, self.profile[section][tag])
+                    # self.profile[section][tag] = os.path.join(
+                    #     prefix, self.profile[section][tag])
+                    self.profile[section][tag] = \
+                        prefix + self.profile[section][tag]
                     print(self.profile[section][tag])
 
     def write_project_config_file(self):
