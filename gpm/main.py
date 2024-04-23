@@ -158,7 +158,7 @@ def analysis(project_config, report, show_list, add_template):
 @click.option("-g", "--gzip", "gzip", default=False, show_default=True,
               is_flag=True,
               help="Generate tar.gz instead of tar.")
-def export(export_folder, config, prefix, username, tar, gzip):
+def export(export_folder, config, username, tar, gzip):
     """
     Export the project to the target folder with symbolic links.
     """

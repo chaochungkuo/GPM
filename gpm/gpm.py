@@ -65,10 +65,14 @@ class GPM():
 
     def symbolic_profile_path(self, filepath):
         if self.profile["Project"]["project.ini"] == filepath:
+            print(filepath)
+            print(self.profile["Project"]["project.ini"])
+            print("same")
             return False
         else:
             prefix = filepath.replace(
                 self.profile["Project"]["project.ini"], "")
+            print(prefix)
             return prefix
 
     def update_with_symlink(self, prefix):
