@@ -149,8 +149,8 @@ def analysis(project_config, report, show_list, add_template):
 @click.argument('export_folder')
 @click.option('-c', '--config', "config", required=False, default="",
               help="Define the config file of the project.")
-@click.option('-s', '--symprefix', "prefix", required=False, default="",
-              help="Add the symbolic prefix to all symbolic paths.")
+# @click.option('-s', '--sym', "prefix", required=False, default="",
+#               help="Add the sprefixymbolic prefix to all symbolic paths.")
 @click.option('-u', '--user', "username", required=False, default=None,
               help="Define the user name if needed.")
 @click.option('-t', '--tar', "tar", required=False, default=False,
