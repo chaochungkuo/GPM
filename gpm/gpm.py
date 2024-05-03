@@ -60,7 +60,7 @@ class GPM():
                     self.profile[section][tag] = value
         # Check the project.ini path with symbolic link
         self.prefix = self.symbolic_profile_path(filepath)
-        print("Detected symbolic link:", self.prefix)
+        # print("Detected symbolic link:", self.prefix)
         self.exports = self.profile
         if self.prefix != "":
             self.update_with_symlink(self.prefix)
