@@ -1,0 +1,78 @@
+---
+title: "Simple Comparison for TITLEDESCRIPTION"
+author:
+  - Chao-Chung Kuo, Genomics Facility, ckuo@ukaachen.de
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: ../references.bib
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+library(heatmaply)
+require(dplyr)
+require(DT)
+library(ggplot2)
+library(readr)
+library(stringr)
+library(tidyr)
+library(data.table)
+library(openxlsx)
+options(warn = -1)
+
+File_salmon_count <- "SALMON_COUNT_TABLE"
+
+source("DGEA_RNAseq_functions.R")
+
+load(paste0(DIR_project, "data.RData"))
+
+Tag_this_analysis <- "FILETAG"
+
+File_xlsx_res <- paste0('SimpleComparison_',Tag_this_analysis,'_res.xlsx')
+```
+
+### [Back to front page](Analysis_Report_RNAseq.html)
+
+This report is a simple comparison without statistical differencial analysis, because there is no replicates in this experiment.
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+count_table <- simple_comparison(salmon_count_table=File_salmon_count,
+                                 group_base="GROUP_BASE",
+                                 group_comp="GROUP_COMP",
+                                 File_xlsx_res=File_xlsx_res)
+```
+
+# MA plot
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+simple_ma(count_table=count_table, group_base="GROUP_BASE", group_comp="GROUP_COMP")
+```
+
+# Normalized counts
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+simple_sc(count_table=count_table, group_base="GROUP_BASE", group_comp="GROUP_COMP")
+```
+
+
+# Download statistics
+
+* Download xlsx file for the results: [`r File_xlsx_res`](`r File_xlsx_res`)
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```
