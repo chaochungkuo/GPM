@@ -16,8 +16,8 @@ else
   --input samplesheet.csv --outdir results \
   --genome GENCODE_GRCh38_v44 --gencode --featurecounts_group_type gene_type \
   --extra_salmon_quant_args="--noLengthCorrection" \
-  --extra_star_align_args="--alignIntronMax 1000000 --alignIntronMin 20 --alignMatesGapMax 1000000 --alignSJoverhangMin 8 --outFilterMismatchNmax 999 --outFilterMultimapNmax 20 --outFilterType BySJout --outFilterMismatchNoverLmax 0.1 --clip3pAdapterSeq AAAAAAAA" \
-  --with_umi --umitools_extract_method="regex" --umitools_bc_pattern="^(?P<umi_1>.{6})(?P<discard_1>.{4}).*"
+  --extra_star_align_args="--alignIntronMax 1000000 --alignIntronMin 20 --alignMatesGapMax 1000000 --alignSJoverhangMin 8 --outFilterMismatchNmax 999 --outFilterMultimapNmax 20 --outFilterType BySJout --outFilterMismatchNoverLmax 0.1 --clip3pAdapterSeq AAAAAAAA" 
+ # --with_umi --umitools_extract_method="regex" --umitools_bc_pattern="^(?P<umi_1>.{6})(?P<discard_1>.{4}).*"
 fi
 
 ###### For rerun the pipeline #################################
