@@ -114,6 +114,7 @@ heading_for_report <- c(heading_for_report, paste0("### [",description,"](DGEA/D
 ```
 
 
+
 ```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
 cat(heading_for_report, sep = "\n")
 ```
