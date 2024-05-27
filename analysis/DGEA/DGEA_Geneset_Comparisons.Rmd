@@ -27,9 +27,8 @@ library(UpSetR)
 library(DT)
 library(knitr)
 
-source("report_functions.R")
-
-load("data.RData")
+# source("report_functions.R")
+# load("data.RData")
 
 CUTOFF_ADJP <- 0.05
 CUTOFF_FC <- 1
@@ -122,6 +121,7 @@ expand_tables = function(venn_components){
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
 venn_components <- generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK")
+venn_2_excel("save_name", venn_components)
 ```
 
 
@@ -136,7 +136,8 @@ venn_tables_rmd = expand_tables(venn_components)
 ## Up genes
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-result <- generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction = "up")
+venn_components <- generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction = "up")
+venn_2_excel("save_name", venn_components)
 ```
 
 <!-- Use if needed to add embedded tables for the venn diagram components -->
@@ -151,7 +152,8 @@ venn_tables_rmd = expand_tables(venn_components)
 ## Down genes
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction = "down")
+venn_components = generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction = "down")
+venn_2_excel("save_name", venn_components)
 ```
 
 
