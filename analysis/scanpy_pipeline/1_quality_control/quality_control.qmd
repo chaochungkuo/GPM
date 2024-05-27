@@ -12,6 +12,12 @@ format:
     other-links:
       - text: Back to the main page
         href: ../
+jupyter: python3
+    #    kernelspec:
+    #     name: "python3"
+    #     language: "python"
+    #     display_name: "Python (pixi))"
+
 ---
 
 This quality control (QC) step is mainly focused on identifying and filtering out low quality cells and genes. Please refer to [Chapter 6: Quality Control](https://www.sc-best-practices.org/preprocessing_visualization/quality_control.html) for more information about QC in single-cell RNA-seq data.
@@ -28,11 +34,13 @@ from scipy.stats import median_abs_deviation
 import pooch
 import toml
 
-with open('../scanpy_config.toml', 'r') as file:
+with open("../scanpy_config.toml", "r") as file:
     config = toml.load(file)
 
 sc.settings.set_figure_params(dpi=300, facecolor="white")
 sc.settings.n_jobs = 4
+
+
 def is_outlier(adata, metric: str, nmads: int):
     M = adata.obs[metric]
     lower_bound = np.median(M) - nmads * median_abs_deviation(M)
@@ -199,8 +207,4 @@ adata_raw = ad.concat(adatas, label="sample")
 adata_raw.var_names_make_unique()
 data_tod = adata_raw.X.T
 del adata_raw
-```
-
-```{r}
-library(SoupX)
 ```
