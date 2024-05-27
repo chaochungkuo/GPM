@@ -17,70 +17,151 @@ bibliography: ../references.bib
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 source("/etc/rstudio/Rprofile.site")
+options(repos = BiocManager::repositories())
+
 library(data.table)
 library(ggplot2)
 library(ggpubr)
-library(eulerr)
-options(warn = -1)
+library(ggVennDiagram)
+library(UpSetR)
+library(DT)
+library(knitr)
 
 source("report_functions.R")
 
 load("data.RData")
 
+CUTOFF_ADJP <- 0.05
+CUTOFF_FC <- 1
+COUNTER <- 0 # Counter to avoid the colliding of chunk names
+
+
 Tag_this_analysis <- "DGEA_Geneset_Comparisons"
 
-extract_de_genes <- function(filename, direction=FALSE) {
-  degenes <- fread(filename)[, c("gene_name","log2FoldChange","padj")]
-  
-  if (direction=="up") {
-    degenes <- degenes[degenes$log2FoldChange > 0]
-  } else if (direction=="down") {
-    degenes <- degenes[degenes$log2FoldChange < 0]
+extract_de_genes <- function(filename, direction = FALSE) {
+  degenes <- fread(filename)[, c("gene_name", "log2FoldChange", "padj")]
+
+  if (direction == "up") {
+    degenes <- degenes[degenes$log2FoldChange >= CUTOFF_FC]
+  } else if (direction == "down") {
+    degenes <- degenes[degenes$log2FoldChange <= CUTOFF_FC * -1]
   }
-  return(unique(unlist(degenes$gene_name[degenes$padj < CUTOFF_ADJP])))
+  return(unique(unlist(degenes$gene_name[degenes$padj < CUTOFF_ADJP & (degenes$log2FoldChange >= CUTOFF_FC | degenes$log2FoldChange <= CUTOFF_FC * -1)])))
 }
 
-generate_venn <- function(label1, label2, direction=FALSE) {
+generate_venn <- function(label1, label2, title, direction = FALSE) {
   genes <- list(
-            label1 = extract_de_genes(paste0("DGEA_", label1, "_genes_stats.csv"), direction=direction),
-            label2 = extract_de_genes(paste0("DGEA_", label2, "_genes_stats.csv"), direction=direction))
+    label1 = extract_de_genes(paste0("DGEA_", label1, "_genes_stats.csv"), direction = direction),
+    label2 = extract_de_genes(paste0("DGEA_", label2, "_genes_stats.csv"), direction = direction)
+  )
   # names(genes) <- c(gsub("_", "", label1),
   #                   gsub("_", "", label2))
   names(genes) <- c(label1, label2)
-  plot(euler(genes), quantities = TRUE)
+  # plot(euler(genes), quantities = TRUE)
+  p <- gplots::venn(genes, show.plot = F)
+  f <- ggVennDiagram(genes) + ggtitle(title) + scale_x_continuous(expand = expansion(mult = .3)) + theme(plot.title = element_text(hjust = 0.5))
+  plot(f)
+  return(attributes(p)$intersections)
 }
 
-generate_venn3 <- function(label1, label2, label3, direction=FALSE) {
+generate_venn3 <- function(label1, label2, label3, title, direction = FALSE) {
   genes <- list(
-            label1 = extract_de_genes(paste0("DGEA_", label1, "_genes_stats.csv"), direction=direction),
-            label2 = extract_de_genes(paste0("DGEA_", label2, "_genes_stats.csv"), direction=direction),
-            label3 = extract_de_genes(paste0("DGEA_", label3, "_genes_stats.csv"), direction=direction))
+    label1 = extract_de_genes(paste0("DGEA_", label1, "_genes_stats.csv"), direction = direction),
+    label2 = extract_de_genes(paste0("DGEA_", label2, "_genes_stats.csv"), direction = direction),
+    label3 = extract_de_genes(paste0("DGEA_", label3, "_genes_stats.csv"), direction = direction)
+  )
   # names(genes) <- c(gsub("_", "", label1),
   #                   gsub("_", "", label2))
   names(genes) <- c(label1, label2, label3)
-  plot(euler(genes), quantities = TRUE)
+  # plot(euler(genes), quantities = TRUE)
+  p <- gplots::venn(genes, show.plot = F)
+  f <- ggVennDiagram(genes) + ggtitle(title) + scale_x_continuous(expand = expansion(mult = .3)) + theme(plot.title = element_text(hjust = 0.5))
+  plot(f)
+  return(attributes(p)$intersections)
 }
+
+
+venn_2_excel <- function(name, venn_components) {
+  require(openxlsx)
+  names_list <- venn_components
+  sheet_names <- c("A", "B", "C", "D", "E", "G", "H")
+  wb <- openxlsx::createWorkbook()
+  for (i in seq_len(length(venn_components))) {
+    addWorksheet(wb = wb, sheetName = sheet_names[i])
+    writeData(wb = wb, sheet = sheet_names[i], x = names(names_list[i]), startRow = 1, colNames = T, rowNames = T)
+    writeData(wb = wb, sheet = sheet_names[i], x = names_list[[i]], startRow = 2, colNames = T, rowNames = T, name = names(names_list[i]))
+  }
+  saveWorkbook(wb, paste0(name, ".xlsx"), overwrite = TRUE)
+}
+
+
+expand_tables = function(venn_components){
+
+    out = NULL
+    for (i in seq_len(length(venn_components))) {
+      name = names(venn_components[i])
+      knit_expanded <- paste0("\n#### ",i,
+                              "\n```{r '",COUNTER,"',  results='asis', echo=FALSE}\n
+                              datatable(as.data.frame(venn_components[[",i,"]]), colnames =c('",name,"'))\n
+                              \n
+                              ```")
+      out = c(out, knit_expanded)
+      COUNTER = COUNTER + 1
+    }
+    return(out)
+}
+
+
 ```
+
+
 
 ### [Back to front page](../Analysis_Report_RNAseq.html)
 
 ## All DE genes
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK")
+venn_components <- generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK")
 ```
+
+
+<!-- Use if needed to add embedded tables for the venn diagram components -->
+### Tables {.tabset}
+```{r, echo=FALSE}
+venn_tables_rmd = expand_tables(venn_components)
+```
+<!-- Workaround to expand and knit the resulting string -->
+`r paste(knit(text = venn_tables_rmd), collapse = '\n')`
 
 ## Up genes
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction="up")
+result <- generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction = "up")
 ```
+
+<!-- Use if needed to add embedded tables for the venn diagram components -->
+### Tables {.tabset}
+```{r, echo=FALSE}
+venn_tables_rmd = expand_tables(venn_components)
+```
+<!-- Workaround to expand and knit the resulting string -->
+`r paste(knit(text = venn_tables_rmd), collapse = '\n')`
+
 
 ## Down genes
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction="down")
+generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction = "down")
 ```
+
+
+<!-- Use if needed to add embedded tables for the venn diagram components -->
+### Tables {.tabset}
+```{r, echo=FALSE}
+venn_tables_rmd = expand_tables(venn_components)
+```
+<!-- Workaround to expand and knit the resulting string -->
+`r paste(knit(text = venn_tables_rmd), collapse = '\n')`
 
 
 # References
