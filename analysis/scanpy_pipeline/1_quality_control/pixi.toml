@@ -1,0 +1,28 @@
+[project]
+name = "Normalization"
+version = "0.1.0"
+description = "Module for pre-preprocessing of sc-RNA-seq datasets."
+authors = ["MoSafi2 <mohamed.mabrouk@rwth-aachen.de>"]
+channels = ["conda-forge", "bioconda", "paul.martin-2"]
+platforms = ["linux-64"]
+
+[tasks]
+render = "jupyter nbconvert --execute --to html --template pj"
+
+
+[dependencies]
+scanpy = ">=1.10.1,<1.11"
+ipykernel = ">=6.29.3,<6.30"
+python = "3.11.*"
+tomlkit = ">=0.12.5,<0.13"
+pixi-kernel = ">=0.3.0,<0.4"
+jupyterlab = ">=4.2.1,<4.3"
+nbconvert = ">=7.16.4,<7.17"
+igraph = "*"
+leidenalg = ">=0.10.2,<0.11"
+patchworklib = ">=0.6.3,<0.7"
+plotnine = ">=0.13.6,<0.14"
+
+[pypi-dependencies]
+marsilea = "*"
+pretty-jupyter = "*"

@@ -172,39 +172,39 @@ p4 = sc.pl.violin(adata,
                   jitter=0.4,)
 ```
 
-# Correction of ambient RNA
+<!-- # Correction of ambient RNA -->
 
-```{python}
-import anndata2ri
-import logging
+<!-- ```{python} -->
+<!-- import anndata2ri -->
+<!-- import logging -->
 
-import rpy2.rinterface_lib.callbacks as rcb
-import rpy2.robjects as ro
+<!-- import rpy2.rinterface_lib.callbacks as rcb -->
+<!-- import rpy2.robjects as ro -->
 
-rcb.logger.setLevel(logging.ERROR)
-ro.pandas2ri.activate()
-anndata2ri.activate()
+<!-- rcb.logger.setLevel(logging.ERROR) -->
+<!-- ro.pandas2ri.activate() -->
+<!-- anndata2ri.activate() -->
 
-%load_ext rpy2.ipython
-```
+<!-- %load_ext rpy2.ipython -->
+<!-- ``` -->
 
-```{python}
-adata_pp = adata.copy()
-sc.pp.normalize_per_cell(adata_pp)
-sc.pp.log1p(adata_pp)
-sc.pp.pca(adata_pp)
-sc.pp.neighbors(adata_pp)
-sc.tl.leiden(adata_pp, key_added="soupx_groups")
+<!-- ```{python} -->
+<!-- adata_pp = adata.copy() -->
+<!-- sc.pp.normalize_per_cell(adata_pp) -->
+<!-- sc.pp.log1p(adata_pp) -->
+<!-- sc.pp.pca(adata_pp) -->
+<!-- sc.pp.neighbors(adata_pp) -->
+<!-- sc.tl.leiden(adata_pp, key_added="soupx_groups") -->
 
-# Preprocess variables for SoupX
-soupx_groups = adata_pp.obs["soupx_groups"]
-del adata_pp
-cells = adata.obs_names
-genes = adata.var_names
-data = adata.X.T
+<!-- # Preprocess variables for SoupX -->
+<!-- soupx_groups = adata_pp.obs["soupx_groups"] -->
+<!-- del adata_pp -->
+<!-- cells = adata.obs_names -->
+<!-- genes = adata.var_names -->
+<!-- data = adata.X.T -->
 
-adata_raw = ad.concat(adatas, label="sample")
-adata_raw.var_names_make_unique()
-data_tod = adata_raw.X.T
-del adata_raw
-```
+<!-- adata_raw = ad.concat(adatas, label="sample") -->
+<!-- adata_raw.var_names_make_unique() -->
+<!-- data_tod = adata_raw.X.T -->
+<!-- del adata_raw -->
+<!-- ``` -->
