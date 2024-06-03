@@ -22,6 +22,16 @@ igraph = "*"
 leidenalg = ">=0.10.2,<0.11"
 patchworklib = ">=0.6.3,<0.7"
 plotnine = ">=0.13.6,<0.14"
+scikit-image = ">=0.22.0,<0.23"
+bioconductor-zellkonverter = ">=1.12.1,<1.13"
+bioconductor-singlecellexperiment = ">=1.24.0,<1.25"
+r-optparse = ">=1.7.5,<1.8"
+r-irkernel = ">=1.3.2,<1.4"
+r-biocmanager = ">=1.30.23,<1.31"
+bioconductor-genomeinfodbdata = { version = ">=1.2.11,<1.3", channel = "bioconda" }
+bioconductor-genomeinfodb = { version = ">=1.38.1,<1.39", channel = "bioconda" }
+bioconductor-decontx = { version = ">=1.0.0,<1.1", channel = "bioconda" }
+
 
 [pypi-dependencies]
 marsilea = "*"

@@ -1,0 +1,21 @@
+[basic]
+ROOT_PATH = "/root/of/project"
+DIR_SAMPLES = "../test"        # CellRanger standard output or ParseBio
+TECHNOLOGY = "10x"             #or ParseBio 
+ORGANISM = "human"             #Also mouse
+
+auto_find = true
+samples = {}
+
+[QC]
+CONCAT_SAMPLES = true
+NMADS = 5
+NMADS_MITO = 3
+CORRECT_AMBIENT_RNA = true
+FILTER_DOUBLETS = true
+CELL_CYCLE_SCORE = false
+REGRESS = false
+VARS_TO_REGRESS = []     # Add variables to regress pct_counts_mt, pct_counts_ribo
+
+
+[Normalization]
