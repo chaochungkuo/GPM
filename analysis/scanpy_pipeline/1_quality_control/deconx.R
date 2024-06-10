@@ -42,7 +42,9 @@ assays(sce, withDimnames = FALSE) <- setNames(assays(sce), gsub("X", "counts", a
 assays(raw, withDimnames = FALSE) <- setNames(assays(raw), gsub("X", "counts", assayNames(raw)))
 
 # Apply decontX
-sce <- decontX(x = sce, background = raw)
+sce <- decontX(x = sce
+#, background = raw
+)
 
 # Save the result as an H5AD file
 writeH5AD(sce = sce, file = opt$output)
