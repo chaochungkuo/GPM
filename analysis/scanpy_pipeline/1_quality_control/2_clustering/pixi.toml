@@ -1,0 +1,19 @@
+[project]
+name = "clustering"
+version = "0.1.0"
+description = "Add a short description here"
+authors = ["MoSafi2 <mohamed.mabrouk@rwth-aachen.de>"]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tasks]
+
+[dependencies]
+python = "3.11.*"
+pandas = ">=2.2.2,<2.3"
+scanpy = ">=1.10.1,<1.11"
+numpy = ">=1.26.4,<1.27"
+matplotlib = ">=3.8.4,<3.9"
+seaborn = ">=0.13.2,<0.14"
+ipykernel = ">=6.29.3,<6.30"
+pixi-kernel = ">=0.3.0,<0.4"

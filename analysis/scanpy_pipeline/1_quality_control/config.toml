@@ -1,11 +1,12 @@
 [basic]
-ROOT_PATH = "/root/of/project"
-DIR_SAMPLES = "../test"        # CellRanger standard output or ParseBio
-TECHNOLOGY = "10x"             #or ParseBio 
-ORGANISM = "human"             #Also mouse
+ANALYSIS_DIR = "root_analysis_dir"
+DIR_SAMPLES = "../test/Moazzen" # CellRanger standard output or ParseBio
+DIR_SAVE = "save"
+TECHNOLOGY = "10x"              #or ParseBio 
+ORGANISM = "mouse"              #Also mouse
 
 auto_find = true
-samples = {}
+samples = { WT = "../test/Moazzen/WT_E11_5/sample_filtered_feature_bc_matrix", KO = "../test/Moazzen/Mut_E11_5/sample_filtered_feature_bc_matrix" }
 
 [QC]
 CONCAT_SAMPLES = true
@@ -13,9 +14,14 @@ NMADS = 5
 NMADS_MITO = 3
 CORRECT_AMBIENT_RNA = true
 FILTER_DOUBLETS = true
-CELL_CYCLE_SCORE = false
+CELL_CYCLE_SCORE = true
 REGRESS = false
-VARS_TO_REGRESS = []     # Add variables to regress pct_counts_mt, pct_counts_ribo
+VARS_TO_REGRESS = []       # Add variables to regress pct_counts_mt, pct_counts_ribo
 
 
 [Normalization]
+
+
+[clustering]
+ranges = [0.1, 3]
+
