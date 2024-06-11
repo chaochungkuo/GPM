@@ -1,12 +1,12 @@
 [basic]
-ANALYSIS_DIR = "root_analysis_dir"
-DIR_SAMPLES = "../test/Moazzen" # CellRanger standard output or ParseBio
+ANALYSIS_DIR = "/home/mmabrouk/Documents/Projects/GPM/analysis/scanpy_pipeline/"
+DIR_SAMPLES = "/home/mmabrouk/Documents/Projects/GPM/analysis/scanpy_pipeline/test"                                                           # CellRanger standard output or ParseBio
 DIR_SAVE = "save"
-TECHNOLOGY = "10x"              #or ParseBio 
-ORGANISM = "mouse"              #Also mouse
+TECHNOLOGY = "10x"                                                               #or ParseBio 
+ORGANISM = "human"                                                               #Also mouse
 
 auto_find = true
-samples = { WT = "../test/Moazzen/WT_E11_5/sample_filtered_feature_bc_matrix", KO = "../test/Moazzen/Mut_E11_5/sample_filtered_feature_bc_matrix" }
+samples = {}
 
 [QC]
 CONCAT_SAMPLES = true
@@ -19,8 +19,9 @@ REGRESS = false
 VARS_TO_REGRESS = []       # Add variables to regress pct_counts_mt, pct_counts_ribo
 
 
-[Normalization]
+[normalization]
 NORMALIZATION_METHOD = "log1p" #also PearsonResidual
+COUNTS_LAYER = "counts"        #Can be also  'decontXcounts' for decontaminated counts
 
 #Can be be a fraction between 0.0 and 1.0 or a number of genes
 VARIABLE_FEATURES = 0.1 #Select top 10% of variable genes
@@ -28,4 +29,3 @@ VARIABLE_FEATURES = 0.1 #Select top 10% of variable genes
 
 [clustering]
 CLUSTERING_RANGE = [0.1, 3]
-
