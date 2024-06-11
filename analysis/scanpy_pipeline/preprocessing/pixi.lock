@@ -495,6 +495,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/scanpy-1.10.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scikit-image-0.22.0-py311h320fe9a_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scikit-learn-1.5.0-py311he08f58d_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/scikit-misc-0.1.4-py311ha9cf758_4.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.13.1-py311h517d4fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-0.13.2-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-base-0.13.2-pyhd8ed1ab_2.conda
@@ -563,9 +564,12 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.6-ha6fb4c9_0.conda
       - pypi: https://files.pythonhosted.org/packages/fb/17/335e0a4daf5475ada5eaa74735f765cc088ace306fbfdd2f4c2285320cc3/Cerberus-1.3.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/00/2e/d53fa4befbf2cfa713304affc7ca780ce4fc1fd8710527771b58311a3229/click-8.1.7-py3-none-any.whl
+      - pypi: git+https://github.com/MoSafi2/clustree@746527e00611c6646f1ff7a6b00a9a4d33960f3a
       - pypi: https://files.pythonhosted.org/packages/fa/bc/9bd3b5c2b4774d5f33b2d544f1460be9df7df2fe42f352135381c347c69a/ipython_genutils-0.2.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/dd/3b/09999dafa8c3d838fbb2005d4bad79a59e2f0af3a545b066246ffe374ed0/legendkit-0.3.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c5/08/734f87f4ec725305fde272a8292c4185f836d56de276a5150b047a86870e/marsilea-0.4.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/89/ab/bcecb53836760d5ac9e09937ee0bb445d8701e38ad3ffdace37930069e7f/opencv_python-4.10.0.82-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/31/1c/443d14614a6006b25ac5cde6aaea93a5993a40894f2d817a8f81efed1e1c/pairing_functions-0.2.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bb/89/e3d282bdafbef170a0f1bff9739976deca6886b24cd6a7e6d58bab545ff0/pretty_jupyter-2.0.4-py3-none-any.whl
 packages:
 - kind: conda
@@ -2206,6 +2210,18 @@ packages:
   - colorama ; platform_system == 'Windows'
   - importlib-metadata ; python_version < '3.8'
   requires_python: '>=3.7'
+- kind: pypi
+  name: clustree
+  version: 0.2.1
+  url: git+https://github.com/MoSafi2/clustree@746527e00611c6646f1ff7a6b00a9a4d33960f3a
+  requires_dist:
+  - igraph>=0,<1
+  - matplotlib>=3,<4
+  - networkx>=3,<4
+  - opencv-python>=4.7.0.72,<5.0.0.0
+  - pairing-functions==0.2.1
+  - pandas>=2,<3
+  requires_python: '>=3,<4'
 - kind: conda
   name: colorama
   version: 0.4.6
@@ -5096,6 +5112,23 @@ packages:
   purls: []
   size: 246869
   timestamp: 1697485543293
+- kind: pypi
+  name: opencv-python
+  version: 4.10.0.82
+  url: https://files.pythonhosted.org/packages/89/ab/bcecb53836760d5ac9e09937ee0bb445d8701e38ad3ffdace37930069e7f/opencv_python-4.10.0.82-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  sha256: 955c5ce8ac90c9e4636ad7f5c0d9c75b80abbe347182cfd09b0e3eec6e50472c
+  requires_dist:
+  - numpy>=1.13.3 ; python_version < '3.7'
+  - numpy>=1.21.0 ; python_version <= '3.9' and platform_system == 'Darwin' and platform_machine == 'arm64'
+  - numpy>=1.21.2 ; python_version >= '3.10'
+  - numpy>=1.21.4 ; python_version >= '3.10' and platform_system == 'Darwin'
+  - numpy>=1.23.5 ; python_version >= '3.11'
+  - numpy>=1.26.0 ; python_version >= '3.12'
+  - numpy>=1.19.3 ; python_version >= '3.6' and platform_system == 'Linux' and platform_machine == 'aarch64'
+  - numpy>=1.17.0 ; python_version >= '3.7'
+  - numpy>=1.17.3 ; python_version >= '3.8'
+  - numpy>=1.19.3 ; python_version >= '3.9'
+  requires_python: '>=3.6'
 - kind: conda
   name: openjpeg
   version: 2.5.2
@@ -5168,6 +5201,12 @@ packages:
   - pkg:pypi/packaging?source=conda-forge-mapping
   size: 49832
   timestamp: 1710076089469
+- kind: pypi
+  name: pairing-functions
+  version: 0.2.1
+  url: https://files.pythonhosted.org/packages/31/1c/443d14614a6006b25ac5cde6aaea93a5993a40894f2d817a8f81efed1e1c/pairing_functions-0.2.1-py3-none-any.whl
+  sha256: fc92ccb0694e90ecace9032308cb884c07334a4d4648490edc5e47dad3cd8720
+  requires_python: '>=3.5.2'
 - kind: conda
   name: pandas
   version: 2.2.2
@@ -10235,6 +10274,29 @@ packages:
   - pkg:pypi/scikit-learn?source=conda-forge-mapping
   size: 10543139
   timestamp: 1716490200240
+- kind: conda
+  name: scikit-misc
+  version: 0.1.4
+  build: py311ha9cf758_4
+  build_number: 4
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/scikit-misc-0.1.4-py311ha9cf758_4.tar.bz2
+  sha256: 2c113b8e7ca7026713c1da1ffcfb5e4bc65308acf9953ca970060fe4a14ddccd
+  md5: 1df16647190cfb0e2c37240c62b4cf80
+  depends:
+  - libgcc-ng >=12
+  - libgfortran-ng
+  - libgfortran5 >=10.4.0
+  - libopenblas
+  - numpy >=1.23.4,<2.0a0
+  - python >=3.11,<3.12.0a0
+  - python_abi 3.11.* *_cp311
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/scikit-misc?source=conda-forge-mapping
+  size: 269797
+  timestamp: 1667198256977
 - kind: conda
   name: scipy
   version: 1.13.1

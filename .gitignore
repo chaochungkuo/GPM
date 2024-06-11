@@ -162,3 +162,4 @@ cython_debug/
 .Rhistory
 GPM.Rproj
 analysis/scRNAseq/scRNAseq.Rproj
+analysis/scanpy_pipeline/preprocessing/1_quality_control.html

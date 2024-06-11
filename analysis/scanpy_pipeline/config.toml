@@ -1,9 +1,9 @@
 [basic]
-ANALYSIS_DIR = "/home/mmabrouk/Documents/Projects/GPM/analysis/scanpy_pipeline/"
-DIR_SAMPLES = "/home/mmabrouk/Documents/Projects/GPM/analysis/scanpy_pipeline/test"                                                           # CellRanger standard output or ParseBio
+ANALYSIS_DIR = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline"
+DIR_SAMPLES = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline/test" # CellRanger standard output or ParseBio
 DIR_SAVE = "save"
-TECHNOLOGY = "10x"                                                               #or ParseBio 
-ORGANISM = "human"                                                               #Also mouse
+TECHNOLOGY = "10x"                                                                       #or ParseBio 
+ORGANISM = "human"                                                                       #Also mouse
 
 auto_find = true
 samples = {}
@@ -20,8 +20,8 @@ VARS_TO_REGRESS = []       # Add variables to regress pct_counts_mt, pct_counts_
 
 
 [normalization]
-NORMALIZATION_METHOD = "log1p" #also PearsonResidual
-COUNTS_LAYER = "counts"        #Can be also  'decontXcounts' for decontaminated counts
+NORMALIZATION_METHOD = "log1p" #also 'pearson_residuals'
+COUNTS_LAYER = "counts"        #Can be also 'decontXcounts' for decontaminated counts or  'X' for the .X matrix
 
 #Can be be a fraction between 0.0 and 1.0 or a number of genes
 VARIABLE_FEATURES = 0.1 #Select top 10% of variable genes
