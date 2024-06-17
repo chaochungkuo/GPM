@@ -33,6 +33,7 @@ bioconductor-genomeinfodb = { version = ">=1.38.1,<1.39", channel = "bioconda" }
 bioconductor-decontx = { version = ">=1.0.0,<1.1", channel = "bioconda" }
 session-info = ">=1.0.0,<1.1"
 scikit-misc = { version = ">=0.1.4,<0.2", channel = "conda-forge" }
+r-clustree = ">=0.5.1,<0.6"
 
 [pypi-dependencies]
 marsilea = "*"

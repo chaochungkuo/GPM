@@ -1,5 +1,5 @@
 [basic]
-ANALYSIS_DIR = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline"
+ANALYSIS_DIR = "/home/mmabrouk/Documents/Projects/GPM/analysis/scanpy_pipeline/"
 DIR_SAMPLES = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline/test" # CellRanger standard output or ParseBio
 DIR_SAVE = "save"
 TECHNOLOGY = "10x"                                                                       #or ParseBio 
@@ -29,3 +29,4 @@ VARIABLE_FEATURES = 0.1 #Select top 10% of variable genes
 
 [clustering]
 CLUSTERING_RANGE = [0.1, 3]
+FINAL_RESOLUTION = 0
