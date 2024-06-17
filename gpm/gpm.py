@@ -391,7 +391,7 @@ class GPM():
                         if os.path.isfile(source_file):
                             self.copy_file(source_file, target_file)
                         elif os.path.isdir(source_file):
-                            shutil.copytree(source_dir, target_file)
+                            shutil.copytree(source_file, target_file)
         # Show instructions
         show_tree(group_dir)
         show_instructions("analysis", analysis_name)
