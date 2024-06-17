@@ -163,3 +163,4 @@ cython_debug/
 GPM.Rproj
 analysis/scRNAseq/scRNAseq.Rproj
 analysis/scanpy_pipeline/preprocessing/1_quality_control.html
+analysis/scanpy_pipeline/preprocessing/test.ipynb

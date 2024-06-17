@@ -135,6 +135,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.4.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ipykernel-6.29.4-pyh3099207_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ipython-8.25.0-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-8.1.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/isoduration-20.11.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/jedi-0.19.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jinja2-3.1.4-pyhd8ed1ab_0.conda
@@ -154,6 +155,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyterlab-4.2.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_pygments-0.3.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_server-2.27.2-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-3.0.11-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/jxrlib-1.1-hd590300_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/kernel-headers_linux-64-2.6.32-he073ed8_17.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/keyutils-1.6.1-h166bdaf_0.tar.bz2
@@ -296,6 +298,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-cli-3.6.2-r43ha503ecb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-clue-0.3_65-r43h57805ef_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-cluster-2.1.6-r43h61816a4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/r-clustree-0.5.1-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-codetools-0.2_20-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-colorspace-2.1_0-r43h57805ef_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-combinat-0.0_8-r43hc72bb7e_1005.conda
@@ -336,7 +339,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-getopt-1.20.4-r43ha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-getoptlong-1.0.5-r43hc72bb7e_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-ggbeeswarm-0.7.2-r43hc72bb7e_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/r-ggforce-0.4.2-r43ha503ecb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-ggplot2-3.5.1-r43hc72bb7e_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/r-ggraph-2.1.0-r43ha503ecb_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-ggrastr-1.0.2-r43hc72bb7e_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-ggrepel-0.9.5-r43ha503ecb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-ggridges-0.5.6-r43hc72bb7e_0.conda
@@ -345,6 +350,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-glue-1.7.0-r43h57805ef_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-goftest-1.2_3-r43h57805ef_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-gplots-3.1.3.1-r43hc72bb7e_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/r-graphlayouts-1.1.0-r43ha503ecb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-gridextra-2.3-r43hc72bb7e_1005.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-gtable-0.3.5-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-gtools-3.9.5-r43h57805ef_0.conda
@@ -469,9 +475,11 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-tensor-1.5-r43hc72bb7e_1005.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-textshaping-0.4.0-r43h024d615_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-tibble-3.2.1-r43h57805ef_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/r-tidygraph-1.3.0-r43ha503ecb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-tidyr-1.3.1-r43ha503ecb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-tidyselect-1.2.1-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-tinytex-0.51-r43hc72bb7e_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/r-tweenr-2.0.3-r43ha503ecb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-utf8-1.2.4-r43h57805ef_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-uuid-1.2_0-r43h57805ef_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-uwot-0.1.16-r43ha503ecb_0.conda
@@ -540,6 +548,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/websocket-client-1.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.43.0-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-4.0.11-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xmltodict-0.13.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-kbproto-1.0.7-h7f98852_1002.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libice-1.1.1-hd590300_0.conda
@@ -564,12 +573,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.6-ha6fb4c9_0.conda
       - pypi: https://files.pythonhosted.org/packages/fb/17/335e0a4daf5475ada5eaa74735f765cc088ace306fbfdd2f4c2285320cc3/Cerberus-1.3.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/00/2e/d53fa4befbf2cfa713304affc7ca780ce4fc1fd8710527771b58311a3229/click-8.1.7-py3-none-any.whl
-      - pypi: git+https://github.com/MoSafi2/clustree@746527e00611c6646f1ff7a6b00a9a4d33960f3a
       - pypi: https://files.pythonhosted.org/packages/fa/bc/9bd3b5c2b4774d5f33b2d544f1460be9df7df2fe42f352135381c347c69a/ipython_genutils-0.2.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/dd/3b/09999dafa8c3d838fbb2005d4bad79a59e2f0af3a545b066246ffe374ed0/legendkit-0.3.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c5/08/734f87f4ec725305fde272a8292c4185f836d56de276a5150b047a86870e/marsilea-0.4.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/89/ab/bcecb53836760d5ac9e09937ee0bb445d8701e38ad3ffdace37930069e7f/opencv_python-4.10.0.82-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/31/1c/443d14614a6006b25ac5cde6aaea93a5993a40894f2d817a8f81efed1e1c/pairing_functions-0.2.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bb/89/e3d282bdafbef170a0f1bff9739976deca6886b24cd6a7e6d58bab545ff0/pretty_jupyter-2.0.4-py3-none-any.whl
 packages:
 - kind: conda
@@ -2210,18 +2216,6 @@ packages:
   - colorama ; platform_system == 'Windows'
   - importlib-metadata ; python_version < '3.8'
   requires_python: '>=3.7'
-- kind: pypi
-  name: clustree
-  version: 0.2.1
-  url: git+https://github.com/MoSafi2/clustree@746527e00611c6646f1ff7a6b00a9a4d33960f3a
-  requires_dist:
-  - igraph>=0,<1
-  - matplotlib>=3,<4
-  - networkx>=3,<4
-  - opencv-python>=4.7.0.72,<5.0.0.0
-  - pairing-functions==0.2.1
-  - pandas>=2,<3
-  requires_python: '>=3,<4'
 - kind: conda
   name: colorama
   version: 0.4.6
@@ -3212,6 +3206,28 @@ packages:
   url: https://files.pythonhosted.org/packages/fa/bc/9bd3b5c2b4774d5f33b2d544f1460be9df7df2fe42f352135381c347c69a/ipython_genutils-0.2.0-py2.py3-none-any.whl
   sha256: 72dd37233799e619666c9f639a9da83c34013a73e8bbc79a7a6348d93c61fab8
 - kind: conda
+  name: ipywidgets
+  version: 8.1.3
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-8.1.3-pyhd8ed1ab_0.conda
+  sha256: 161b5132d8f4d0c344205ec238c7f268edb517d6da66a1f497342ff26590da00
+  md5: a1323654e9d87b16642ef02a03b98b32
+  depends:
+  - comm >=0.1.3
+  - ipython >=6.1.0
+  - jupyterlab_widgets >=3.0.11,<3.1.0
+  - python >=3.7
+  - traitlets >=4.3.1
+  - widgetsnbextension >=4.0.11,<4.1.0
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/ipywidgets?source=conda-forge-mapping
+  size: 113787
+  timestamp: 1716897741733
+- kind: conda
   name: isoduration
   version: 20.11.0
   build: pyhd8ed1ab_0
@@ -3621,6 +3637,25 @@ packages:
   - pkg:pypi/jupyterlab-server?source=conda-forge-mapping
   size: 49349
   timestamp: 1716434054129
+- kind: conda
+  name: jupyterlab_widgets
+  version: 3.0.11
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-3.0.11-pyhd8ed1ab_0.conda
+  sha256: 14053a987d44da2f36d79e28147d4e2551cda2559cba6144103b677ef26616a8
+  md5: fc0cb2abcfcec65ecbdcde4289b62fea
+  depends:
+  - python >=3.7
+  constrains:
+  - jupyterlab >=3,<5
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/jupyterlab-widgets?source=conda-forge-mapping
+  size: 186467
+  timestamp: 1716891738104
 - kind: conda
   name: jxrlib
   version: '1.1'
@@ -5112,23 +5147,6 @@ packages:
   purls: []
   size: 246869
   timestamp: 1697485543293
-- kind: pypi
-  name: opencv-python
-  version: 4.10.0.82
-  url: https://files.pythonhosted.org/packages/89/ab/bcecb53836760d5ac9e09937ee0bb445d8701e38ad3ffdace37930069e7f/opencv_python-4.10.0.82-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-  sha256: 955c5ce8ac90c9e4636ad7f5c0d9c75b80abbe347182cfd09b0e3eec6e50472c
-  requires_dist:
-  - numpy>=1.13.3 ; python_version < '3.7'
-  - numpy>=1.21.0 ; python_version <= '3.9' and platform_system == 'Darwin' and platform_machine == 'arm64'
-  - numpy>=1.21.2 ; python_version >= '3.10'
-  - numpy>=1.21.4 ; python_version >= '3.10' and platform_system == 'Darwin'
-  - numpy>=1.23.5 ; python_version >= '3.11'
-  - numpy>=1.26.0 ; python_version >= '3.12'
-  - numpy>=1.19.3 ; python_version >= '3.6' and platform_system == 'Linux' and platform_machine == 'aarch64'
-  - numpy>=1.17.0 ; python_version >= '3.7'
-  - numpy>=1.17.3 ; python_version >= '3.8'
-  - numpy>=1.19.3 ; python_version >= '3.9'
-  requires_python: '>=3.6'
 - kind: conda
   name: openjpeg
   version: 2.5.2
@@ -5201,12 +5219,6 @@ packages:
   - pkg:pypi/packaging?source=conda-forge-mapping
   size: 49832
   timestamp: 1710076089469
-- kind: pypi
-  name: pairing-functions
-  version: 0.2.1
-  url: https://files.pythonhosted.org/packages/31/1c/443d14614a6006b25ac5cde6aaea93a5993a40894f2d817a8f81efed1e1c/pairing_functions-0.2.1-py3-none-any.whl
-  sha256: fc92ccb0694e90ecace9032308cb884c07334a4d4648490edc5e47dad3cd8720
-  requires_python: '>=3.5.2'
 - kind: conda
   name: pandas
   version: 2.2.2
@@ -6351,6 +6363,31 @@ packages:
   size: 574600
   timestamp: 1701474728538
 - kind: conda
+  name: r-clustree
+  version: 0.5.1
+  build: r43hc72bb7e_0
+  subdir: noarch
+  noarch: generic
+  url: https://conda.anaconda.org/conda-forge/noarch/r-clustree-0.5.1-r43hc72bb7e_0.conda
+  sha256: 787582386bbfc32d8943d636773a40202b78fa2f6e324283ef928ab8bf37dfc7
+  md5: 58e45df13d2600ca1ea4868e61154c31
+  depends:
+  - r-base >=4.3,<4.4.0a0
+  - r-checkmate
+  - r-dplyr
+  - r-ggplot2
+  - r-ggraph
+  - r-ggrepel
+  - r-igraph
+  - r-rlang
+  - r-tidygraph
+  - r-viridis
+  license: GPL-3.0-only
+  license_family: GPL3
+  purls: []
+  size: 1901332
+  timestamp: 1699223381175
+- kind: conda
   name: r-codetools
   version: 0.2_20
   build: r43hc72bb7e_0
@@ -7079,6 +7116,35 @@ packages:
   size: 1751214
   timestamp: 1686887601174
 - kind: conda
+  name: r-ggforce
+  version: 0.4.2
+  build: r43ha503ecb_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/r-ggforce-0.4.2-r43ha503ecb_0.conda
+  sha256: 1d338d6f0415867a8d29efa3228ea326a7b542ada21ffe8d3d0a394ca7ca91e7
+  md5: 14b23d269e867706a20fd463980dfdcd
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  - r-base >=4.3,<4.4.0a0
+  - r-ggplot2 >=3.3.6
+  - r-gtable
+  - r-mass
+  - r-polyclip
+  - r-rcpp >=0.12.2
+  - r-rcppeigen
+  - r-rlang
+  - r-scales
+  - r-systemfonts
+  - r-tidyselect
+  - r-tweenr >=0.1.5
+  - r-withr
+  license: MIT
+  license_family: MIT
+  purls: []
+  size: 1829354
+  timestamp: 1708348709833
+- kind: conda
   name: r-ggplot2
   version: 3.5.1
   build: r43hc72bb7e_0
@@ -7106,6 +7172,38 @@ packages:
   purls: []
   size: 4742430
   timestamp: 1713867548068
+- kind: conda
+  name: r-ggraph
+  version: 2.1.0
+  build: r43ha503ecb_2
+  build_number: 2
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/r-ggraph-2.1.0-r43ha503ecb_2.conda
+  sha256: 4a8c4ccde000c77238fce3514f1f463539c4ef3a6ef48c32b2e28bfa435c329a
+  md5: 9ab5e1c12b2b676655113e30ee6841e7
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  - r-base >=4.3,<4.4.0a0
+  - r-digest
+  - r-dplyr
+  - r-ggforce >=0.3.1
+  - r-ggplot2 >=3.0.0
+  - r-ggrepel
+  - r-graphlayouts >=0.5.0
+  - r-gtable
+  - r-igraph >=1.0.0
+  - r-mass
+  - r-rcpp >=0.12.2
+  - r-rlang
+  - r-scales
+  - r-tidygraph
+  - r-viridis
+  license: MIT
+  license_family: MIT
+  purls: []
+  size: 3830460
+  timestamp: 1686888238079
 - kind: conda
   name: r-ggrastr
   version: 1.0.2
@@ -7255,6 +7353,26 @@ packages:
   purls: []
   size: 604225
   timestamp: 1707025511439
+- kind: conda
+  name: r-graphlayouts
+  version: 1.1.0
+  build: r43ha503ecb_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/r-graphlayouts-1.1.0-r43ha503ecb_0.conda
+  sha256: 007cf236eef785082108da50c93f7fdc815b9b2e85a8dce5eb2f58a7b3139cd5
+  md5: 8224abfe87ce4714991cb40fc50387aa
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  - r-base >=4.3,<4.4.0a0
+  - r-igraph
+  - r-rcpp
+  - r-rcpparmadillo
+  license: MIT
+  license_family: MIT
+  purls: []
+  size: 3627752
+  timestamp: 1705674384865
 - kind: conda
   name: r-gridextra
   version: '2.3'
@@ -9750,6 +9868,33 @@ packages:
   size: 612435
   timestamp: 1686709282135
 - kind: conda
+  name: r-tidygraph
+  version: 1.3.0
+  build: r43ha503ecb_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/r-tidygraph-1.3.0-r43ha503ecb_0.conda
+  sha256: c3be5115fa903f4ff7af4a4ccb23811ffcc5c5e191272c0eb2bc681580742082
+  md5: 0192dada3e38aa7be76b3cd4dad2ec78
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  - r-base >=4.3,<4.4.0a0
+  - r-cli
+  - r-cpp11
+  - r-dplyr >=0.8.5
+  - r-igraph
+  - r-magrittr
+  - r-pillar
+  - r-r6
+  - r-rlang
+  - r-tibble
+  - r-tidyr
+  license: MIT
+  license_family: MIT
+  purls: []
+  size: 557004
+  timestamp: 1702901716420
+- kind: conda
   name: r-tidyr
   version: 1.3.1
   build: r43ha503ecb_0
@@ -9816,6 +9961,28 @@ packages:
   purls: []
   size: 148334
   timestamp: 1715052002194
+- kind: conda
+  name: r-tweenr
+  version: 2.0.3
+  build: r43ha503ecb_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/r-tweenr-2.0.3-r43ha503ecb_0.conda
+  sha256: c7c1a3c56f5cdb02f7f59166f49fc5a23596a3d8acbeaf4a8a7714e27e377945
+  md5: c58bc018871f062e5c0d9ea2f87ee747
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  - r-base >=4.3,<4.4.0a0
+  - r-cpp11 >=0.4.2
+  - r-farver
+  - r-magrittr
+  - r-rlang
+  - r-vctrs
+  license: MIT
+  license_family: MIT
+  purls: []
+  size: 441543
+  timestamp: 1708964748260
 - kind: conda
   name: r-utf8
   version: 1.2.4
@@ -11086,6 +11253,23 @@ packages:
   - pkg:pypi/wheel?source=conda-forge-mapping
   size: 57963
   timestamp: 1711546009410
+- kind: conda
+  name: widgetsnbextension
+  version: 4.0.11
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-4.0.11-pyhd8ed1ab_0.conda
+  sha256: 240582f3aff18f28b3500e76f727e1c58048bfc1a445c71b7087907a0a85a5e6
+  md5: 95ba42a349c9d8eac28e30d0b637401f
+  depends:
+  - python >=3.7
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/widgetsnbextension?source=conda-forge-mapping
+  size: 1079940
+  timestamp: 1716891774202
 - kind: conda
   name: xmltodict
   version: 0.13.0
