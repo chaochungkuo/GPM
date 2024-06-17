@@ -3,6 +3,7 @@ from os import path
 import sys
 import click
 import glob
+import shutil
 from collections import OrderedDict
 import configparser
 from datetime import datetime
@@ -385,9 +386,12 @@ class GPM():
                     for template in analysis_dict[group][label]:
                         click.echo("  "+template)
                         source_file = path.join(source_dir, template)
-                        target_file = path.join(group_dir,
-                                                path.basename(template))
-                        self.copy_file(source_file, target_file)
+                        if os.path.isfile(source_file):
+                            target_file = path.join(group_dir,
+                                                    path.basename(template))
+                            self.copy_file(source_file, target_file)
+                        elif os.path.isdir(source_file):
+                            shutil.copytree(source_dir, target_file)
         # Show instructions
         show_tree(group_dir)
         show_instructions("analysis", analysis_name)

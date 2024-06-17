@@ -1,9 +1,9 @@
 [basic]
-ANALYSIS_DIR = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline"
-DIR_SAMPLES = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline/test" # CellRanger standard output or ParseBio
+ANALYSIS_DIR = "PROJECT_ANALYSIS_PATH/scanpy_pipeline"
+DIR_SAMPLES = "PROJECT_PROJECT_PATH/cellranger/E11_5_Heart_1/outs/per_sample_outs" # CellRanger standard output or ParseBio
 DIR_SAVE = "save"
-TECHNOLOGY = "10x"                                                                       #or ParseBio 
-ORGANISM = "human"                                                                       #Also mouse
+TECHNOLOGY = "10x" #or ParseBio 
+ORGANISM = "human" #Also mouse
 
 auto_find = true
 samples = {}
