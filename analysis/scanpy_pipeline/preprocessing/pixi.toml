@@ -34,6 +34,7 @@ bioconductor-decontx = { version = ">=1.0.0,<1.1", channel = "bioconda" }
 session-info = ">=1.0.0,<1.1"
 scikit-misc = { version = ">=0.1.4,<0.2", channel = "conda-forge" }
 r-clustree = ">=0.5.1,<0.6"
+ipywidgets = ">=8.1.3,<8.2"
 
 [pypi-dependencies]
 marsilea = "*"
