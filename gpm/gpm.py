@@ -386,9 +386,9 @@ class GPM():
                     for template in analysis_dict[group][label]:
                         click.echo("  "+template)
                         source_file = path.join(source_dir, template)
+                        target_file = path.join(group_dir,
+                                                path.basename(template))
                         if os.path.isfile(source_file):
-                            target_file = path.join(group_dir,
-                                                    path.basename(template))
                             self.copy_file(source_file, target_file)
                         elif os.path.isdir(source_file):
                             shutil.copytree(source_dir, target_file)
