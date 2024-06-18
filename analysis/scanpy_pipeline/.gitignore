@@ -3,4 +3,5 @@
 *.egg-info
 save/
 test/
+anno_test/
 
