@@ -1,10 +1,13 @@
 [basic]
-ANALYSIS_DIR = ".."     # Default Analysis directory (provided by GPM)
+ANALYSIS_DIR = ".." # Default Analysis directory (provided by GPM)
 DIR_SAMPLES = "../test" # CellRanger standard output or ParseBio
-DIR_SAVE = "save"       # Directory to save the results
-TECHNOLOGY = "10x"      # values (10x, ParseBio)
-ORGANISM = "human"      # values(human,  mouse)
-TISSUE = ""             # Tissue of the samples, used later for annotation
+DIR_SAVE = "save" # Directory to save the results
+TECHNOLOGY = "10x" # values (10x, ParseBio)
+ORGANISM = "human" # values(human,  mouse)
+TISSUE = [
+    "bone marrow",
+    "peripheral blood",
+] # List: Tissue(s) of origin the samples, used later for annotation
 
 auto_find = true # Automatically find the samples in the DIR_SAMPLES
 samples = {}     # Override auto_find, provide a dictionary of (sample_name: sample_path)
@@ -19,14 +22,12 @@ CELL_CYCLE_SCORE = true    # Calculate cell cycle scores, based on scanpy implem
 REGRESS = false            # Regress out unwanted variables. Not recommended.
 VARS_TO_REGRESS = []       # list of regress (pct_counts_mt, pct_counts_ribo).
 
-
 [normalization]
 NORMALIZATION_METHOD = "log1p" # Normalization method. values ('log1p', 'pearson_residuals')
 COUNTS_LAYER = "counts"        # Can be also 'decontXcounts' for decontaminated counts or  'X' for the adata.X matrix
 
 #Can be be a fraction between 0.0 and 1.0 or a number of genes
 VARIABLE_FEATURES = 0.1 # Select top 10% of variable genes
-
 
 [clustering]
 CLUSTERING_RANGE = [
@@ -36,10 +37,8 @@ CLUSTERING_RANGE = [
 ] # Range of resolution for clustering, (min, max, step).
 FINAL_RESOLUTION = -1 # Float: Final resolution for clustering, Default: -1 (unset)
 INTEGRATE_SAMPLES = false
-
-# Not implemented yet
-INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI'
+INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not implemented yet
 
 [annotation]
 ANNOTATE_SAMPLES = false
-ANNOTATION_METHOD = "celltypist" # values ('celltypist', 'scVI', )
+ANNOTATION_METHOD = "celltypist" # values ('celltypist', 'scVI', 'cxg_atlas'), use scVI on GPU only for large datasets
