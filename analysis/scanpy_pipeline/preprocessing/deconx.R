@@ -1,3 +1,6 @@
+#TODO: Fix package loading problems of GenomeInfoDB and GenbaseInfoDbData
+#TODO: Execute file reading through zellkonverter through the pixi env not through managed conda env
+
 # Define the packages to check and install if necessary
 packages <- c("GenomeInfoDb", "GenomeInfoDbData")
 
@@ -41,6 +44,7 @@ raw <- readH5AD(opt$raw)
 assays(sce, withDimnames = FALSE) <- setNames(assays(sce), gsub("X", "counts", assayNames(sce)))
 assays(raw, withDimnames = FALSE) <- setNames(assays(raw), gsub("X", "counts", assayNames(raw)))
 
+#TODO: Handle errors from background file
 # Apply decontX
 sce <- decontX(x = sce
 #, background = raw
