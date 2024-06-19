@@ -14,7 +14,7 @@ NORMALIZATION_METHOD = "log1p" # Normalization method. values ('log1p', 'pearson
 COUNTS_LAYER = "counts"        # Can be also 'decontXcounts' for decontaminated counts or  'X' for the adata.X matrix
 
 [clustering]
-FINAL_RESOLUTION = -1          # Float: Final resolution for clustering, Default: -1 (unset)
+FINAL_RESOLUTION = 1         # Float: Final resolution for clustering, Default: -1 (unset)
 INTEGRATE_SAMPLES = false
 INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not implemented yet
 
