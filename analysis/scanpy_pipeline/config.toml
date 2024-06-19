@@ -12,29 +12,11 @@ TISSUE = [
 auto_find = true # Automatically find the samples in the DIR_SAMPLES
 samples = {}     # Override auto_find, provide a dictionary of (sample_name: sample_path)
 
-[QC]
-CONCAT_SAMPLES = true      # Concatenate all samples in one object, default: true
-NMADS = 5                  # Number of median absolute deviations for read and gene counts.    
-NMADS_MITO = 3             # Number of median absolute deviations for mitochondrial genes percentage.
-CORRECT_AMBIENT_RNA = true # Correct ambient RNA, uses DecontX
-FILTER_DOUBLETS = true     # Filter doublets using Scrublet
-CELL_CYCLE_SCORE = true    # Calculate cell cycle scores, based on scanpy implementation.
-REGRESS = false            # Regress out unwanted variables. Not recommended.
-VARS_TO_REGRESS = []       # list of regress (pct_counts_mt, pct_counts_ribo).
-
 [normalization]
 NORMALIZATION_METHOD = "log1p" # Normalization method. values ('log1p', 'pearson_residuals')
 COUNTS_LAYER = "counts"        # Can be also 'decontXcounts' for decontaminated counts or  'X' for the adata.X matrix
 
-#Can be be a fraction between 0.0 and 1.0 or a number of genes
-VARIABLE_FEATURES = 0.1 # Select top 10% of variable genes
-
 [clustering]
-CLUSTERING_RANGE = [
-    0.0,
-    3.0,
-    0.2,
-] # Range of resolution for clustering, (min, max, step).
 FINAL_RESOLUTION = -1 # Float: Final resolution for clustering, Default: -1 (unset)
 INTEGRATE_SAMPLES = false
 INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not implemented yet
