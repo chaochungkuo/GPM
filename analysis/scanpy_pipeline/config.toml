@@ -1,13 +1,10 @@
 [basic]
-ANALYSIS_DIR = ".." # Default Analysis directory (provided by GPM)
+ANALYSIS_DIR = ".."     # Default Analysis directory (provided by GPM)
 DIR_SAMPLES = "../test" # CellRanger standard output or ParseBio
-DIR_SAVE = "save" # Directory to save the results
-TECHNOLOGY = "10x" # values (10x, ParseBio)
-ORGANISM = "human" # values(human,  mouse)
-TISSUE = [
-    "bone marrow",
-    "peripheral blood",
-] # List: Tissue(s) of origin the samples, used later for annotation
+DIR_SAVE = "save"       # Directory to save the results
+TECHNOLOGY = "10x"      # values (10x, ParseBio)
+ORGANISM = "human"      # values(human,  mouse)
+TISSUE = "Blood"        # List: Tissue(s) of origin the samples, used later for annotation
 
 auto_find = true # Automatically find the samples in the DIR_SAMPLES
 samples = {}     # Override auto_find, provide a dictionary of (sample_name: sample_path)
@@ -17,10 +14,10 @@ NORMALIZATION_METHOD = "log1p" # Normalization method. values ('log1p', 'pearson
 COUNTS_LAYER = "counts"        # Can be also 'decontXcounts' for decontaminated counts or  'X' for the adata.X matrix
 
 [clustering]
-FINAL_RESOLUTION = -1 # Float: Final resolution for clustering, Default: -1 (unset)
+FINAL_RESOLUTION = -1          # Float: Final resolution for clustering, Default: -1 (unset)
 INTEGRATE_SAMPLES = false
 INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not implemented yet
 
 [annotation]
 ANNOTATE_SAMPLES = false
-ANNOTATION_METHOD = "celltypist" # values ('celltypist', 'scvi_cellassign', 'cxg_atlas'), use scVI on GPU only for large datasets
+ANNOTATION_METHOD = "scvi_cellassign" # values ('celltypist', 'scvi_cellassign', 'cxg_atlas'), use scVI on GPU only for large datasets
