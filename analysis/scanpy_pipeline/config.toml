@@ -10,7 +10,7 @@ auto_find = true # Automatically find the samples in the DIR_SAMPLES
 samples = {}     # Override auto_find, provide a dictionary of (sample_name: sample_path)
 
 [normalization]
-NORMALIZATION_METHOD = "log1p" # Normalization method. values ('log1p', 'pearson_residuals')
+NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
 COUNTS_LAYER = "counts"        # Can be also 'decontXcounts' for decontaminated counts or  'X' for the adata.X matrix
 
 [clustering]
