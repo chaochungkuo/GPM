@@ -6,6 +6,10 @@ authors = ["= <=>"]
 channels = ["conda-forge"]
 platforms = ["linux-64"]
 
+[system-requirements]
+linux = "4.12.14"
+
+
 [tasks]
 
 [dependencies]
@@ -18,7 +22,7 @@ tiledb = ">=2.24.0,<2.25"
 numpy = "==1.26.4"
 tomlkit = ">=0.12.5,<0.13"
 pixi-kernel = ">=0.3.0,<0.4"
-faiss-cpu = ">=1.7.4,<1.8"
+faiss-gpu = ">=1.7.4,<1.8"
 
 
 [pypi-dependencies]

@@ -6,6 +6,10 @@ authors = ["MoSafi2 <mohamed.mabrouk@rwth-aachen.de>"]
 channels = ["conda-forge", "bioconda", "paul.martin-2", "pytorch"]
 platforms = ["linux-64"]
 
+[system-requirements]
+linux = "4.12.14"
+
+
 [tasks]
 render = "jupyter nbconvert --execute --to html --template pj"
 

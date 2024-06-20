@@ -54,14 +54,15 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cffi-1.16.0-py310h2fee648_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/charset-normalizer-3.3.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/comm-0.2.2-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cudatoolkit-11.8.0-h4ba93d1_13.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.1-py310hc6cd4ac_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/decorator-5.1.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/defusedxml-0.7.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/entrypoints-0.4-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/exceptiongroup-1.2.0-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/executing-2.0.1-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/faiss-1.7.4-py310h9ed8947_0_cpu.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/faiss-cpu-1.7.4-h718b53a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/faiss-1.7.4-py310cuda112hae2f2aa_0_cuda.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/faiss-gpu-1.7.4-h788eb59_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/fmt-10.2.1-h00ab1b0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/fqdn-1.5.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/frozenlist-1.4.1-py310h2372a71_0.conda
@@ -109,8 +110,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.8.0-hca28451_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20191231-he28a2e2_2.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libev-4.33-hd590300_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/libfaiss-1.7.4-hf47d654_0_cpu.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/libfaiss-avx2-1.7.4-h1234567_0_cpu.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libfaiss-1.7.4-cuda112hb18a002_0_cuda.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libfaiss-avx2-1.7.4-cuda112h1234567_0_cuda.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libffi-3.4.2-h7f98852_5.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/libgcc-devel_linux-64-13.2.0-hdb50d1a_111.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-13.2.0-h77fa898_11.conda
@@ -185,7 +186,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.18.1-py310he421c4c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/s2n-1.4.16-he19d79f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/send2trash-1.8.3-pyh0d859eb_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-70.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-70.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.16.0-pyh6c4a22f_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/sniffio-1.3.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/soupsieve-2.5-pyhd8ed1ab_1.conda
@@ -1358,6 +1359,25 @@ packages:
   - pytest-xdist ; extra == 'test-no-images'
   - wurlitzer ; extra == 'test-no-images'
   requires_python: '>=3.9'
+- kind: conda
+  name: cudatoolkit
+  version: 11.8.0
+  build: h4ba93d1_13
+  build_number: 13
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/cudatoolkit-11.8.0-h4ba93d1_13.conda
+  sha256: 1797bacaf5350f272413c7f50787c01aef0e8eb955df0f0db144b10be2819752
+  md5: eb43f5f1f16e2fad2eba22219c3e499b
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  constrains:
+  - __cuda >=11
+  license: LicenseRef-NVIDIA-End-User-License-Agreement
+  purls: []
+  size: 715605660
+  timestamp: 1706881738892
 - kind: pypi
   name: cycler
   version: 0.12.1
@@ -1717,16 +1737,18 @@ packages:
 - kind: conda
   name: faiss
   version: 1.7.4
-  build: py310h9ed8947_0_cpu
+  build: py310cuda112hae2f2aa_0_cuda
   subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/faiss-1.7.4-py310h9ed8947_0_cpu.conda
-  sha256: 5da95007eb4070365897a1265de46ab32e0d13b5f478a7e3d86aab10c7ca1a88
-  md5: 99665c710087f7a964915b5ea0097465
+  url: https://conda.anaconda.org/conda-forge/linux-64/faiss-1.7.4-py310cuda112hae2f2aa_0_cuda.conda
+  sha256: edc3507168f3a5ea97f7cdfb68c7ecee3e75d0262522363db39fb81f541ef906
+  md5: 619a30dccbbd816a1c7018ee098c001d
   depends:
+  - __glibc >=2.17
   - _openmp_mutex >=4.5
+  - cudatoolkit >=11.2,<12
   - libblas >=3.9.0,<4.0a0
-  - libfaiss 1.7.4 *_cpu
-  - libfaiss-avx2 1.7.4 *_cpu
+  - libfaiss 1.7.4 *_cuda
+  - libfaiss-avx2 1.7.4 *_cuda
   - libgcc-ng >=12
   - liblapack >=3.9.0,<4.0a0
   - libstdcxx-ng >=12
@@ -1734,29 +1756,29 @@ packages:
   - python >=3.10,<3.11.0a0
   - python_abi 3.10.* *_cp310
   constrains:
-  - faiss-proc =*=cpu
-  - faiss-gpu ==9999999999
+  - faiss-proc =*=cuda
+  - faiss-cpu ==9999999999
   license: MIT
   license_family: MIT
   purls:
   - pkg:pypi/faiss?source=conda-forge-mapping
-  size: 1397688
-  timestamp: 1685211948400
+  size: 1521750
+  timestamp: 1685227168275
 - kind: conda
-  name: faiss-cpu
+  name: faiss-gpu
   version: 1.7.4
-  build: h718b53a_0
+  build: h788eb59_0
   subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/faiss-cpu-1.7.4-h718b53a_0.conda
-  sha256: 4abb2eca8571e489db0f53d473363d1dabc73a0eb3be99bde5b76c4c6fb543fe
-  md5: 7a9e6f72c36ff5a5eeb61660fd6fdf8d
+  url: https://conda.anaconda.org/conda-forge/linux-64/faiss-gpu-1.7.4-h788eb59_0.conda
+  sha256: f71af5bfdf6607a25adffc4d0e75f2715bc83811e633c3f99a14b96def9a50f0
+  md5: bafb58847c08b8d74e2a3ac1ac632903
   depends:
-  - faiss 1.7.4 *_cpu
+  - faiss 1.7.4 *_cuda
   license: MIT
   license_family: MIT
   purls: []
-  size: 18954
-  timestamp: 1685212242429
+  size: 19043
+  timestamp: 1685274596904
 - kind: pypi
   name: filelock
   version: 3.15.3
@@ -1957,6 +1979,7 @@ packages:
   - libstdcxx-ng >=13.2.0
   - sysroot_linux-64
   license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
   purls: []
   size: 69801784
   timestamp: 1718867109136
@@ -3070,47 +3093,51 @@ packages:
 - kind: conda
   name: libfaiss
   version: 1.7.4
-  build: hf47d654_0_cpu
+  build: cuda112hb18a002_0_cuda
   subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libfaiss-1.7.4-hf47d654_0_cpu.conda
-  sha256: 0acd74589642728a79565081a54cd3140eccd97df1f596eb75b3f7ec5a5d398f
-  md5: 8fd132db65c8d51caea2ae7cde4b450c
+  url: https://conda.anaconda.org/conda-forge/linux-64/libfaiss-1.7.4-cuda112hb18a002_0_cuda.conda
+  sha256: d31bc0f7ed759c1c10d77f6398a4ce64575bf2f653b318c0d1e160021c93ed8d
+  md5: 98be4a76b4dd8bc3062f5c7f620d1e5c
   depends:
+  - __glibc >=2.17
   - _openmp_mutex >=4.5
+  - cudatoolkit >=11.2,<12
   - libblas >=3.9.0,<4.0a0
   - libgcc-ng >=12
   - liblapack >=3.9.0,<4.0a0
   - libstdcxx-ng >=12
   constrains:
-  - faiss-proc =*=cpu
-  - faiss-gpu ==9999999999
+  - faiss-proc =*=cuda
+  - faiss-cpu ==9999999999
   license: MIT
   license_family: MIT
   purls: []
-  size: 1402228
-  timestamp: 1685210939016
+  size: 71306367
+  timestamp: 1685218672306
 - kind: conda
   name: libfaiss-avx2
   version: 1.7.4
-  build: h1234567_0_cpu
+  build: cuda112h1234567_0_cuda
   subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libfaiss-avx2-1.7.4-h1234567_0_cpu.conda
-  sha256: 697041862c8793d599a45c4213c39ad38ca47fb41e79dff75a947583bdbcba32
-  md5: 7eb943c067a63c4d8af526c2df9f2c1b
+  url: https://conda.anaconda.org/conda-forge/linux-64/libfaiss-avx2-1.7.4-cuda112h1234567_0_cuda.conda
+  sha256: 2284f0d6189175e9d180e7097e7f1f5b14d1e871febf413098aa9661a013ced1
+  md5: 799caa0facddac933b6018e4fa48b8a1
   depends:
+  - __glibc >=2.17
   - _openmp_mutex >=4.5
+  - cudatoolkit >=11.2,<12
   - libblas >=3.9.0,<4.0a0
   - libgcc-ng >=12
   - liblapack >=3.9.0,<4.0a0
   - libstdcxx-ng >=12
   constrains:
-  - faiss-proc =*=cpu
-  - faiss-gpu ==9999999999
+  - faiss-proc =*=cuda
+  - faiss-cpu ==9999999999
   license: MIT
   license_family: MIT
   purls: []
-  size: 1500077
-  timestamp: 1685211106278
+  size: 71389396
+  timestamp: 1685226479830
 - kind: conda
   name: libffi
   version: 3.4.2
@@ -3140,6 +3167,7 @@ packages:
   depends:
   - __unix
   license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
   purls: []
   size: 2598938
   timestamp: 1718866909691
@@ -3158,6 +3186,7 @@ packages:
   constrains:
   - libgomp 13.2.0 h77fa898_11
   license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
   purls: []
   size: 796010
   timestamp: 1718867009281
@@ -3173,6 +3202,7 @@ packages:
   depends:
   - libgfortran5 13.2.0 h3d2ce59_11
   license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
   purls: []
   size: 48638
   timestamp: 1718867040994
@@ -3190,6 +3220,7 @@ packages:
   constrains:
   - libgfortran-ng 13.2.0
   license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
   purls: []
   size: 1467184
   timestamp: 1718867019794
@@ -3205,6 +3236,7 @@ packages:
   depends:
   - _libgcc_mutex 0.1 conda_forge
   license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
   purls: []
   size: 444606
   timestamp: 1718866940233
@@ -3424,6 +3456,7 @@ packages:
   - libgcc-ng >=13.2.0
   - libstdcxx-ng >=13.2.0
   license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
   purls: []
   size: 4160927
   timestamp: 1718867052529
@@ -3486,6 +3519,7 @@ packages:
   depends:
   - libgcc-ng 13.2.0 h77fa898_11
   license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
   purls: []
   size: 3874046
   timestamp: 1718867032452
@@ -5681,21 +5715,21 @@ packages:
   requires_python: '>=3.6'
 - kind: conda
   name: setuptools
-  version: 70.0.0
+  version: 70.1.0
   build: pyhd8ed1ab_0
   subdir: noarch
   noarch: python
-  url: https://conda.anaconda.org/conda-forge/noarch/setuptools-70.0.0-pyhd8ed1ab_0.conda
-  sha256: daa4638d288cfdf3b0ecea395d8efa25cafc4ebf4026464a36c797c84541d2be
-  md5: c8ddb4f34a208df4dd42509a0f6a1c89
+  url: https://conda.anaconda.org/conda-forge/noarch/setuptools-70.1.0-pyhd8ed1ab_0.conda
+  sha256: a43d33436f4ac57ebd6ee15f700b33b26a2d37b7e43981b1fa036908579dafd6
+  md5: 258e66f95f814d51ada2a1fe9274039b
   depends:
   - python >=3.8
   license: MIT
   license_family: MIT
   purls:
   - pkg:pypi/setuptools?source=conda-forge-mapping
-  size: 483015
-  timestamp: 1716368141661
+  size: 495951
+  timestamp: 1718881009207
 - kind: conda
   name: six
   version: 1.16.0
