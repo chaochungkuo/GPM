@@ -20,6 +20,7 @@ tomlkit = ">=0.12.5,<0.13"
 pixi-kernel = ">=0.3.0,<0.4"
 faiss-cpu = ">=1.7.4,<1.8"
 
+
 [pypi-dependencies]
 scgpt = "*"
 cellxgene-census = { version = "*", extras = ["experimental"] }

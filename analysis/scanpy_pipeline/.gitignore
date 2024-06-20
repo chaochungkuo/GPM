@@ -4,4 +4,6 @@
 save/
 test/
 anno_test/
-resources/scGPT*
+resources/
+!resources/g2m*
+!resources/s_genes*
