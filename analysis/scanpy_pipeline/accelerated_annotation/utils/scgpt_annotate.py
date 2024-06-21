@@ -56,31 +56,34 @@ adata.obs[cell_type_key] = 0
 ###############################################################################################################
 ################################################ Gene Embeding ################################################
 ###############################################################################################################
-
-adata_embed = scg.tasks.embed_data(
-    adata,
-    model_dir,
-    gene_col=gene_col,
-    obs_to_save=cell_type_key,  # optional arg, only for saving metainfo
-    batch_size=1024,
-    return_new_adata=True,
-)
-adata_embed = adata_embed.X
-
+try:
+    adata_embed = scg.tasks.embed_data(
+        adata,
+        model_dir,
+        gene_col=gene_col,
+        obs_to_save=cell_type_key,  # optional arg, only for saving metainfo
+        batch_size=1024,
+        return_new_adata=True,
+    )
+    adata_embed = adata_embed.X
+except:
+    exit(code=1)
 
 
 ###############################################################################################################
 ################################################ Loading Index ################################################
 ###############################################################################################################
 
-
-use_gpu = faiss.get_num_gpus() > 0
-index, meta_labels = load_index(
-    index_dir=args.index_path,
-    use_config_file=False,
-    use_gpu=True,
-)
-print(f"Loaded index with {index.ntotal} cells")
+try:
+    use_gpu = faiss.get_num_gpus() > 0
+    index, meta_labels = load_index(
+        index_dir=args.index_path,
+        use_config_file=False,
+        use_gpu=True,
+    )
+    print(f"Loaded index with {index.ntotal} cells")
+except:
+    exit(code=1)
 
 
 ###############################################################################################################

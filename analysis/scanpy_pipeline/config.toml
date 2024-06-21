@@ -11,13 +11,13 @@ samples = {}     # Override auto_find, provide a dictionary of (sample_name: sam
 
 [normalization]
 NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
-COUNTS_LAYER = "counts"        # Can be also 'decontXcounts' for decontaminated counts or  'X' for the adata.X matrix
+COUNTS_LAYER = "counts"           # Can be also 'decontXcounts' for decontaminated counts or  'X' for the adata.X matrix
 
 [clustering]
-FINAL_RESOLUTION = 1         # Float: Final resolution for clustering, Default: -1 (unset)
+FINAL_RESOLUTION = 1           # Float: Final resolution for clustering, Default: -1 (unset)
 INTEGRATE_SAMPLES = false
 INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not implemented yet
 
 [annotation]
 ANNOTATE_SAMPLES = false
-ANNOTATION_METHOD = "scvi_cellassign" # values ('celltypist', 'scvi_cellassign', 'cxg_atlas'), use scVI on GPU only for large datasets
+ANNOTATION_METHOD = "scGPT" # values ('celltypist', 'scGPT', 'cxg_atlas'), use scVI and scGPT on GPU only for large datasets
