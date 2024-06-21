@@ -1,6 +1,9 @@
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "1" 
 os.environ["WORLD_SIZE"] = "1"
+import logging 
+logging.basicConfig(level=logging.ERROR)
+
 import torch
 import sys
 from pathlib import Path
