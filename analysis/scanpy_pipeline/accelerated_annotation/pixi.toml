@@ -20,7 +20,6 @@ aiobotocore = "==2.3.3"
 ipykernel = ">=6.29.4,<6.30"
 tiledb = ">=2.24.0,<2.25"
 numpy = "==1.26.4"
-tomlkit = ">=0.12.5,<0.13"
 pixi-kernel = ">=0.3.0,<0.4"
 faiss-gpu = ">=1.7.4,<1.8"
 
