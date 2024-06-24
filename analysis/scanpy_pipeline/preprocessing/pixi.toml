@@ -32,8 +32,7 @@ bioconductor-singlecellexperiment = ">=1.24.0,<1.25"
 r-optparse = ">=1.7.5,<1.8"
 r-irkernel = ">=1.3.2,<1.4"
 r-biocmanager = ">=1.30.23,<1.31"
-bioconductor-genomeinfodbdata = { version = ">=1.2.11,<1.3", channel = "bioconda" }
-bioconductor-genomeinfodb = { version = ">=1.38.1,<1.39", channel = "bioconda" }
+bioconductor-genomeinfodb = ">=1.34.9,<1.35"
 bioconductor-decontx = { version = ">=1.0.0,<1.1", channel = "bioconda" }
 session-info = ">=1.0.0,<1.1"
 scikit-misc = { version = ">=0.1.4,<0.2", channel = "conda-forge" }

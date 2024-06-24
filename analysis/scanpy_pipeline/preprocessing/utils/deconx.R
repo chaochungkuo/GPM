@@ -1,18 +1,18 @@
-#TODO: Fix package loading problems of GenomeInfoDB and GenbaseInfoDbData
-#TODO: Execute file reading through zellkonverter through the pixi env not through managed conda env
+# #TODO: Fix package loading problems of GenomeInfoDB and GenbaseInfoDbData
+# #TODO: Execute file reading through zellkonverter through the pixi env not through managed conda env
 
-# Define the packages to check and install if necessary
-packages <- c("GenomeInfoDb", "GenomeInfoDbData")
+# # Define the packages to check and install if necessary
+# packages <- c("GenomeInfoDb", "GenomeInfoDbData")
 
-# Identify packages that are not already installed
-packages_to_install <- packages[!(packages %in% installed.packages()[, "Package"])]
+# # Identify packages that are not already installed
+# packages_to_install <- packages[!(packages %in% installed.packages()[, "Package"])]
 
-# Install the missing packages without prompting any questions and suppress messages and warnings
-if (length(packages_to_install) > 0) {
-    suppressMessages(suppressWarnings(BiocManager::install(packages_to_install, ask = FALSE)))
-} else {
-    message("All specified packages are already installed.")
-}
+# # Install the missing packages without prompting any questions and suppress messages and warnings
+# if (length(packages_to_install) > 0) {
+#     suppressMessages(suppressWarnings(BiocManager::install(packages_to_install, ask = FALSE)))
+# } else {
+#     message("All specified packages are already installed.")
+# }
 
 suppressMessages(library(optparse))
 suppressMessages(library(decontX))
