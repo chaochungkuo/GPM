@@ -1,8 +1,8 @@
 [basic]
-# ANALYSIS_DIR = "PROJECT_PROJECT_PATH/analysis"     # Default Analysis directory (provided by GPM)
-# DIR_SAMPLES = "PROJECT_PROJECT_PATH/cellranger/*/outs/per_sample_outs" # CellRanger standard output or ParseBio
-ANALYSIS_DIR = "."
-DIR_SAMPLES = "../test"
+ANALYSIS_DIR = "PROJECT_PROJECT_PATH/analysis"     # Default Analysis directory (provided by GPM)
+DIR_SAMPLES = "PROJECT_PROJECT_PATH/cellranger/*/outs/per_sample_outs" # CellRanger standard output or ParseBio
+# ANALYSIS_DIR = "."
+# DIR_SAMPLES = "../test"
 DIR_SAVE = "save"       # Directory to save the results
 TECHNOLOGY = "10x"      # values (10x, ParseBio)
 ORGANISM = "human"      # values(human,  mouse)
