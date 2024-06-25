@@ -120,3 +120,6 @@ qc_features_fac: Dict[str, List[str]] = {"human": {
                }
                          }
 
+
+def reduce_outliers(adata: AnnData, variables: Dict[str, List]):
+    pass

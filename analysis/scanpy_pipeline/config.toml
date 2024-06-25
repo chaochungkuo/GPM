@@ -7,7 +7,7 @@ ORGANISM = "human"      # values(human,  mouse)
 TISSUE = "Blood"        # List: Tissue(s) of origin the samples, used later for annotation
 
 auto_find = true # Automatically find the samples in the DIR_SAMPLES
-samples = {}     # Override auto_find, provide a dictionary of (sample_name: sample_path)
+samples = {}     # Override auto_find, provide a dictionary of {sample_name: sample_path} # Add samples names directly after '{' don't use a new line.
 
 [normalization]
 NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
