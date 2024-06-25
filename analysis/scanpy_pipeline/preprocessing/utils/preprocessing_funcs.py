@@ -121,8 +121,28 @@ qc_features_fac: Dict[str, List[str]] = {"human": {
                          }
 
 
-def reduce_outliers(adata: AnnData, variables: Dict[str, List]) -> pd.Series:
+def reduce_outliers(adata: AnnData, variables: Dict[str, List], subset: bool|None = None) -> pd.Series:
     outlier_dict = {}
+
+    if subset:
+        for sample in adata.keys():
+            for key in variables[sample].keys():
+                if key in adata.obs.columns:
+                    if len(variables[key]) == 2:
+                        try:
+                            adata.obs.loc[adata.obs["sample"] == subset, f"{key}_outlier"] = adata.obs.loc[adata.obs["sample"] == subset, key].lt(variables[key][0]) | \
+                                adata.obs.loc[adata.obs["sample"] == subset, key].gt(variables[key][1])
+                            outlier_dict[key] = adata.obs[f"{key}_outlier"] 
+                        except:
+                            adata.obs.loc[adata.obs["sample"] == subset, f"{key}_outlier"] = outlier_dict[key]
+                            outlier_dict[key] = adata.obs[f"{key}_outlier"] 
+                    else:
+                        raise ValueError("Provide a list of length 2 for the lower and upper bound of the QC-variable.")
+                else:
+                    raise KeyError("the provided QC variable does not exist in the data, check the variable names again.")
+            
+        return reduce(lambda x, y: x or y, zip(outlier_dict.values()))
+
     for key in variables.keys():
         if key in adata.obs.columns:
             if len(variables[key]) == 2:
