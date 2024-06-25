@@ -6,7 +6,7 @@ from anndata import AnnData
 from typing import List, Dict, Callable
 import scanpy as sc
 import requests
-
+from functools import reduce
 
 
 # Configs
@@ -121,5 +121,16 @@ qc_features_fac: Dict[str, List[str]] = {"human": {
                          }
 
 
-def reduce_outliers(adata: AnnData, variables: Dict[str, List]):
-    pass
+def reduce_outliers(adata: AnnData, variables: Dict[str, List]) -> pd.Series:
+    outlier_dict = {}
+    for key in variables.keys():
+        if key in adata.obs.columns:
+            if len(variables[key]) == 2:
+                outlier_dict[key] = adata.obs[key].lt(variables[key][0]) | adata.obs[key].gt(variables[key][1])
+                adata.obs[f"{key}_outlier"] = outlier_dict[key]
+            else:
+                raise ValueError("Provide a list of length 2 for the lower and upper bound of the QC-variable.")
+        else:
+            raise KeyError("the provided QC variable does not exist in the data, check the variable names again.")
+
+    return reduce(lambda x, y: x or y, zip(outlier_dict.values()))
