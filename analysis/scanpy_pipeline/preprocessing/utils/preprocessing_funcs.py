@@ -7,6 +7,8 @@ from typing import List, Dict, Callable
 import scanpy as sc
 import requests
 from functools import reduce
+from numbers import Number
+from scipy.stats import median_abs_deviation
 
 
 # Configs
@@ -125,7 +127,7 @@ qc_features_fac: Dict[str, List[str]] = {"human": {
 #######                                                              Outlier Detection                                                                  #######
 ###############################################################################################################################################################
 
-def reduce_outliers(adata: AnnData, variables: Dict[str, List]|Dict[str, Dict[str, List]], subset: bool = False) -> pd.Series:
+def reduce_outliers(adata: AnnData, variables: Dict[str, List|Number]|Dict[str, Dict[str, List|Number]], subset: bool = False) -> pd.Series:
     if subset:
         adata.obs["outlier"] = False
         for sample in variables.keys():
@@ -134,40 +136,62 @@ def reduce_outliers(adata: AnnData, variables: Dict[str, List]|Dict[str, Dict[st
         _compute_outlier_all(adata, variables)
 
 def _compute_outlier_all(adata: AnnData, variables: Dict[str, List]) -> pd.Series:
-
     for key in variables.keys():
-        if key in adata.obs.columns:
-            if len(variables[key]) == 2:
-                adata.obs[f"{key}_outlier"] = adata.obs[key].lt(variables[key][0]) | adata.obs[key].gt(variables[key][1])
-                adata.obs[f"{key}_outlier"].fillna(False)
-            else:
-                raise ValueError("Provide a list of length 2 for the lower and upper bound of the QC-variable.")
-        else:
+        if not key in adata.obs.columns:
             raise KeyError("the provided QC variable does not exist in the data, check the variable names again.")
+
+
+        if isinstance(variables[key], list):
+            if len(variables[key]) != 2:
+                raise ValueError("Provide a list of length 2 for the lower and upper bound of the QC-variable.")
+            min_val = variables[key][0]
+            max_val = variables[key][1]
+        
+        if isinstance(variables[key], Number):
+            if not variables[key] > 0:
+                raise ValueError("Please provide a positive number of nmads")
+            
+            min_val = np.median(adata.obs[key]) - median_abs_deviation(adata.obs[key])
+            max_val = np.median(adata.obs[key]) + median_abs_deviation(adata.obs[key])
+
+        adata.obs[f"{key}_outlier"] = adata.obs[key].lt(min_val) | adata.obs[key].gt(max_val)
+        adata.obs[f"{key}_outlier"].fillna(False)
         
     adata.obs["outlier"] =  adata.obs[[f"{x}_outlier" for x in variables.keys()]].any(axis = 1)
 
 
 def _compute_outlier_sample(adata: AnnData, variables: Dict[str, List], sample):
     sample_dict = variables[sample]
+
     for key in sample_dict.keys():
-        if key in adata.obs.columns:
-            if len(sample_dict[key]) == 2:
 
-                if not f"{key}_outlier" in adata.obs.columns:
-                    adata.obs[f"{key}_outlier"] = False
-                
-                adata.obs.loc[adata.obs["sample"] == sample, f"{key}_outlier"] = \
-                    adata.obs.loc[adata.obs["sample"] == sample, key].lt(sample_dict[key][0]) | \
-                    adata.obs.loc[adata.obs["sample"] == sample, key].gt(sample_dict[key][1])
-                adata.obs.loc[adata.obs["sample"] == sample, f"{key}_outlier"].fillna(False)
-
-            else:
-                raise ValueError("Provide a list of length 2 for the lower and upper bound of the QC-variable.")
-        else:
+        if not key in adata.obs.columns:
             raise KeyError("the provided QC variable does not exist in the data, check the variable names again.")
+
+        if not f"{key}_outlier" in adata.obs.columns:
+            adata.obs[f"{key}_outlier"] = False
+
+        if isinstance(sample_dict[key], list):
+            if len(sample_dict[key]) != 2:
+                raise ValueError("Provide a list of length 2 for the lower and upper bound of the QC-variable.")
+            
+            min_val = sample_dict[key][0]
+            max_val = sample_dict[key][1]
+
+        if isinstance(sample_dict[key], Number):
+            if not variables[key] > 0:
+                raise ValueError("Please provide a positive number of nmads")
+            min_val = np.median(adata.obs[key]) - median_abs_deviation(adata.obs[key])
+            max_val = np.median(adata.obs[key]) + median_abs_deviation(adata.obs[key])
+
+        sample_slice =  adata.obs.loc[adata.obs["sample"] == sample, key].lt(min_val) | \
+                        adata.obs.loc[adata.obs["sample"] == sample, key].gt(max_val)
+        
+        adata.obs.loc[adata.obs["sample"] == sample, f"{key}_outlier"] = sample_slice
+        adata.obs.loc[adata.obs["sample"] == sample, f"{key}_outlier"].fillna(False)
     
-    adata.obs.loc[adata.obs["sample"] == sample, "outlier"] =   adata.obs.loc[adata.obs["sample"] == sample, [f"{x}_outlier" for x in sample_dict.keys()]].any(axis = 1)
+    adata.obs.loc[adata.obs["sample"] == sample, "outlier"] = \
+        adata.obs.loc[adata.obs["sample"] == sample, [f"{x}_outlier" for x in sample_dict.keys()]].any(axis = 1)
 
 
 
