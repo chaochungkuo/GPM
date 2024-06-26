@@ -168,3 +168,18 @@ def _compute_outlier_sample(adata: AnnData, variables: Dict[str, List], sample):
             raise KeyError("the provided QC variable does not exist in the data, check the variable names again.")
     
     adata.obs.loc[adata.obs["sample"] == sample, "outlier"] =   adata.obs.loc[adata.obs["sample"] == sample, [f"{x}_outlier" for x in sample_dict.keys()]].any(axis = 1)
+
+
+
+def get_keys(qc_dict):
+    keys_list = []
+    if len(qc_dict) > 0 and all(map(lambda x: isinstance(x, list), qc_dict.values())):
+        return list(qc_dict.keys())
+    
+    elif len(qc_dict) > 0 and all(map(lambda x: isinstance(x, dict), qc_dict.values())):
+        print("hello")
+        for key in qc_dict.keys():
+            keys_list = keys_list + list(qc_dict[key].keys())
+        return list(set(keys_list))
+    
+    return []
