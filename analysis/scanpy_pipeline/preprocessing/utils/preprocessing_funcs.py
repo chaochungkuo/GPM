@@ -121,36 +121,50 @@ qc_features_fac: Dict[str, List[str]] = {"human": {
                          }
 
 
-def reduce_outliers(adata: AnnData, variables: Dict[str, List], subset: bool|None = None) -> pd.Series:
-    outlier_dict = {}
+###############################################################################################################################################################
+#######                                                              Outlier Detection                                                                  #######
+###############################################################################################################################################################
 
+def reduce_outliers(adata: AnnData, variables: Dict[str, List]|Dict[str, Dict[str, List]], subset: bool = False) -> pd.Series:
     if subset:
-        for sample in adata.keys():
-            for key in variables[sample].keys():
-                if key in adata.obs.columns:
-                    if len(variables[key]) == 2:
-                        try:
-                            adata.obs.loc[adata.obs["sample"] == subset, f"{key}_outlier"] = adata.obs.loc[adata.obs["sample"] == subset, key].lt(variables[key][0]) | \
-                                adata.obs.loc[adata.obs["sample"] == subset, key].gt(variables[key][1])
-                            outlier_dict[key] = adata.obs[f"{key}_outlier"] 
-                        except:
-                            adata.obs.loc[adata.obs["sample"] == subset, f"{key}_outlier"] = outlier_dict[key]
-                            outlier_dict[key] = adata.obs[f"{key}_outlier"] 
-                    else:
-                        raise ValueError("Provide a list of length 2 for the lower and upper bound of the QC-variable.")
-                else:
-                    raise KeyError("the provided QC variable does not exist in the data, check the variable names again.")
-            
-        return reduce(lambda x, y: x or y, zip(outlier_dict.values()))
+        adata.obs["outlier"] = False
+        for sample in variables.keys():
+            _compute_outlier_sample(adata, variables, sample)
+    else:
+        _compute_outlier_all(adata, variables)
+
+def _compute_outlier_all(adata: AnnData, variables: Dict[str, List]) -> pd.Series:
 
     for key in variables.keys():
         if key in adata.obs.columns:
             if len(variables[key]) == 2:
-                outlier_dict[key] = adata.obs[key].lt(variables[key][0]) | adata.obs[key].gt(variables[key][1])
-                adata.obs[f"{key}_outlier"] = outlier_dict[key]
+                adata.obs[f"{key}_outlier"] = adata.obs[key].lt(variables[key][0]) | adata.obs[key].gt(variables[key][1])
+                adata.obs[f"{key}_outlier"].fillna(False)
             else:
                 raise ValueError("Provide a list of length 2 for the lower and upper bound of the QC-variable.")
         else:
             raise KeyError("the provided QC variable does not exist in the data, check the variable names again.")
+        
+    adata.obs["outlier"] =  adata.obs[[f"{x}_outlier" for x in variables.keys()]].any(axis = 1)
 
-    return reduce(lambda x, y: x or y, zip(outlier_dict.values()))
+
+def _compute_outlier_sample(adata: AnnData, variables: Dict[str, List], sample):
+    sample_dict = variables[sample]
+    for key in sample_dict.keys():
+        if key in adata.obs.columns:
+            if len(sample_dict[key]) == 2:
+
+                if not f"{key}_outlier" in adata.obs.columns:
+                    adata.obs[f"{key}_outlier"] = False
+                
+                adata.obs.loc[adata.obs["sample"] == sample, f"{key}_outlier"] = \
+                    adata.obs.loc[adata.obs["sample"] == sample, key].lt(sample_dict[key][0]) | \
+                    adata.obs.loc[adata.obs["sample"] == sample, key].gt(sample_dict[key][1])
+                adata.obs.loc[adata.obs["sample"] == sample, f"{key}_outlier"].fillna(False)
+
+            else:
+                raise ValueError("Provide a list of length 2 for the lower and upper bound of the QC-variable.")
+        else:
+            raise KeyError("the provided QC variable does not exist in the data, check the variable names again.")
+    
+    adata.obs.loc[adata.obs["sample"] == sample, "outlier"] =   adata.obs.loc[adata.obs["sample"] == sample, [f"{x}_outlier" for x in sample_dict.keys()]].any(axis = 1)
