@@ -43,3 +43,5 @@ plotly = ">=5.22.0,<5.23"
 holoviews = ">=1.19.0,<1.20"
 quarto = ">=1.4.550,<1.5"
 
+[pypi-dependencies]
+kaleido = "*"
