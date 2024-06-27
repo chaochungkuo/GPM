@@ -151,8 +151,8 @@ def _compute_outlier_all(adata: AnnData, variables: Dict[str, List]) -> pd.Serie
             if not variables[key] > 0:
                 raise ValueError("Please provide a positive number of nmads")
             
-            min_val = np.median(adata.obs[key]) - median_abs_deviation(adata.obs[key])
-            max_val = np.median(adata.obs[key]) + median_abs_deviation(adata.obs[key])
+            min_val = np.median(adata.obs[key]) - (median_abs_deviation(adata.obs[key]) * variables[key])
+            max_val = np.median(adata.obs[key]) + (median_abs_deviation(adata.obs[key]) * variables[key])
 
         adata.obs[f"{key}_outlier"] = adata.obs[key].lt(min_val) | adata.obs[key].gt(max_val)
         adata.obs[f"{key}_outlier"].fillna(False)
@@ -181,8 +181,8 @@ def _compute_outlier_sample(adata: AnnData, variables: Dict[str, List], sample):
         if isinstance(sample_dict[key], Number):
             if not variables[key] > 0:
                 raise ValueError("Please provide a positive number of nmads")
-            min_val = np.median(adata.obs[key]) - median_abs_deviation(adata.obs[key])
-            max_val = np.median(adata.obs[key]) + median_abs_deviation(adata.obs[key])
+            min_val = np.median(adata.obs[key]) - (median_abs_deviation(adata.obs[key]) * variables[key])
+            max_val = np.median(adata.obs[key]) + (median_abs_deviation(adata.obs[key]) * variables[key])
 
         sample_slice =  adata.obs.loc[adata.obs["sample"] == sample, key].lt(min_val) | \
                         adata.obs.loc[adata.obs["sample"] == sample, key].gt(max_val)
@@ -197,13 +197,13 @@ def _compute_outlier_sample(adata: AnnData, variables: Dict[str, List], sample):
 
 def get_keys(qc_dict):
     keys_list = []
-    if len(qc_dict) > 0 and all(map(lambda x: isinstance(x, list), qc_dict.values())):
+    if len(qc_dict) > 0 and all(map(lambda x: isinstance(x, (list, Number)), qc_dict.values())):
         return list(qc_dict.keys())
     
-    elif len(qc_dict) > 0 and all(map(lambda x: isinstance(x, dict), qc_dict.values())):
-        print("hello")
+    if len(qc_dict) > 0 and all(map(lambda x: isinstance(x, (dict, Number)), qc_dict.values())):
         for key in qc_dict.keys():
             keys_list = keys_list + list(qc_dict[key].keys())
         return list(set(keys_list))
     
+
     return []
