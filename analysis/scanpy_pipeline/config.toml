@@ -1,7 +1,7 @@
 [basic]
 # ANALYSIS_DIR = "PROJECT_PROJECT_PATH/analysis"     # Default Analysis directory (provided by GPM)
 # DIR_SAMPLES = "PROJECT_PROJECT_PATH/cellranger/*/outs/per_sample_outs" # CellRanger standard output or ParseBio
-ANALYSIS_DIR = "."
+ANALYSIS_DIR = ".."
 DIR_SAMPLES = "../test"
 DIR_SAVE = "save"       # Directory to save the results
 TECHNOLOGY = "10x"      # values (10x, ParseBio)
@@ -12,8 +12,8 @@ auto_find = true        # Automatically find the samples in the DIR_SAMPLES
 [basic.samples] # Override auto_find, provide a samples as 'sample = path/to/sample'.
 
 [normalization]
-NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
-COUNTS_LAYER = "counts"           # Can be also 'decontXcounts' for decontaminated counts or  'X' for the adata.X matrix
+NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals'), can be a list for both methods.
+COUNTS_LAYER = "counts"           # Layer where counts are stores (values: countes, X, decontXcounts)  (default: 'counts').
 
 [clustering]
 FINAL_RESOLUTION = 1           # Float: Final resolution for clustering, Default: -1 (unset)
