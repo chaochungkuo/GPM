@@ -167,3 +167,5 @@ analysis/scanpy_pipeline/preprocessing/test.ipynb
 analysis/scanpy_pipeline/preprocessing/pixi.lock
 analysis/scanpy_pipeline/preprocessing/pixi.lock
 analysis/scanpy_pipeline/preprocessing/2_normalization.html
+analysis/scanpy_pipeline/shared/pixi.lock
+analysis/scanpy_pipeline/shared/converted.cloupe
