@@ -1,20 +1,14 @@
 
+a<-installed.packages()
+packages<-a[,1] 
 
-# Set the download URL
+if(!is.element("GenomeInfoDbData", packages)){
 dn_url <- "https://bioconductor.org/packages/3.18/data/annotation/src/contrib/GenomeInfoDbData_1.2.11.tar.gz"
-
-print(dn_url)
-
-# Create a temporary directory (replace with your preferred method)
 tmp_dir <- tempdir()  # This creates a temporary directory
-
-
-# Construct the download path
 dn_path <- file.path(tmp_dir, "GenomeInfoDbData_1.2.11.tar.gz")
-
-# Download the file using download.file()
 download.file(url = dn_url, destfile = dn_path, method = "wget")  # Use curl for efficiency
 system(paste0("R CMD INSTALL ", dn_path))
+}
 
 
 suppressMessages(library(SingleCellExperiment, quietly = T, verbose = F, warn.conflicts = F))
@@ -54,13 +48,12 @@ option_list <- list(
               help = "Input file (.h5ad or .rds)", metavar = "FILE"),
   make_option(c("-o", "--output"), type = "character", default = NULL,
               help = "Output file (.h5ad or .rds)", metavar = "FILE"),
-  make_option(c("-h", "--help"), action = "store_true", default = FALSE),
   
-
 )
 
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
+print(opts)
 
 if (is.null(opt$input)) {
   print_help(opt_parser)
