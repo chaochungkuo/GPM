@@ -33,7 +33,7 @@ option_list <- list(
   ),
   make_option(c("-t", "--to"),
     type = "character", default = NULL,
-    help = "Output file format ('Seurat, SingleCellExperiment, AnnData, or LoupeR')", metavar = "FORMAT"
+    help = "Output file format ('seurat, SCE, anndata, or loupe')", metavar = "FORMAT"
   )
 )
 
@@ -97,7 +97,7 @@ convert_h5ad_to_rds <- function(h5ad_file, output = NULL) {
   } else if (output_format == "seurat") {
     seurat_obj <- conver_sce_to_seurat(sce)
     saveRDS(seurat_obj, sce_file, compress = FALSE)
-  } else if (output_format == "LoupeR") {
+  } else if (output_format == "loupe") {
     seurat_obj <- conver_sce_to_seurat(sce)
     loupeR_obj <- convert_seurat_to_loupeR(seurat_obj)
   } else {
