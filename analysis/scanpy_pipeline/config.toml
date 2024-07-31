@@ -14,11 +14,11 @@ WT = "/path/to/sample1"
 KO = "/path/to/sample2"
 
 [normalization]
-NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals'), can be a list for both methods.
+NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
 COUNTS_LAYER = "counts"           # Layer where counts are stores (values: countes, X, decontXcounts)  (default: 'counts').
 
 [clustering]
-FINAL_RESOLUTION = 1           # Float: Final resolution for clustering, Default: -1 (unset)
+CLUSTERING_COL = ""            # str: Final column for clustering, Default: "" (unset)
 INTEGRATE_SAMPLES = false
 INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not implemented yet
 
