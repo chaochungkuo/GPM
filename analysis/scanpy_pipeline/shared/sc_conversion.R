@@ -29,13 +29,24 @@ option_list <- list(
   ),
   make_option(c("-o", "--output"),
     type = "character", default = NULL,
-    help = "Output file (.h5ad or .rds)", metavar = "FILE"
+    help = "Output file (.h5ad, .rds or .cloupe)", metavar = "FILE"
+  ),
+  make_option(c("-f", "--from"),
+    type = "character", default = NULL,
+    help = "Input file format ('seurat, SCE, or anndata')", metavar = "FORMAT"
   ),
   make_option(c("-t", "--to"),
     type = "character", default = NULL,
     help = "Output file format ('seurat, SCE, anndata, or loupe')", metavar = "FORMAT"
   )
 )
+
+
+### ----------------------------------------------------------------------###
+###                         Parse & validate CLI arguments                ###
+### ----------------------------------------------------------------------###
+
+
 
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
@@ -45,15 +56,23 @@ if (is.null(opt$input)) {
   stop("Input file must be specified.", call. = FALSE)
 }
 
+if (is.null(opt$from)) {
+  print_help(opt_parser)
+  stop("Input format must be specified.", call. = FALSE)
+}
+
 if (is.null(opt$to)) {
   print_help(opt_parser)
   stop("Output format must be specified.", call. = FALSE)
 }
 
 
+
 input_file <- opt$input
 output_file <- opt$output
 output_format <- opt$to
+base_name <- basename(input_file)
+
 
 
 ### ----------------------------------------------------------------------###
@@ -108,8 +127,12 @@ convert_h5ad_to_rds <- function(h5ad_file, output = NULL) {
   cat(sprintf("Conversion complete: %s\n", sce_file))
 }
 
+### ----------------------------------------------------------------------###
+###                       To h5ad Convertor functions                     ###
+### ----------------------------------------------------------------------###
+
 # TODO: Add support for Seurat to SCE conversion
-convert_rds_to_h5ad <- function(rds_file, output = NULL) {
+convert_sce_to_h5ad <- function(rds_file, output = NULL) {
   if (is.null(output)) {
     h5ad_file <- sub("\\.rds$", ".h5ad", rds_file)
   } else {
@@ -122,16 +145,31 @@ convert_rds_to_h5ad <- function(rds_file, output = NULL) {
   cat(sprintf("Conversion complete: %s\n", h5ad_file))
 }
 
+convert_seurat_to_h5ad <- function(rds_file, output = NULL) {
+  if (is.null(output)) {
+    h5ad_file <- sub("\\.rds$", ".h5ad", rds_file)
+  } else {
+    h5ad_file <- output
+  }
+
+  cat(sprintf("Converting %s to %s...\n", rds_file, h5ad_file))
+  seurat_obj <- readRDS(rds_file)
+  sce <- Seurat::as.SingleCellExperiment(seurat_obj)
+  writeH5AD(sce, h5ad_file)
+  cat(sprintf("Conversion complete: %s\n", h5ad_file))
+}
+
 
 ### ----------------------------------------------------------------------###
 ###                         Convertor dispatch                           ###
 ### ----------------------------------------------------------------------###
 
-# TODO: Support SCE to Seurat and LoupeR conversion
-if (grepl("\\.h5ad$", input_file)) {
+if (opt$from == "SCE" && opt$to == "h5ad") {
+  convert_sce_to_h5ad(input_file, output_file)
+} else if (opt$from == "seurat" && opt$to == "h5ad") {
+  convert_seurat_to_h5ad(input_file, output_file)
+} else if (opt$from == "h5ad" && opt$to == "rds") {
   convert_h5ad_to_rds(input_file, output_file)
-} else if (grepl("\\.rds$", input_file)) {
-  convert_rds_to_h5ad(input_file, output_file)
 } else {
-  stop("Unsupported file type. Please provide a .h5ad or .rds file.", call. = FALSE)
+  stop("Unsupported conversion. Please provide 'SCE' to 'anndata', 'seurat' to 'anndata', or 'anndata' to 'seurat'.", call. = FALSE)
 }
