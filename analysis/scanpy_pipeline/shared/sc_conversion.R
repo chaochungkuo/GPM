@@ -166,9 +166,9 @@ convert_seurat_to_h5ad <- function(rds_file, output = NULL) {
 
 if (opt$from == "SCE" && opt$to == "h5ad") {
   convert_sce_to_h5ad(input_file, output_file)
-} else if (opt$from == "seurat" && opt$to == "h5ad") {
+} else if (opt$from == "seurat" && opt$to == "anndata") {
   convert_seurat_to_h5ad(input_file, output_file)
-} else if (opt$from == "h5ad" && opt$to == "rds") {
+} else if (opt$from == "anndata" && opt$to == "seurat" | opt$from == "anndata" && opt$to == "SCE") {
   convert_h5ad_to_rds(input_file, output_file)
 } else {
   stop("Unsupported conversion. Please provide 'SCE' to 'anndata', 'seurat' to 'anndata', or 'anndata' to 'seurat'.", call. = FALSE)
