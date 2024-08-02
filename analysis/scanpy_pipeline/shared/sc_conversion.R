@@ -123,7 +123,6 @@ convert_h5ad_to_rds <- function(h5ad_file, output = NULL) {
     stop("Unsupported output format. Please provide 'SingleCellExperiment', 'Seurat', or 'LoupeR'.", call. = FALSE)
   }
 
-
   cat(sprintf("Conversion complete: %s\n", sce_file))
 }
 
@@ -164,11 +163,11 @@ convert_seurat_to_h5ad <- function(rds_file, output = NULL) {
 ###                         Convertor dispatch                           ###
 ### ----------------------------------------------------------------------###
 
-if (opt$from == "SCE" && opt$to == "h5ad") {
+if (opt$from == "SCE" && opt$to == "anndata") {
   convert_sce_to_h5ad(input_file, output_file)
 } else if (opt$from == "seurat" && opt$to == "anndata") {
   convert_seurat_to_h5ad(input_file, output_file)
-} else if (opt$from == "anndata" && opt$to == "seurat" | opt$from == "anndata" && opt$to == "SCE") {
+} else if (opt$from == "anndata" && opt$to == "seurat" | opt$from == "anndata" && opt$to == "SCE" | | opt$from == "anndata" && opt$to == "loupe") {
   convert_h5ad_to_rds(input_file, output_file)
 } else {
   stop("Unsupported conversion. Please provide 'SCE' to 'anndata', 'seurat' to 'anndata', or 'anndata' to 'seurat'.", call. = FALSE)
