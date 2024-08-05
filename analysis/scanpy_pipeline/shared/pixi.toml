@@ -3,11 +3,9 @@ name = "shared"
 version = "0.1.0"
 description = "Module for pre-preprocessing of sc-RNA-seq datasets."
 authors = ["MoSafi2 <mohamed.mabrouk@rwth-aachen.de>"]
-channels = ["conda-forge", "bioconda", "paul.martin-2", "pytorch", "pwwang"]
+channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64"]
 
-[system-requirements]
-linux = "4.12.14"
 
 [dependencies]
 bioconductor-zellkonverter = ">=1.12.1,<1.13"

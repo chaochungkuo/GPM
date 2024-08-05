@@ -66,12 +66,18 @@ if (is.null(opt$to)) {
   stop("Output format must be specified.", call. = FALSE)
 }
 
+if (is.null(opt$output)) {
+  print_help(opt_parser)
+  stop("Output format must be specified.", call. = FALSE)
+}
+
 
 
 input_file <- opt$input
 output_file <- opt$output
 output_format <- opt$to
 base_name <- basename(input_file)
+dir_name <- dirname(input_file)
 
 
 
@@ -79,11 +85,8 @@ base_name <- basename(input_file)
 ###                         Conversion functions                         ###
 ### ----------------------------------------------------------------------###
 
-conver_sce_to_seurat <- function(sce_obj) {
-  suppressMessages(library(Seurat, quietly = T, verbose = F, warn.conflicts = F))
-  seurat_obj <- Seurat::as.Seurat(sce_obj)
-  return(seurat_obj)
-}
+
+
 
 # Works on linux as well
 convert_seurat_to_loupeR <- function(seurat_obj) {
@@ -101,74 +104,104 @@ convert_seurat_to_loupeR <- function(seurat_obj) {
   return(loupeR_obj)
 }
 
-convert_h5ad_to_rds <- function(h5ad_file, output = NULL) {
-  if (is.null(output)) {
-    sce_file <- sub("\\.h5ad$", ".rds", h5ad_file)
-  } else {
-    sce_file <- output
-  }
+
+
+convert_sce_to_seurat <- function(sce_obj) {
+  suppressMessages(library(Seurat, quietly = T, verbose = F, warn.conflicts = F))
+  seurat_obj <- Seurat::as.Seurat(sce_obj)
+  return(seurat_obj)
+}
+
+convert_seurat_to_sce <- function(seurat_obj) {
+  sce_obj <- Seurat::as.SingleCellExperiment(seurat_obj)
+  return(sce_obj)
+}
+
+
+
+convert_h5ad_to_sce <- function(h5ad_file, output) {
   cat(sprintf("Converting %s to %s...\n", h5ad_file, sce_file))
 
   sce <- readH5AD(h5ad_file)
-
-  if (output_format == "SCE") {
-    saveRDS(sce, sce_file, compress = FALSE)
-  } else if (output_format == "seurat") {
-    seurat_obj <- conver_sce_to_seurat(sce)
-    saveRDS(seurat_obj, sce_file, compress = FALSE)
-  } else if (output_format == "loupe") {
-    seurat_obj <- conver_sce_to_seurat(sce)
-    loupeR_obj <- convert_seurat_to_loupeR(seurat_obj)
-  } else {
-    stop("Unsupported output format. Please provide 'SingleCellExperiment', 'Seurat', or 'LoupeR'.", call. = FALSE)
-  }
-
   cat(sprintf("Conversion complete: %s\n", sce_file))
+  return(sce)
 }
 
-### ----------------------------------------------------------------------###
-###                       To h5ad Convertor functions                     ###
-### ----------------------------------------------------------------------###
-
-# TODO: Add support for Seurat to SCE conversion
-convert_sce_to_h5ad <- function(rds_file, output = NULL) {
-  if (is.null(output)) {
-    h5ad_file <- sub("\\.rds$", ".h5ad", rds_file)
-  } else {
-    h5ad_file <- output
-  }
+convert_sce_to_h5ad <- function(rds_file, output) {
 
   cat(sprintf("Converting %s to %s...\n", rds_file, h5ad_file))
   sce <- readRDS(rds_file)
   writeH5AD(sce, h5ad_file)
   cat(sprintf("Conversion complete: %s\n", h5ad_file))
+
 }
 
-convert_seurat_to_h5ad <- function(rds_file, output = NULL) {
-  if (is.null(output)) {
-    h5ad_file <- sub("\\.rds$", ".h5ad", rds_file)
-  } else {
-    h5ad_file <- output
-  }
-
-  cat(sprintf("Converting %s to %s...\n", rds_file, h5ad_file))
-  seurat_obj <- readRDS(rds_file)
-  sce <- Seurat::as.SingleCellExperiment(seurat_obj)
-  writeH5AD(sce, h5ad_file)
-  cat(sprintf("Conversion complete: %s\n", h5ad_file))
-}
 
 
 ### ----------------------------------------------------------------------###
 ###                         Convertor dispatch                           ###
 ### ----------------------------------------------------------------------###
 
-if (opt$from == "SCE" && opt$to == "anndata") {
-  convert_sce_to_h5ad(input_file, output_file)
-} else if (opt$from == "seurat" && opt$to == "anndata") {
-  convert_seurat_to_h5ad(input_file, output_file)
-} else if (opt$from == "anndata" && opt$to == "seurat" | opt$from == "anndata" && opt$to == "SCE" | | opt$from == "anndata" && opt$to == "loupe") {
-  convert_h5ad_to_rds(input_file, output_file)
-} else {
-  stop("Unsupported conversion. Please provide 'SCE' to 'anndata', 'seurat' to 'anndata', or 'anndata' to 'seurat'.", call. = FALSE)
+if (opt$from == "SCE") {
+
+  if (opt$to == "seurat") {
+    sce_obj <- readRDS(input_file)
+    seurat_obj <- convert_sce_to_seurat(sce_obj)
+    saveRDS(seurat_obj, output_file)
+
+  } else if (opt$to == "anndata") {
+    sce_obj <- readRDS(input_file)
+    writeH5AD(sce_obj, output_file)
+
+  } else if (opt$to == "loupe") {
+    sce_obj <- readRDS(input_file)
+    loupe_obj <- convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
+    saveRDS(loupe_obj, output_file)
+
+  } else {
+    stop("Conversion from SCE to ", opt$to, " is not supported.", call. = FALSE)
+  }
+}
+
+if(opt$from == "seurat") {
+
+  if (opt$to == "SCE") {
+    seurat_obj <- readRDS(input_file)
+    sce_obj <- convert_seurat_to_sce(seurat_obj)
+    saveRDS(sce_obj, output_file)
+
+  } else if (opt$to == "anndata") {
+    seurat_obj <- readRDS(input_file)
+    writeH5AD(convert_seurat_to_sce(seurat_obj), output_file)
+
+  } else if (opt$to == "loupe") {
+    seurat_obj <- readRDS(input_file)
+    loupe_obj <- convert_seurat_to_loupeR(seurat_obj)
+    saveRDS(loupe_obj, output_file)
+
+  } else {
+    stop("Conversion from Seurat to ", opt$to, " is not supported.", call. = FALSE)
+  }
+}
+
+
+if(opt$from == "anndata") {
+
+  if (opt$to == "SCE") {
+    sce_obj <- convert_h5ad_to_sce(input_file, output_file)
+    saveRDS(sce_obj, output_file)
+
+  } else if (opt$to == "seurat") {
+    sce_obj <- convert_h5ad_to_sce(input_file, output_file)
+    seurat_obj <- convert_sce_to_seurat(sce_obj)
+    saveRDS(seurat_obj, output_file)
+
+  } else if (opt$to == "loupe") {
+    sce_obj <- convert_h5ad_to_sce(input_file, output_file)
+    loupe_obj <- convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
+    saveRDS(loupe_obj, output_file)
+
+  } else {
+    stop("Conversion from anndata to ", opt$to, " is not supported.", call. = FALSE)
+  }
 }
