@@ -32,17 +32,15 @@ RUN pixi install
 COPY sc_conversion.R .
 COPY setupenv.R .
 COPY assets/GenomeInfoDbData_1.2.11.tar.gz .
-COPY test.R .
+
 # Copy the entrypoint script
 COPY entrypoint.sh .
 
-# RUN pixi run "R CMD INSTALL GenomeInfoDbData_1.2.11.tar.gz"
+RUN pixi run "R CMD INSTALL GenomeInfoDbData_1.2.11.tar.gz"
+RUN pixi run "Rscript setupenv.R"
 
 # Make the entrypoint script executable
 RUN chmod +x entrypoint.sh
-
-# RUN pixi run "Rscript setupenv.R"
-RUN pixi run "Rscript test.R"
 
 # Set the entrypoint
 ENTRYPOINT ["./entrypoint.sh"]

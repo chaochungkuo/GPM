@@ -5,16 +5,16 @@ packages <- a[, 1]
 ###                       Install required packages                      ###
 ### ----------------------------------------------------------------------###
 
-# if (!is.element("GenomeInfoDbData", packages)) {
-#   dn_url <- "https://mghp.osn.xsede.org/bir190004-bucket01/archive.bioconductor.org/packages/3.18/data/annotation/src/contrib/GenomeInfoDbData_1.2.11.tar.gz"
-#   tmp_dir <- tempdir() # This creates a temporary directory
-#   dn_path <- file.path(tmp_dir, "GenomeInfoDbData_1.2.11.tar.gz")
-#   download.file(url = dn_url, destfile = dn_path, method = "curl") # Use curl for efficiency
-#   system(paste0("R CMD INSTALL ", dn_path))
-# }
+if (!is.element("GenomeInfoDbData", packages)) {
+  dn_url <- "https://mghp.osn.xsede.org/bir190004-bucket01/archive.bioconductor.org/packages/3.18/data/annotation/src/contrib/GenomeInfoDbData_1.2.11.tar.gz"
+  tmp_dir <- tempdir() # This creates a temporary directory
+  dn_path <- file.path(tmp_dir, "GenomeInfoDbData_1.2.11.tar.gz")
+  download.file(url = dn_url, destfile = dn_path, method = "curl") # Use curl for efficiency
+  system(paste0("R CMD INSTALL ", dn_path))
+}
 
-# suppressMessages(library(SingleCellExperiment, quietly = T, verbose = F, warn.conflicts = F))
-# suppressMessages(library(zellkonverter, quietly = T, verbose = F, warn.conflicts = F))
+suppressMessages(library(SingleCellExperiment, quietly = T, verbose = F, warn.conflicts = F))
+suppressMessages(library(zellkonverter, quietly = T, verbose = F, warn.conflicts = F))
 suppressMessages(library(optparse, quietly = T, verbose = F, warn.conflicts = F))
 
 
@@ -59,26 +59,25 @@ opt <- parse_args(opt_parser)
 
 # accounting for re-map of file paths in docker
 if (file.exists("/.dockerenv")) {
-   docker = TRUE
-}else {
-   docker = FALSE
+  docker <- TRUE
+} else {
+  docker <- FALSE
 }
 
 print(docker)
 
-if(docker == TRUE){
-input_file <- paste0("./host",opt$input)
-output_file <- paste0("./host",opt$output)
-}else {
-input_file <- opt$input
-output_file <- opt$output
+if (docker == TRUE) {
+  input_file <- paste0("/app/host", opt$input)
+  output_file <- paste0("/app/host", opt$output)
+} else {
+  input_file <- opt$input
+  output_file <- opt$output
 }
 
 input_format <- opt$from
 output_format <- opt$to
 
-print(input_file)
-print(system("ls ./host/"))
+
 
 ### ----------------------------------------------------------------------###
 ###                         Validate CLI arguments                           ###
@@ -151,12 +150,10 @@ convert_h5ad_to_sce <- function(h5ad_file, output) {
 }
 
 convert_sce_to_h5ad <- function(rds_file, output) {
-
   cat(sprintf("Converting %s to %s...\n", rds_file, h5ad_file))
   sce <- readRDS(rds_file)
   writeH5AD(sce, h5ad_file)
   cat(sprintf("Conversion complete: %s\n", h5ad_file))
-
 }
 
 
@@ -166,64 +163,52 @@ convert_sce_to_h5ad <- function(rds_file, output) {
 ### ----------------------------------------------------------------------###
 
 if (input_format == "SCE") {
-
   if (output_format == "seurat") {
     sce_obj <- readRDS(input_file)
     seurat_obj <- convert_sce_to_seurat(sce_obj)
     saveRDS(seurat_obj, output_file)
-
   } else if (output_format == "anndata") {
     sce_obj <- readRDS(input_file)
     writeH5AD(sce_obj, output_file)
-
   } else if (output_format == "loupe") {
     sce_obj <- readRDS(input_file)
     loupe_obj <- convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
     saveRDS(loupe_obj, output_file)
-
   } else {
     stop("Conversion from SCE to ", output_format, " is not supported.", call. = FALSE)
   }
 }
 
-if(input_format == "seurat") {
-
+if (input_format == "seurat") {
   if (output_format == "SCE") {
     seurat_obj <- readRDS(input_file)
     sce_obj <- convert_seurat_to_sce(seurat_obj)
     saveRDS(sce_obj, output_file)
-
   } else if (output_format == "anndata") {
     seurat_obj <- readRDS(input_file)
     writeH5AD(convert_seurat_to_sce(seurat_obj), output_file)
-
   } else if (output_format == "loupe") {
     seurat_obj <- readRDS(input_file)
     loupe_obj <- convert_seurat_to_loupeR(seurat_obj)
     saveRDS(loupe_obj, output_file)
-
   } else {
     stop("Conversion from Seurat to ", output_format, " is not supported.", call. = FALSE)
   }
 }
 
 
-if(input_format == "anndata") {
-
+if (input_format == "anndata") {
   if (output_format == "SCE") {
     sce_obj <- convert_h5ad_to_sce(input_file, output_file)
     saveRDS(sce_obj, output_file)
-
   } else if (output_format == "seurat") {
     sce_obj <- convert_h5ad_to_sce(input_file, output_file)
     seurat_obj <- convert_sce_to_seurat(sce_obj)
     saveRDS(seurat_obj, output_file)
-
   } else if (output_format == "loupe") {
     sce_obj <- convert_h5ad_to_sce(input_file, output_file)
     loupe_obj <- convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
     saveRDS(loupe_obj, output_file)
-
   } else {
     stop("Conversion from anndata to ", output_format, " is not supported.", call. = FALSE)
   }
