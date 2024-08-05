@@ -88,6 +88,8 @@ if (file.exists("/.dockerenv")) {
    docker = FALSE
 }
 
+print(docker)
+
 if(docker){
 input_file <- paste0("./host",opt$input)
 output_file <- paste0("./host",opt$output)
@@ -99,11 +101,11 @@ output_file <- paste0("./host",opt$output)
 input_format <- opt$from
 output_format <- opt$to
 
+print(input_file, output_file, input_format, output_format) 
+
 ### ----------------------------------------------------------------------###
 ###                         Conversion functions                         ###
 ### ----------------------------------------------------------------------###
-
-
 
 
 # Works on linux as well

@@ -2,6 +2,7 @@ version: '3'
 services:
   your-service:
     build: .
+    container_name: sc_conversion
     volumes:
       - /:/app/host
 
