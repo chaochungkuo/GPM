@@ -17,6 +17,10 @@ COPY --from=builder --chown=root:root --chmod=0555 /pixi /usr/local/bin/pixi
 
 # Set working directory
 WORKDIR /app
+RUN mkdir /app/host
+
+# Set permissions if needed
+RUN chmod 770 /app/host
 
 # Copy pixi.toml file
 COPY pixi.toml .
@@ -26,7 +30,7 @@ RUN pixi install
 
 # Copy your Python script
 COPY sc_conversion.R .
-
+COPY setupenv.R .
 COPY assets/GenomeInfoDbData_1.2.11.tar.gz .
 
 # Copy the entrypoint script
@@ -36,6 +40,9 @@ RUN pixi run "R CMD INSTALL GenomeInfoDbData_1.2.11.tar.gz"
 
 # Make the entrypoint script executable
 RUN chmod +x entrypoint.sh
+
+RUN pixi run "Rscript setupenv.R"
+
 
 # Set the entrypoint
 ENTRYPOINT ["./entrypoint.sh"]
