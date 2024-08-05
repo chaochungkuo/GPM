@@ -6,6 +6,9 @@ authors = ["MoSafi2 <mohamed.mabrouk@rwth-aachen.de>"]
 channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64"]
 
+[tasks]
+start = "Rscript sc_conversion.R"
+
 
 [dependencies]
 bioconductor-zellkonverter = ">=1.12.1,<1.13"
