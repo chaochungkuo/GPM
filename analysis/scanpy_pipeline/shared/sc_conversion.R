@@ -5,16 +5,16 @@ packages <- a[, 1]
 ###                       Install required packages                      ###
 ### ----------------------------------------------------------------------###
 
-if (!is.element("GenomeInfoDbData", packages)) {
-  dn_url <- "https://mghp.osn.xsede.org/bir190004-bucket01/archive.bioconductor.org/packages/3.18/data/annotation/src/contrib/GenomeInfoDbData_1.2.11.tar.gz"
-  tmp_dir <- tempdir() # This creates a temporary directory
-  dn_path <- file.path(tmp_dir, "GenomeInfoDbData_1.2.11.tar.gz")
-  download.file(url = dn_url, destfile = dn_path, method = "curl") # Use curl for efficiency
-  system(paste0("R CMD INSTALL ", dn_path))
-}
+# if (!is.element("GenomeInfoDbData", packages)) {
+#   dn_url <- "https://mghp.osn.xsede.org/bir190004-bucket01/archive.bioconductor.org/packages/3.18/data/annotation/src/contrib/GenomeInfoDbData_1.2.11.tar.gz"
+#   tmp_dir <- tempdir() # This creates a temporary directory
+#   dn_path <- file.path(tmp_dir, "GenomeInfoDbData_1.2.11.tar.gz")
+#   download.file(url = dn_url, destfile = dn_path, method = "curl") # Use curl for efficiency
+#   system(paste0("R CMD INSTALL ", dn_path))
+# }
 
-suppressMessages(library(SingleCellExperiment, quietly = T, verbose = F, warn.conflicts = F))
-suppressMessages(library(zellkonverter, quietly = T, verbose = F, warn.conflicts = F))
+# suppressMessages(library(SingleCellExperiment, quietly = T, verbose = F, warn.conflicts = F))
+# suppressMessages(library(zellkonverter, quietly = T, verbose = F, warn.conflicts = F))
 suppressMessages(library(optparse, quietly = T, verbose = F, warn.conflicts = F))
 
 
@@ -43,7 +43,7 @@ option_list <- list(
 
 
 ### ----------------------------------------------------------------------###
-###                         Parse & validate CLI arguments                ###
+###                         Parse CLI arguments                           ###
 ### ----------------------------------------------------------------------###
 
 
@@ -51,30 +51,6 @@ option_list <- list(
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
-if (is.null(opt$input)) {
-  print_help(opt_parser)
-  stop("Input file must be specified.", call. = FALSE)
-}
-
-if (is.null(opt$from)) {
-  print_help(opt_parser)
-  stop("Input format must be specified.", call. = FALSE)
-}
-
-if (is.null(opt$to)) {
-  print_help(opt_parser)
-  stop("Output format must be specified.", call. = FALSE)
-}
-
-if (is.null(opt$output)) {
-  print_help(opt_parser)
-  stop("Output format must be specified.", call. = FALSE)
-}
-
-
-if (!file.exists(opt$input)) {
-  stop("Input file does not exist.", call. = FALSE)
-}
 
 
 ### ----------------------------------------------------------------------###
@@ -90,18 +66,45 @@ if (file.exists("/.dockerenv")) {
 
 print(docker)
 
-if(docker){
+if(docker == TRUE){
 input_file <- paste0("./host",opt$input)
 output_file <- paste0("./host",opt$output)
 }else {
-  input_file <- opt$input
-  output_file <- opt$output
+input_file <- opt$input
+output_file <- opt$output
 }
 
 input_format <- opt$from
 output_format <- opt$to
 
-print(input_file, output_file, input_format, output_format) 
+print(input_file)
+print(system("ls ./host/"))
+
+### ----------------------------------------------------------------------###
+###                         Validate CLI arguments                           ###
+### ----------------------------------------------------------------------###
+
+
+if (is.null(input_file)) {
+  print_help(opt_parser)
+  stop("Input file must be specified.", call. = FALSE)
+}
+
+if (is.null(output_file)) {
+  print_help(opt_parser)
+  stop("Input format must be specified.", call. = FALSE)
+}
+
+if (is.null(output_format)) {
+  print_help(opt_parser)
+  stop("Output format must be specified.", call. = FALSE)
+}
+
+if (is.null(input_format)) {
+  print_help(opt_parser)
+  stop("Input format must be specified.", call. = FALSE)
+}
+
 
 ### ----------------------------------------------------------------------###
 ###                         Conversion functions                         ###
