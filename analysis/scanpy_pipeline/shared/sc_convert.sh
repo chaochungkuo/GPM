@@ -70,6 +70,10 @@ docker run --rm \
     --from "$FROM_FORMAT" \
     --to "$TO_FORMAT"
 
+# change ownership and permissions of the output file as docker is running as root
+chown $USER:$GROUPS $OUTPUT_FILE
+chmod 774 $OUTPUT_FILE
+
 # Check if the command was successful
 if [ $? -eq 0 ]; then
     echo "Conversion completed successfully."
