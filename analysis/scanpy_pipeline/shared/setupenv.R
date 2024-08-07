@@ -13,8 +13,47 @@ if (!is.element("GenomeInfoDbData", packages)) {
   system(paste0("R CMD INSTALL ", dn_path))
 }
 
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+
+### ----------------------------------------------------------------------###
+###                       LoupeR                                          ###
+### ----------------------------------------------------------------------###
+
+
+eula_create <- function() {
+  dir.create(eula_data_dir(), showWarnings = FALSE, recursive = TRUE)
+  file.create(eula_lock_file())
+}
+
+
+#' Path to directory that holds EULA agreement lock file
+#' @noRd
+eula_data_dir <- function() {
+  tools::R_user_dir("loupeR", "data")
+}
+
+#' Path to EULA agreement lock file
+#' @noRd
+eula_lock_file <- function() {
+  file.path(eula_data_dir(), "eula_agreement")
+}
+
+if (!is.element("loupeR", packages)) {
+  # install platform specific source package
+  os <- sub("Darwin", "macOS", "Linux", Sys.info()["sysname"])
+  url <- paste0("https://github.com/10XGenomics/loupeR/releases/latest/download/loupeR_", os, ".tar.gz")
+  install.packages(url, repos = NULL, type = "source")
+  eula_create()
+  loupeR::setup()
+}
+
+
+### ----------------------------------------------------------------------###
+###                       Basilisk Env                                    ###
+### ----------------------------------------------------------------------###
+
+if (!require("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 
 BiocManager::install("basilisk.utils")
 
@@ -24,5 +63,5 @@ library(basilisk)
 library(basilisk.utils)
 
 basilisk.utils::installConda()
-env = zellkonverter::zellkonverterAnnDataEnv()
-setupBasiliskEnv(envpath=paste0(Sys.getenv("HOME"),"/.cache/R/basilisk/1.14.1/zellkonverter/1.12.1/", env@envname), packages= env@packages, channels = env@channels, pip=env@pip, paths = env@paths)
+env <- zellkonverter::zellkonverterAnnDataEnv()
+setupBasiliskEnv(envpath = paste0(Sys.getenv("HOME"), "/.cache/R/basilisk/1.14.1/zellkonverter/1.12.1/", env@envname), packages = env@packages, channels = env@channels, pip = env@pip, paths = env@paths)

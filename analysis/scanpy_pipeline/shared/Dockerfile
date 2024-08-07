@@ -17,10 +17,6 @@ COPY --from=builder --chown=root:root --chmod=0555 /pixi /usr/local/bin/pixi
 
 # Set working directory
 WORKDIR /app
-RUN mkdir /app/host
-
-# Set permissions if needed
-RUN chmod 770 /app/host
 
 # Copy pixi.toml file
 COPY pixi.toml .

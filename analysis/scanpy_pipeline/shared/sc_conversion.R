@@ -57,23 +57,24 @@ opt <- parse_args(opt_parser)
 ###                         Define global variables                       ###
 ### ----------------------------------------------------------------------###
 
-# accounting for re-map of file paths in docker
-if (file.exists("/.dockerenv")) {
-  docker <- TRUE
-} else {
-  docker <- FALSE
-}
+# # accounting for re-map of file paths in docker
+# if (file.exists("/.dockerenv")) {
+#   docker <- TRUE
+# } else {
+#   docker <- FALSE
+# }
 
-print(docker)
 
-if (docker == TRUE) {
-  input_file <- paste0("/app/host", opt$input)
-  output_file <- paste0("/app/host", opt$output)
-} else {
-  input_file <- opt$input
-  output_file <- opt$output
-}
+# if (docker == TRUE) {
+#   input_file <- paste0("/app/host", opt$input)
+#   output_file <- paste0("/app/host", opt$output)
+# } else {
+#   input_file <- opt$input
+#   output_file <- opt$output
+# }
 
+input_file <- opt$input
+output_file <- opt$output
 input_format <- opt$from
 output_format <- opt$to
 
@@ -125,8 +126,6 @@ convert_seurat_to_loupeR <- function(seurat_obj) {
   loupeR_obj <- loupeR::create_loupe_from_seurat(seurat_obj)
   return(loupeR_obj)
 }
-
-
 
 convert_sce_to_seurat <- function(sce_obj) {
   suppressMessages(library(Seurat, quietly = T, verbose = F, warn.conflicts = F))
