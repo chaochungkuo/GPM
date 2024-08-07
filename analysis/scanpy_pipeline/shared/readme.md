@@ -1,18 +1,26 @@
-# Usage example
 
-```bash
-Rscript ./sc_conversion.R -i /path/to/input.{h5ad, RDS} -o /path/to/output.{h5ad, RDS} -t {seurat, sce, loupe} 
+# sc_convert
+sc_convert is a script for disk-based conversion of scRNA-seq data between Seurat, SingleCellExperiment, and AnnData formats. It also supports conversion to Loupe format.
+All conversions from or to Seurat, SingleCellExperiment, and AnnData are supported. Loupe is supported only as a final output.
+
+## Usage example
+
+```sh
+sc_convert.sh --input|-i /path/to/input.{h5ad, RDS}  --ouput|-o /path/to/output.{h5ad, RDS, cloupe} --from|-f {seurat, sce, anndata}  -t {seurat, sce, loupe, anndata} 
 ```
 
-Not all the conversion pathways is working
+## Installation
 
-# Implementation table
+`sc_convert` uses `docker` to conterarize all tools required for running the conversion. To install `sc_convert`, you need to have `docker` and `docker compose` installed on your machine.
 
-| Input format               | Output format              | Supported                                          |
-| -------------------------- | -------------------------- | -------------------------------------------------- |
-| AnnData (.h5ad)            | SingleCellExperiment (RDS) | Yes :white_check_mark:                             |
-| SingleCellExperiment (RDS) | AnnData (.h5ad)            | Yes :white_check_mark:                             |
-| Seurat (RDS)               | AnnData (.h5ad)            | Partial (Bugs can occur ) :heavy_exclamation_mark: |
-| AnnData (.h5ad)            | Seurat (RDS)               | NO :x:                                             |
-| Seurat (RDS)               | SingleCellExperiment (RDS) | NO :x:                                             |
-| Any                        | Loupe                      | NO :x:                                             |
+```sh
+git clone https://github.com/chaochungkuo/GPM
+cd GPM/analysis/scanpy_pipeline/shared
+chmod +x sc_convert.sh
+docker compose build
+```
+
+
+
+
+
