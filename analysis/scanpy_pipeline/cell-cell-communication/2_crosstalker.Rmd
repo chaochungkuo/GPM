@@ -1,0 +1,28 @@
+---
+title: "CrossTalkeR"
+author: "Joseph"
+date: "2024-07-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+source("/etc/rstudio/Rprofile.site")
+```
+
+
+```{r}
+library(CrossTalkeR)
+library(igraph)
+library(stringr)
+
+paths <- c('WT' = "./res_liana/WT_lr_ready.csv",
+           'Mut' = "./res_liana/Mut_lr_ready.csv")
+
+data <- generate_report(paths, org="mmu", threshold=10,
+            out_path="/data/projects/240404_Moazzen_Leube_Anatomy_scRNAseq/analysis/scanpy_pipeline/cell-cell-communication/",
+            out_file = 'Mouse_Heart.html',
+            output_fmt = "html_document",
+            comparison = list(c('Mut', 'WT')),
+            report = TRUE)
+
+```
