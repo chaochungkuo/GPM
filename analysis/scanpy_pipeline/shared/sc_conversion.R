@@ -141,18 +141,18 @@ convert_seurat_to_sce <- function(seurat_obj) {
 
 
 convert_h5ad_to_sce <- function(h5ad_file, output) {
-  cat(sprintf("Converting %s to %s...\n", h5ad_file, sce_file))
+  cat(sprintf("Converting %s to %s...\n", h5ad_file, output))
 
   sce <- readH5AD(h5ad_file)
-  cat(sprintf("Conversion complete: %s\n", sce_file))
+  cat(sprintf("Conversion complete: %s\n", output))
   return(sce)
 }
 
 convert_sce_to_h5ad <- function(rds_file, output) {
-  cat(sprintf("Converting %s to %s...\n", rds_file, h5ad_file))
+  cat(sprintf("Converting %s to %s...\n", rds_file, output))
   sce <- readRDS(rds_file)
-  writeH5AD(sce, h5ad_file)
-  cat(sprintf("Conversion complete: %s\n", h5ad_file))
+  writeH5AD(sce, h5ad_file, compression = "none")
+  cat(sprintf("Conversion complete: %s\n", output))
 }
 
 
@@ -165,14 +165,14 @@ if (input_format == "SCE") {
   if (output_format == "seurat") {
     sce_obj <- readRDS(input_file)
     seurat_obj <- convert_sce_to_seurat(sce_obj)
-    saveRDS(seurat_obj, output_file)
+    saveRDS(seurat_obj, output_file, compress = FALSE)
   } else if (output_format == "anndata") {
     sce_obj <- readRDS(input_file)
-    writeH5AD(sce_obj, output_file)
+    writeH5AD(sce_obj, output_file, compression = "none")
   } else if (output_format == "loupe") {
     sce_obj <- readRDS(input_file)
     loupe_obj <- convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
-    saveRDS(loupe_obj, output_file)
+    saveRDS(loupe_obj, output_file, compress = FALSE)
   } else {
     stop("Conversion from SCE to ", output_format, " is not supported.", call. = FALSE)
   }
@@ -182,14 +182,14 @@ if (input_format == "seurat") {
   if (output_format == "SCE") {
     seurat_obj <- readRDS(input_file)
     sce_obj <- convert_seurat_to_sce(seurat_obj)
-    saveRDS(sce_obj, output_file)
+    saveRDS(sce_obj, output_file, compress = FALSE)
   } else if (output_format == "anndata") {
     seurat_obj <- readRDS(input_file)
-    writeH5AD(convert_seurat_to_sce(seurat_obj), output_file)
+    writeH5AD(convert_seurat_to_sce(seurat_obj), output_file, compression = "none")
   } else if (output_format == "loupe") {
     seurat_obj <- readRDS(input_file)
     loupe_obj <- convert_seurat_to_loupeR(seurat_obj)
-    saveRDS(loupe_obj, output_file)
+    saveRDS(loupe_obj, output_file, compress = FALSE)
   } else {
     stop("Conversion from Seurat to ", output_format, " is not supported.", call. = FALSE)
   }
@@ -199,15 +199,15 @@ if (input_format == "seurat") {
 if (input_format == "anndata") {
   if (output_format == "SCE") {
     sce_obj <- convert_h5ad_to_sce(input_file, output_file)
-    saveRDS(sce_obj, output_file)
+    saveRDS(sce_obj, output_file, compress = FALSE)
   } else if (output_format == "seurat") {
     sce_obj <- convert_h5ad_to_sce(input_file, output_file)
     seurat_obj <- convert_sce_to_seurat(sce_obj)
-    saveRDS(seurat_obj, output_file)
+    saveRDS(seurat_obj, output_file, compress = FALSE)
   } else if (output_format == "loupe") {
     sce_obj <- convert_h5ad_to_sce(input_file, output_file)
     loupe_obj <- convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
-    saveRDS(loupe_obj, output_file)
+    saveRDS(loupe_obj, output_file, compress = FALSE)
   } else {
     stop("Conversion from anndata to ", output_format, " is not supported.", call. = FALSE)
   }

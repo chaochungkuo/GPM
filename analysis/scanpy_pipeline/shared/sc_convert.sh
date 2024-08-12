@@ -60,10 +60,15 @@ OUTPUT_DIR=$(dirname "$OUTPUT_FILE")
 INPUT_FILENAME=$(basename "$INPUT_FILE")
 OUTPUT_FILENAME=$(basename "$OUTPUT_FILE")
 
+echo "Input file: $INPUT_FILE"
+echo "Output file: $OUTPUT_FILE"
+echo "From format: $FROM_FORMAT"
+echo "To format: $TO_FORMAT"
+
 # Run Docker container
 docker run --rm \
-    -v "$INPUT_DIR":/input \
-    -v "$OUTPUT_DIR":/output \
+    --mount type=bind,source=$INPUT_DIR,target=/output \
+    --mount type=bind,source=$OUTPUT_DIR,target=/input \
     shared-sc_conversion \
     --input "/input/$INPUT_FILENAME" \
     --output "/output/$OUTPUT_FILENAME" \

@@ -63,5 +63,12 @@ library(basilisk)
 library(basilisk.utils)
 
 basilisk.utils::installConda()
+system("conda install -n base conda-libmamba-solver")
+system("conda config --set solver libmamba")
 env <- zellkonverter::zellkonverterAnnDataEnv()
-setupBasiliskEnv(envpath = paste0(Sys.getenv("HOME"), "/.cache/R/basilisk/1.14.1/zellkonverter/1.12.1/", env@envname), packages = env@packages, channels = env@channels, pip = env@pip, paths = env@paths)
+setupBasiliskEnv(envpath = paste0(Sys.getenv("HOME"), "/.cache/R/basilisk/1.14.1/zellkonverter/1.12.1/", env@envname),
+                 packages = env@packages,
+                 channels = env@channels,
+                 pip = env@pip, 
+                 paths = env@paths
+                 )
