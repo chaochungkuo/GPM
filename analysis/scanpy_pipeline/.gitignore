@@ -7,6 +7,4 @@ anno_test/
 resources/
 !resources/g2m*
 !resources/s_genes*
-test_env/
 outs/
-cell-cell-communication/netdiffuseR
