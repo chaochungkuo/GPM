@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# Check if Docker is installed
+if command -v docker &> /dev/null
+then
+    echo "Found Docker installtion."
+else
+    echo "Docker was not found on your system. please install Docker from https://www.docker.com/"
+fi
+
+# Check if the conversion image exists
+if [ -z "$(docker images -q shared-sc_conversion 2> /dev/null)" ]; then
+    echo "Conversion image not found. Building the image..."
+    echo "run 'docker compose build' at 'GPM/analysis/scanpy_pipeline/shared'"
+else
+    echo "found conversion image"
+fi
+
+
 # Function to convert a path to absolute path
 to_absolute_path() {
     local path="$1"
