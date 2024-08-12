@@ -169,3 +169,9 @@ analysis/scanpy_pipeline/preprocessing/pixi.lock
 analysis/scanpy_pipeline/preprocessing/2_normalization.html
 analysis/scanpy_pipeline/shared/pixi.lock
 analysis/scanpy_pipeline/shared/converted.cloupe
+analysis/scanpy_pipeline/cell-cell-communication/GenomeInfoDbData_1.2.10.tar.gz
+analysis/scanpy_pipeline/cell-cell-communication/GO.db_3.17.0.tar.gz
+analysis/scanpy_pipeline/cell-cell-communication/HDO.db_0.99.1.tar.gz
+analysis/scanpy_pipeline/cell-cell-communication/netdiffuseR_1.22.6.tar.gz
+analysis/scanpy_pipeline/cell-cell-communication/org.Hs.eg.db_3.17.0.tar.gz
+analysis/scanpy_pipeline/cell-cell-communication/org.Mm.eg.db_3.17.0.tar.gz
