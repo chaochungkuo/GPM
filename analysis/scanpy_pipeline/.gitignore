@@ -9,3 +9,4 @@ resources/
 !resources/s_genes*
 test_env/
 outs/
+cell-cell-communication/netdiffuseR
