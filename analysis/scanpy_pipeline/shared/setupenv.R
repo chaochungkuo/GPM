@@ -1,9 +1,39 @@
-a <- installed.packages()
-packages <- a[, 1]
+
+### ----------------------------------------------------------------------###
+###                       Basilisk Env                                    ###
+### ----------------------------------------------------------------------###
+
+if (!require("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+BiocManager::install("basilisk.utils")
+
+
+library(zellkonverter)
+library(basilisk)
+library(basilisk.utils)
+
+basilisk.utils::installConda()
+system("/root/.cache/R/basilisk/1.14.1/0/bin/conda update -n base conda")
+system("/root/.cache/R/basilisk/1.14.1/0/bin/conda install -n base conda-libmamba-solver")
+system("/root/.cache/R/basilisk/1.14.1/0/bin/conda config --set solver libmamba")
+env <- zellkonverter::zellkonverterAnnDataEnv()
+setupBasiliskEnv(envpath = paste0(Sys.getenv("HOME"), "/.cache/R/basilisk/1.14.1/zellkonverter/1.12.1/", env@envname),
+                 packages = env@packages,
+                 channels = env@channels,
+                 pip = env@pip, 
+                 paths = env@paths
+                 )
 
 ### ----------------------------------------------------------------------###
 ###                       Install required packages                      ###
 ### ----------------------------------------------------------------------###
+
+
+a <- installed.packages()
+packages <- a[, 1]
+
 
 if (!is.element("GenomeInfoDbData", packages)) {
   dn_url <- "https://mghp.osn.xsede.org/bir190004-bucket01/archive.bioconductor.org/packages/3.18/data/annotation/src/contrib/GenomeInfoDbData_1.2.11.tar.gz"
@@ -47,28 +77,3 @@ if (!is.element("loupeR", packages)) {
 }
 
 
-### ----------------------------------------------------------------------###
-###                       Basilisk Env                                    ###
-### ----------------------------------------------------------------------###
-
-if (!require("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
-}
-
-BiocManager::install("basilisk.utils")
-
-
-library(zellkonverter)
-library(basilisk)
-library(basilisk.utils)
-
-basilisk.utils::installConda()
-system("/root/.cache/R/basilisk/1.14.1/0/bin/conda install -n base conda-libmamba-solver")
-system("/root/.cache/R/basilisk/1.14.1/0/bin/conda config --set solver libmamba")
-env <- zellkonverter::zellkonverterAnnDataEnv()
-setupBasiliskEnv(envpath = paste0(Sys.getenv("HOME"), "/.cache/R/basilisk/1.14.1/zellkonverter/1.12.1/", env@envname),
-                 packages = env@packages,
-                 channels = env@channels,
-                 pip = env@pip, 
-                 paths = env@paths
-                 )
