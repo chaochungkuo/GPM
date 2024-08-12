@@ -20,7 +20,7 @@ process_package <- function(package, package_file, url) {
   cat("Installing", package_file, "...\n")
   install.packages(package_file, repos = NULL, type = "source")
   
-  if (!file.exists(package_file)) {
+  if (file.exists(package_file)) {
     cat("Removing downloaded", package_file, "\n")
     file.remove(package_file)
   }
@@ -68,7 +68,10 @@ if ("netdiffuseR" %in% rownames(package_list)) {
 if ("CrossTalkeR" %in% rownames(package_list)) {
     cat("CrossTalkeR", "is already installed\n")
 }else {
-system("wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=115M510CCnjzwXVGd3_B3RdcntvP0UPyw' -O CrossTalkeR.tar.gz")
-system("R CMD INSTALL CrossTalkeR.tar.xz")
-file.remove("CrossTalkeR.tar.gz")
+system("wget https://github.com/CostaLab/CrossTalkeR/archive/refs/heads/master.zip -O CrossTalkeR.zip")
+system("unzip CrossTalkeR.zip -d CrossTalkeR-master")
+system("R CMD INSTALL CrossTalkeR-master/CrossTalkeR-master")
+file.remove("CrossTalkeR.zip")
+unlink("CrossTalkeR-master", recursive = TRUE)
 }
+
