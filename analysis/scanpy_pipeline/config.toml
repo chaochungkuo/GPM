@@ -10,8 +10,6 @@ TISSUE = "Blood"        # List: Tissue(s) of origin the samples, used later for 
 auto_find = true        # Automatically find the samples in the DIR_SAMPLES
 
 [basic.samples] # Override auto_find, provide a samples as 'sample = path/to/sample'.
-WT = "/path/to/sample1"
-KO = "/path/to/sample2"
 
 [normalization]
 NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
@@ -24,4 +22,4 @@ INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not impl
 
 [annotation]
 ANNOTATE_SAMPLES = false
-ANNOTATION_METHOD = "scGPT" # values ('celltypist', 'scGPT', 'scTAB'), use scGPT on GPU only for large datasets
+ANNOTATION_METHOD = "scTAB" # values ('celltypist', 'scGPT', 'scTAB'), use scGPT on GPU only for large datasets
