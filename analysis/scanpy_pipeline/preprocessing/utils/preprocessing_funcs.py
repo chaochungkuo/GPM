@@ -204,13 +204,13 @@ def _compute_outlier_sample(adata: AnnData, variables: Dict[str, List], sample):
             max_val = sample_dict[key][1]
 
         if isinstance(sample_dict[key], Number):
-            if not variables[key] > 0:
+            if not sample_dict[key] > 0:
                 raise ValueError("Please provide a positive number of nmads")
             min_val = np.median(adata.obs[key]) - (
-                median_abs_deviation(adata.obs[key]) * variables[key]
+                median_abs_deviation(adata.obs[key]) * sample_dict[key]
             )
             max_val = np.median(adata.obs[key]) + (
-                median_abs_deviation(adata.obs[key]) * variables[key]
+                median_abs_deviation(adata.obs[key]) * sample_dict[key]
             )
 
         sample_slice = adata.obs.loc[adata.obs["sample"] == sample, key].lt(
