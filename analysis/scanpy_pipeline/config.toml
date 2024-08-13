@@ -4,7 +4,7 @@
 ANALYSIS_DIR = ".."
 DIR_SAMPLES = "../test"
 DIR_SAVE = "save"       # Directory to save the results
-TECHNOLOGY = "10x"      # values (10x, ParseBio)
+TECHNOLOGY = "10x"      # values (10x, ParseBio, Singleron)
 ORGANISM = "human"      # values(human,  mouse)
 TISSUE = "Blood"        # List: Tissue(s) of origin the samples, used later for annotation
 auto_find = true        # Automatically find the samples in the DIR_SAMPLES
