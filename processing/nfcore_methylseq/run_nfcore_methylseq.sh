@@ -15,7 +15,7 @@ else
 
   ################## Run nfcore pipeline #################
   PATH_NEXTFLOW run nf-core/methylseq -r $nfcore_version -profile docker -c nextflow.config \
-  --input samplesheet.csv --outdir results --genome GENCODE_GRCh38_v44
+  --input samplesheet.csv --outdir results --genome GENCODE_GRCh38_v46
 
 fi
 
@@ -23,6 +23,6 @@ fi
 # use: -resume
 
 ###### Options for genome: ####################################
-# GENCODE_GRCh38_v44, GENCODE_GRCh38_v44_ERCC, 
-# GENCODE_GRCm39_v33, GENCODE_GRCm39_v33_ERCC
+# GENCODE_GRCh38_v46, GENCODE_GRCh38_v46_ERCC, 
+# GENCODE_GRCm39_v35, GENCODE_GRCm39_v35_ERCC
 # --gencode --featurecounts_group_type gene_type

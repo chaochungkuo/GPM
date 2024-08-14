@@ -10,7 +10,7 @@ nextflow run singleron-RD/scrna -profile docker \
     --outdir results \
     --fasta "/data/genomes/GRCh38/GRCh38.primary_assembly.genome.fa" \
     --gtf "/data/genomes/GRCh38/gencode.v44.basic.annotation.gtf" \
-    --genome_name "GENCODE_GRCh38_v44" \
+    --genome_name "GENCODE_GRCh38_v46" \
     --run_subsample TRUE \
     --run_fastqc TRUE \
     --publish_dir_mode copy 
@@ -19,7 +19,7 @@ nextflow run singleron-RD/scrna -profile docker \
     
 
 # Options:
-# --star_genome "/data/genomes/singleron_genome/GENCODE_GRCh38_v44" 
+# --star_genome "/data/genomes/singleron_genome/GENCODE_GRCh38_v46" 
 #--fasta "/data/genomes/GRCh38/GRCh38.primary_assembly.genome.fa" \
 # --gtf "/data/genomes/GRCh38/gencode.v44.basic.annotation.gtf" \
-#--genome_name "GENCODE_GRCh38_v44" \
+#--genome_name "GENCODE_GRCh38_v46" \
