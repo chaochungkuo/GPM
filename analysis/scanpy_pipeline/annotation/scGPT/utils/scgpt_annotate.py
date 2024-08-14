@@ -14,7 +14,6 @@ import scanpy as sc
 import sklearn
 import warnings
 import faiss
-sys.path.insert(0, "../")
 import scgpt as scg
 import argparse
 from build_atlas_index_faiss import load_index, vote
