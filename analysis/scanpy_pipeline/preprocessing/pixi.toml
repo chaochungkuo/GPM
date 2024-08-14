@@ -44,3 +44,6 @@ holoviews = ">=1.19.0,<1.20"
 quarto = ">=1.4.550,<1.5"
 kneed = ">=0.8.5,<0.9"
 
+[pypi-dependencies]
+kneed = "*"
+
