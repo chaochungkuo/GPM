@@ -416,19 +416,6 @@ def get_keys(qc_dict):
     return []
 
 
-##############################################
-############ Normalization Functions #########
-##############################################
-
-
-def get_var_features_num(adata: AnnData, variable_features: int | float) -> int:
-    detected_gene_nu = len(adata.var_names)
-    if variable_features <= 1:
-        return int(detected_gene_nu * variable_features)
-    else:
-        return min(detected_gene_nu, variable_features)
-
-
 def is_raw_counts(matrix) -> bool:
     from scipy.sparse import issparse
 
@@ -436,3 +423,16 @@ def is_raw_counts(matrix) -> bool:
         return matrix.count_nonzero() == matrix.astype("uint32").count_nonzero()
     else:
         return np.count_nonzero(matrix) == np.count_nonzero(matrix.astype("uint32"))
+
+
+###-----------------------------------------------------------------------------------------------------###
+###                                       Utility Functions                                       ###
+###-----------------------------------------------------------------------------------------------------###
+
+
+def select_n_uniform(length, n):
+    if length < n:
+        return list(range(length))
+    step = length / n
+    indices = [round(i * step) for i in range(n)]
+    return indices
