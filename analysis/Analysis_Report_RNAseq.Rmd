@@ -63,6 +63,7 @@ Please make sure that you store these data in a lab-wise level. Please refer to 
 
 \textcolor{red}{Your data will be deleted according to this policy automatically. Please download everything.}
 
+<!-- ## [QC with ERCC spike-ins](ERCC/ERCC.html) -->
 
 # Differential Gene Expression Analysis
 
