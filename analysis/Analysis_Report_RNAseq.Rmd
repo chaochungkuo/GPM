@@ -50,6 +50,7 @@ Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/service
 3. [Reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports):
     * [MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/multiqc/multiqc_report.html) for the quality check
     * Basic analysis of the Genomics Facility (This report)
+    <!-- * [QC with ERCC spike-ins](ERCC/ERCC.html) -->
 4. [Compressed files for download](EXPORT_URL/PROJECT_PROJECT_NAME/compressed_tar/):
     * Three tar files are available for download the above three folders.
   
@@ -62,8 +63,6 @@ wget -r -nH -np -nd --user PROJECT_EXPORT_USER --password PROJECT_EXPORT_PASSWOR
 Please make sure that you store these data in a lab-wise level. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
 
 \textcolor{red}{Your data will be deleted according to this policy automatically. Please download everything.}
-
-<!-- ## [QC with ERCC spike-ins](ERCC/ERCC.html) -->
 
 # Differential Gene Expression Analysis
 
