@@ -16,7 +16,7 @@ import warnings
 import faiss
 import scgpt as scg
 import argparse
-from build_atlas_index_faiss import load_index, vote
+from utils.build_atlas_index_faiss import load_index, vote
 
 
 ###############################################################################################################
