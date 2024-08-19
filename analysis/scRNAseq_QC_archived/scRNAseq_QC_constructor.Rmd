@@ -1,0 +1,126 @@
+```{r init, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+library(dplyr)
+library(readr)
+library(stringr)
+library(tidyr)
+
+# renv::install(c("BiocManager", "dplyr", "ggplot2", "readr", "stringr", "tidyr", "Seurat", "knitr", "gridExtra", "scuttle", "kableExtra"))
+
+
+
+heading_for_report <- c()
+```
+
+
+```{r setting, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+# Define controllers
+generate_Rmd <- TRUE
+render_html <- TRUE
+
+# Paths
+DIR_base <- "PROJECT_PROJECT_PATH/"
+
+# Provide directory where to find the base directory for all samples to search for count matrix, feature, and cell metadata
+DIR_samples <- "PROJECT_PROCESSING_PATH/results/cellranger/count/" # CellRanger standard output
+# ParseBio: "PROJECT_PROCESSING_PATH/results_combined
+
+DIR_analysis <- paste0(DIR_base, "analysis/")
+DIR_QC <- paste0(DIR_analysis, "scRNAseq_QC/")
+source(paste0(DIR_QC, "scRNA_QC_functions.R"))
+setwd(DIR_QC)
+```
+
+
+```{r setting, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+# Parameters
+technology <- "ParseBio"
+# 10X, ParseBio
+
+hist_vlines <- TRUE
+hist_annotate <- TRUE
+no_breaks <- 50
+
+# cell removal parameters
+nmads <- 3 # mean absolution deviations
+subset <- TRUE
+subset_mito <- TRUE
+
+min_cells <- 3
+min_features <- 200
+
+# If NULL, median(feature) +- nmads * mad(feature) is used
+# If high and low are both not NULL, they are used instead, no bounds checking.
+
+nfeatures_low <- NULL
+nfeatures_high <- NULL
+
+ncounts_low <- NULL
+ncounts_high <- NULL
+
+percent_mito_low <- NULL
+percent_mito_high <- NULL
+
+
+save(DIR_base, technology, hist_vlines, hist_annotate, no_breaks, nmads,
+  subset, subset_mito, min_cells, min_features, nfeatures_low, nfeatures_high,
+  ncounts_low, ncounts_high, percent_mito_low, percent_mito_high, DIR_QC,
+  file = "scRNAseq_QC_settings.RData"
+)
+```
+
+
+
+```{r valid_samples, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+components_list <- list(
+  "10X" = c("barcodes.tsv.gz", "features.tsv.gz", "matrix.mtx.gz"),
+  "ParseBio" = c("all_genes.csv", "cell_metadata.csv", "count_matrix.mtx")
+)
+
+# dir = "/data/projects/240226_Genomics_ParseBioscience_IZKF_FASTQ/results_combined/"
+
+directory_list <- list.dirs.depth.n(DIR_samples, n = 3)
+# directory_list = list.dirs.depth.n(dir, n = 3)
+
+
+valid_samples <- c()
+components <- components_list[[technology]]
+
+for (directory in directory_list) {
+  files <- list.files(directory, recursive = FALSE)
+  if (all(components %in% files)) {
+    valid_samples <- c(valid_samples, directory)
+  }
+}
+
+valid_samples
+
+# You can edit the valid_samples list here before template generation
+```
+
+
+```{r generate_reports, echo=FALSE, results="hide", warning=FALSE, message=FALSE, eval = generate_Rmd}
+# 10X : n = 1
+# ParseBio: n = 2
+sample_name_level <- 2
+
+for (directory in valid_samples) {
+  tag <- sample_name_ndepth(directory, sample_name_level)
+  description <- gsub(pattern = "_", replacement = " ", x = tag)
+
+  add_QC(tag = tag, description = description, file_dir = directory, DIR_QC)
+
+  if (render_html == TRUE) {
+    rmarkdown::render(paste0("scRNAseq_QC_", tag, ".Rmd"),
+      output_format = "html_document",
+      output_file = paste0("scRNAseq_QC_", tag, ".html")
+    )
+    heading_for_report <- c(heading_for_report, paste0("### [",description,"](scRNAseq_QC_",filetag,".html)"))
+
+  }
+}
+```
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+cat(heading_for_report, sep = "\n")
+```

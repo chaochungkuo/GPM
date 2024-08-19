@@ -1,0 +1,23 @@
+[project]
+name = "differential_expression"
+version = "0.1.0"
+description = "Add a short description here"
+authors = ["MoSafi2 <mohamed.mabrouk@rwth-aachen.de>"]
+channels = ["conda-forge", "bioconda", "pytorch"]
+platforms = ["linux-64"]
+
+
+[system-requirements]
+linux = "4.12.14"
+
+
+[tasks]
+
+
+[dependencies]
+python = "3.9.*"
+pegasuspy = ">=1.10.0,<1.11"
+scanpy = ">=1.10.2,<1.11"
+tomlkit = ">=0.13.0,<0.14"
+ipykernel = ">=6.29.5,<6.30"
+pixi-kernel = ">=0.4.0,<0.5"

@@ -1,0 +1,7 @@
+.Rhistory
+.Rprofile
+renv/
+scRNAseq.Rproj
+renv.lock
+.Rproj.user
+.Rproj.user/*

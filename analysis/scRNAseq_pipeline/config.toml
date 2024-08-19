@@ -1,0 +1,28 @@
+[basic]
+# ANALYSIS_DIR = "PROJECT_PROJECT_PATH/analysis"     # Default Analysis directory (provided by GPM)
+# DIR_SAMPLES = "PROJECT_PROJECT_PATH/cellranger/*/outs/per_sample_outs" # CellRanger standard output or ParseBio
+ANALYSIS_DIR = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline/"
+DIR_SAMPLES = "../test"
+RESOURCE_PATH = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline/resources" # Path to the resources directory
+DIR_SAVE = "save"                                                                               # Directory to save the results
+TECHNOLOGY = "10x"                                                                              # values (10x, ParseBio, Singleron)
+ORGANISM = "human"                                                                              # values(human,  mouse)
+auto_find = true                                                                                # Automatically find the samples in the DIR_SAMPLES
+
+[basic.samples] # Override auto_find, provide a samples as 'sample = path/to/sample'.
+
+[normalization]
+NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
+COUNTS_LAYER = "counts"           # Layer where counts are stores (values: countes, X, decontXcounts)  (default: 'counts').
+
+[clustering]
+CLUSTERING_COL = ""            # str: Final column for clustering, Default: "" (unset)
+INTEGRATE_SAMPLES = false
+INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not implemented yet
+
+[annotation]
+ANNOTATE_SAMPLES = false
+ANNOTATION_METHOD = [
+    "scTAB",
+] # str|List: values ('celltypist', 'scGPT', 'scTAB', 'markers'), use scGPT on GPU only for large datasets
+ANNOTATION_COLUMN = "" # str: Final column for annotation, Default: "" (unset)
