@@ -7,8 +7,8 @@ platforms = ["linux-64"]
 version = "0.1.0"
 
 [tasks]
-sctab = "python utils/sctab_annotate.py"
-scgpt = "python utils/scgpt_annotate.py"
+sctab_annotate = "python utils/sctab_annotate.py"
+scgpt_annotate = "python utils/scgpt_annotate.py"
 
 [dependencies]
 python = "3.9.*"
@@ -47,6 +47,7 @@ huggingface_hub = ">=0.24.5,<0.25"
 
 [pypi-dependencies]
 session-info = "*"
+gputil = ">=1.4.0, <2"
 
 
 [environments]

@@ -14,6 +14,7 @@ from huggingface_hub import hf_hub_download
 from scipy.sparse import csc_matrix
 from sctab_utils import TabNet, dataloader_factory, streamline_count_matrix
 from tqdm import tqdm
+from util_funcs import majority_vote, over_cluster
 
 ###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
 ###                                                             command line argument parsing                                                                               ###
@@ -60,6 +61,12 @@ parser.add_argument(
     type=int,
     help="batch size for the data loader (default: 2048)",
 )
+
+parser.add_argument(
+    "--config", dest="config", required=True, type=str, help="path to the config file"
+)
+
+
 args: argparse.Namespace = parser.parse_args()
 
 if len(args.ouput_path) == 0:
@@ -72,7 +79,7 @@ else:
 ###                                                             Config loading                                                                                              ###
 ###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
-with open("../../config.toml", "r") as f:
+with open(args.config, "r") as f:
     config = tomlkit.parse(f.read())
 
 ANALYSIS_DIR: str = config["basic"]["ANALYSIS_DIR"]
@@ -211,6 +218,14 @@ def scTAB_annotate() -> None:
     cell_type_mapping: pd.DataFrame = pd.read_parquet(cell_type)
     preds = cell_type_mapping.loc[preds]["label"].to_numpy()
     adata.obs[args.column_name] = pd.Categorical(preds)
+
+    over_cluster_result: pd.Series = over_cluster(adata, use_GPU=False)
+    majority_voting: pd.DataFrame = majority_vote(
+        adata.obs, column=args.column_name, over_clustering=over_cluster_result
+    )
+    adata.obs[args.column_name + "_majority_voting"] = majority_voting[
+        "majority_voting"
+    ]
     adata.write_h5ad(output_path)
 
 
