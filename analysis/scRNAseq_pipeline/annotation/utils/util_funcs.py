@@ -1,5 +1,6 @@
 import logging
 import sys
+from pathlib import Path
 from typing import Optional, Union
 
 import celltypist
@@ -12,6 +13,11 @@ from pandas import DataFrame
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
+
+
+### -------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
+###                                                             Minor annotatio functions                                                                                    ###
+### -------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
 
 def cell_typist_annotate(
@@ -48,6 +54,48 @@ def cell_typist_annotate(
         ]
     if not inplace:
         return adata
+
+
+def get_marker_genes(marker_gene_path: Path, adata: AnnData) -> pd.DataFrame:
+    """
+    Get marker genes for each cluster
+    """
+    df = pd.read_csv("./marker_genes.csv", header=None)
+    columns: list[str] = ["cell_type", "gene"]
+    for i in range(2, df.shape[1]):
+        columns.append(f"col{i}")
+    df.columns = columns
+    df: pd.DataFrame = df[df.gene.isin(adata.var_names)]
+
+    if len(df) == 0:
+        raise ValueError("No marker genes found in the dataset")
+
+
+def score_markers(markers_df, adata: AnnData, annotation_threshold: float) -> None:
+    gf = markers_df.groupby("cell_type")
+    for type in markers_df.cell_type.unique():
+        gene_list = gf.get_group(type).gene.to_list()
+        print(gene_list)
+        sc.tl.score_genes(adata, gene_list, score_name=f"{type}_score")
+
+    adata.obs["marker_annotation"] = "unassigned"
+
+    for cell_type in markers_df.cell_type.unique():
+        adata.obs["marker_annotation"] = np.where(
+            adata.obs[f"{cell_type}_score"] > annotation_threshold,
+            cell_type,
+            adata.obs["marker_annotation"],
+        )
+
+    # Mark cells where multiple idents are above the threshold as 'ambiguous'
+    cols_to_susbet: list[str] = [
+        f"{cell_type}_score" for cell_type in markers_df.cell_type.unique()
+    ]
+    adata.obs["marker_annotation"] = np.where(
+        (adata.obs[cols_to_susbet] > annotation_threshold).sum(axis=1) > 1,
+        "ambiguous",
+        adata.obs["marker_annotation"],
+    )
 
 
 ### -------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
