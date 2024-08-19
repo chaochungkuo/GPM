@@ -143,9 +143,9 @@ class FaissIndexBuilder:
             embeddings.shape[1], self.index_desc, faiss.METRIC_L2
         )
         nprobe = _auto_set_nprobe(index)
-        if self.gpu:
-            res = faiss.StandardGpuResources()
-            index = faiss.index_cpu_to_gpu(res, 0, index)
+        # if self.gpu:
+        #     res = faiss.StandardGpuResources()
+        #     index = faiss.index_cpu_to_gpu(res, 0, index)
         index.verbose = True
         print(
             f"Training index {self.index_desc} on {embeddings.shape[0]} embeddings ..."
@@ -249,9 +249,9 @@ def load_index(
 
     _auto_set_nprobe(index, nprobe=nprobe)
 
-    if use_gpu:
-        res = faiss.StandardGpuResources()
-        index = faiss.index_cpu_to_gpu(res, 0, index)
+    # if use_gpu:
+    #     res = faiss.StandardGpuResources()
+    #     index = faiss.index_cpu_to_gpu(res, 0, index)
 
     return index, meta_labels
 

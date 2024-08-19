@@ -23,5 +23,5 @@ INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not impl
 
 [annotation]
 ANNOTATE_SAMPLES = false
-ANNOTATION_METHOD = "scTAB" # values ('celltypist', 'scGPT', 'scTAB'), use scGPT on GPU only for large datasets
+ANNOTATION_METHOD = "scGPT" # values ('celltypist', 'scGPT', 'scTAB'), use scGPT on GPU only for large datasets
 ANNOTATION_COLUMN = ""      # str: Final column for annotation, Default: "" (unset)

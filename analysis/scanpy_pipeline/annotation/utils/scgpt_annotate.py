@@ -1,18 +1,21 @@
 import argparse
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# os.environ["WORLD_SIZE"] = "1"
+import logging
 import os
+from os import path
 from pathlib import Path
 
 import faiss
 import numpy as np
 import scanpy as sc
 import scgpt as scg
+import tomlkit
+from build_atlas_index_faiss import load_index, vote
+from huggingface_hub import snapshot_download
+from torch.cuda import is_available
 from tqdm import tqdm
-
-from utils.build_atlas_index_faiss import load_index, vote
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-os.environ["WORLD_SIZE"] = "1"
-import logging
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -35,22 +38,6 @@ parser.add_argument(
     required=True,
     type=str,
     help="input path of scanpy file on disk.",
-)
-parser.add_argument(
-    "-m",
-    "--model-path",
-    dest="model_path",
-    required=True,
-    type=str,
-    help="path for scGPT model",
-)
-parser.add_argument(
-    "-n",
-    "--index",
-    dest="index_path",
-    required=True,
-    type=str,
-    help="path for scGPT model",
 )
 parser.add_argument(
     "-c",
@@ -79,6 +66,12 @@ parser.add_argument(
     help="batch size for embedding",
 )
 
+
+parser.add_argument(
+    "--config", dest="config", required=True, type=str, help="path to the config file"
+)
+
+
 args = parser.parse_args()
 
 if len(args.ouput_path) == 0:
@@ -87,15 +80,30 @@ else:
     output_path = args.ouput_path
 
 
-# print("outputpath: ",output_path,"column_name:", args.column_name, "filename: ", args.filename,  "model_path", args.model_path)
+with open(args.config, "r") as f:
+    config = tomlkit.parse(f.read())
+
+ANALYSIS_DIR: str = config["basic"]["ANALYSIS_DIR"]
+RESOURCE_PATH: str = config["basic"]["RESOURCE_PATH"]
+DIR_SAVE: str = config["basic"]["DIR_SAVE"]
+COUNTS_LAYER = config["normalization"]["COUNTS_LAYER"]
 
 
-model_dir = Path(args.model_path)
+def get_scGPT_resources() -> Path:
+    model: Path = snapshot_download(
+        "MohamedMabrouk/scGPT",
+        local_dir=path.join(RESOURCE_PATH, "scGPT"),
+    )
+    return model
+
+
+model_dir = get_scGPT_resources()
 adata = sc.read_h5ad(args.filename)
 cell_type_key = "scGPT_metainfo"
 gene_col = "index"
 adata.obs[cell_type_key] = 0
 
+print(is_available())
 
 ###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
 ###                                                                         Gene Embeding                                                                                   ###
@@ -116,7 +124,7 @@ adata_embed = adata_embed.X
 
 use_gpu = faiss.get_num_gpus() > 0
 index, meta_labels = load_index(
-    index_dir=args.index_path,
+    index_dir=path.join(model_dir, "cxg_faiss_index"),
     use_config_file=False,
     use_gpu=True,
 )
