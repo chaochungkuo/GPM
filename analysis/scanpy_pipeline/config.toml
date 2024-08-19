@@ -1,13 +1,14 @@
 [basic]
 # ANALYSIS_DIR = "PROJECT_PROJECT_PATH/analysis"     # Default Analysis directory (provided by GPM)
 # DIR_SAMPLES = "PROJECT_PROJECT_PATH/cellranger/*/outs/per_sample_outs" # CellRanger standard output or ParseBio
-ANALYSIS_DIR = ".."
+ANALYSIS_DIR = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline/"
 DIR_SAMPLES = "../test"
-DIR_SAVE = "save"       # Directory to save the results
-TECHNOLOGY = "10x"      # values (10x, ParseBio, Singleron)
-ORGANISM = "human"      # values(human,  mouse)
-TISSUE = "Blood"        # List: Tissue(s) of origin the samples, used later for annotation
-auto_find = true        # Automatically find the samples in the DIR_SAMPLES
+RESOURCE_PATH = "/home/mohamed/Documents/Bioinformatics/GPM/analysis/scanpy_pipeline/resources" # Path to the resources directory
+DIR_SAVE = "save"                                                                               # Directory to save the results
+TECHNOLOGY = "10x"                                                                              # values (10x, ParseBio, Singleron)
+ORGANISM = "human"                                                                              # values(human,  mouse)
+TISSUE = "Blood"                                                                                # List: Tissue(s) of origin the samples, used later for annotation
+auto_find = true                                                                                # Automatically find the samples in the DIR_SAMPLES
 
 [basic.samples] # Override auto_find, provide a samples as 'sample = path/to/sample'.
 
