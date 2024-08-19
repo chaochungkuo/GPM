@@ -223,9 +223,18 @@ def scTAB_annotate() -> None:
     majority_voting: pd.DataFrame = majority_vote(
         adata.obs, column=args.column_name, over_clustering=over_cluster_result
     )
+
     adata.obs[args.column_name + "_majority_voting"] = majority_voting[
         "majority_voting"
     ]
+
+    # convert the columns to categorical
+    adata.obs[args.column_name + "_majority_voting"] = pd.Categorical(
+        adata.obs[args.column_name + "_majority_voting"]
+    )
+    adata.obs[args.column_name] = pd.Categorical(adata.obs[args.column_name])
+
+    # Write the result to disk
     adata.write_h5ad(output_path)
 
 

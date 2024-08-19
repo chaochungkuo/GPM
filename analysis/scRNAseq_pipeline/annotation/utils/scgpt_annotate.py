@@ -148,6 +148,9 @@ for preds in tqdm(predict_labels):
 voting = np.array(voting)
 adata.obs[args.column_name] = voting
 
+# convert the column to categorical
+adata.obs[args.column_name] = adata.obs[args.column_name].astype("category")
+
 
 ###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
 ###                                                             Writing results to disk                                                                                     ###
