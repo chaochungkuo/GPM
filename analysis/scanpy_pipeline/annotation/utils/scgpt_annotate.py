@@ -1,40 +1,83 @@
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1" 
-os.environ["WORLD_SIZE"] = "1"
-import logging 
-logging.basicConfig(level=logging.ERROR)
-
-import torch
-import sys
-from pathlib import Path
-import numpy as np
-import pandas as pd
-from scipy.stats import mode
-import scanpy as sc
-import sklearn
-import warnings
-import faiss
-import scgpt as scg
 import argparse
+import os
+from pathlib import Path
+
+import faiss
+import numpy as np
+import scanpy as sc
+import scgpt as scg
+from tqdm import tqdm
+
 from utils.build_atlas_index_faiss import load_index, vote
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["WORLD_SIZE"] = "1"
+import logging
 
-###############################################################################################################
-################################################ Argument Parsing ################################################
-###############################################################################################################
+logging.basicConfig(level=logging.ERROR)
+
+### -------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
+###                                                             command line argument parsing                                                                                ###
+### -------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
 
 parser = argparse.ArgumentParser(
-                    prog='scGPT_annotate',
-                    description='Annotates an input scanpy object with scGPT CT model and saves the results to scGPT columns',
-                    epilog='')
+    prog="scGPT_annotate",
+    description="Annotates an input scanpy object with scGPT CT model and saves the results to scGPT columns",
+    epilog="",
+)
 
 
-parser.add_argument('-i', '--input', dest='filename',required=True,  type=str, help='input path of scanpy file on disk.')           
-parser.add_argument('-m', '--model-path', dest= 'model_path', required=True, type=str, help='path for scGPT model')
-parser.add_argument('-n', '--index', dest= 'index_path', required=True, type=str, help='path for scGPT model')
-parser.add_argument('-c', '--column',  dest= 'column_name', default='scGPT', type=str,  help='column to save the results to (default: scGPT)')
-parser.add_argument('-o', '--output', type=str, dest='ouput_path', default='')
+parser.add_argument(
+    "-i",
+    "--input",
+    dest="filename",
+    required=True,
+    type=str,
+    help="input path of scanpy file on disk.",
+)
+parser.add_argument(
+    "-m",
+    "--model-path",
+    dest="model_path",
+    required=True,
+    type=str,
+    help="path for scGPT model",
+)
+parser.add_argument(
+    "-n",
+    "--index",
+    dest="index_path",
+    required=True,
+    type=str,
+    help="path for scGPT model",
+)
+parser.add_argument(
+    "-c",
+    "--column",
+    dest="column_name",
+    default="scGPT_annotation",
+    type=str,
+    help="column to save the results to (default: scGPT_annotation)",
+)
+parser.add_argument(
+    "-o",
+    "--output",
+    type=str,
+    dest="ouput_path",
+    default="",
+    help="output path for the annotated scanpy object",
+)
+
+
+parser.add_argument(
+    "-b",
+    "--batch-size",
+    dest="batch_size",
+    default=1024,
+    type=int,
+    help="batch size for embedding",
+)
 
 args = parser.parse_args()
 
@@ -54,43 +97,35 @@ gene_col = "index"
 adata.obs[cell_type_key] = 0
 
 
+###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
+###                                                                         Gene Embeding                                                                                   ###
+###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
+adata_embed = scg.tasks.embed_data(
+    adata,
+    model_dir,
+    gene_col=gene_col,
+    obs_to_save=cell_type_key,  # optional arg, only for saving metainfo
+    batch_size=args.batch_size,
+    return_new_adata=True,
+)
+adata_embed = adata_embed.X
 
-###############################################################################################################
-################################################ Gene Embeding ################################################
-###############################################################################################################
-try:
-    adata_embed = scg.tasks.embed_data(
-        adata,
-        model_dir,
-        gene_col=gene_col,
-        obs_to_save=cell_type_key,  # optional arg, only for saving metainfo
-        batch_size=1024,
-        return_new_adata=True,
-    )
-    adata_embed = adata_embed.X
-except:
-    exit(code=1)
+###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
+###                                                                 Loading Index                                                                                           ###
+###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
-
-###############################################################################################################
-################################################ Loading Index ################################################
-###############################################################################################################
-
-try:
-    use_gpu = faiss.get_num_gpus() > 0
-    index, meta_labels = load_index(
-        index_dir=args.index_path,
-        use_config_file=False,
-        use_gpu=True,
-    )
-    print(f"Loaded index with {index.ntotal} cells")
-except:
-    exit(code=1)
+use_gpu = faiss.get_num_gpus() > 0
+index, meta_labels = load_index(
+    index_dir=args.index_path,
+    use_config_file=False,
+    use_gpu=True,
+)
+print(f"Loaded index with {index.ntotal} cells")
 
 
-###############################################################################################################
-################################################ Index Search #################################################
-###############################################################################################################
+###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
+###                                                            Annotating cells                                                                                             ###
+###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
 
 k = 50
@@ -98,8 +133,6 @@ k = 50
 distances, idx = index.search(adata_embed, k)
 
 predict_labels = meta_labels[idx]
-from scipy.stats import mode
-from tqdm import tqdm
 
 voting = []
 for preds in tqdm(predict_labels):
@@ -108,8 +141,8 @@ voting = np.array(voting)
 adata.obs[args.column_name] = voting
 
 
-#################################################################################################################
-################################################ Writing results ################################################
-#################################################################################################################
+###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
+###                                                             Writing results to disk                                                                                     ###
+###-------------------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
 adata.write_h5ad(filename=output_path)
