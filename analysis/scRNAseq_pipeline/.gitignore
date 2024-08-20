@@ -4,8 +4,9 @@
 save/
 test/
 anno_test/
-resources/
-!resources/g2m*
-!resources/s_genes*
+!resources/g2m.csv
+!resources/s_genes.csv
 !resources/cellnet/*.py
+resources/scTAB
+resources/scGPT
 outs/
