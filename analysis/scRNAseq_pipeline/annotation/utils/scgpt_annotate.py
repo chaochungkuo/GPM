@@ -99,9 +99,9 @@ def get_scGPT_resources() -> Path:
 
 model_dir = get_scGPT_resources()
 adata = sc.read_h5ad(args.filename)
-cell_type_key = "scGPT_metainfo"
+# cell_type_key = "scGPT_metainfo"
 gene_col = "index"
-adata.obs[cell_type_key] = 0
+# adata.obs[cell_type_key] = 0
 
 print(is_available())
 
@@ -112,7 +112,7 @@ adata_embed = scg.tasks.embed_data(
     adata,
     model_dir,
     gene_col=gene_col,
-    obs_to_save=cell_type_key,  # optional arg, only for saving metainfo
+    # obs_to_save=cell_type_key,  # optional arg, only for saving metainfo
     batch_size=args.batch_size,
     return_new_adata=True,
 )
