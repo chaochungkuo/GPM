@@ -40,6 +40,7 @@ environments:
       - conda: https://conda.anaconda.org/bioconda/noarch/demuxem-0.1.7.post1-pyhdfd78af_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/docopt-0.6.2-py_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/docrep-0.3.2-pyh44b312d_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/noarch/et_xmlfile-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/exceptiongroup-1.2.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/executing-2.0.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/expat-2.6.2-h59595ed_0.conda
@@ -82,6 +83,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/ipykernel-6.29.5-pyh3099207_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ipython-8.18.1-pyh707e725_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-8.1.3-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/itables-2.1.4-pyh80e38bb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jedi-0.19.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jinja2-3.1.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/joblib-1.4.2-pyhd8ed1ab_0.conda
@@ -166,6 +168,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/omnipath-1.0.8-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openjdk-22.0.1-h8651b0f_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openjpeg-2.5.2-h488ebb8_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/openpyxl-3.1.5-py39hd1e30aa_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.3.1-h4bc722e_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-24.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pandas-2.2.2-py39hfc16268_1.conda
@@ -835,6 +838,21 @@ packages:
   license_family: GPL2
   size: 19106
   timestamp: 1613487398760
+- kind: conda
+  name: et_xmlfile
+  version: 1.1.0
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/et_xmlfile-1.1.0-pyhd8ed1ab_0.conda
+  sha256: 0c7bb50e1382615a660468dc531b8b17c5b91b88a02ed131c8e3cc63db507ce2
+  md5: a2f2138597905eaa72e561d8efb42cf3
+  depends:
+  - python >=3.6
+  license: MIT
+  license_family: MIT
+  size: 10602
+  timestamp: 1674664251571
 - kind: conda
   name: exceptiongroup
   version: 1.2.2
@@ -1558,6 +1576,24 @@ packages:
   license_family: BSD
   size: 113787
   timestamp: 1716897741733
+- kind: conda
+  name: itables
+  version: 2.1.4
+  build: pyh80e38bb_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/itables-2.1.4-pyh80e38bb_0.conda
+  sha256: 7c6e89d34f8996239eef7aac27168bb080fe98613007fd6dce92ad6b215e7c49
+  md5: 7b5291da5a916821cac8761eb60fbc1c
+  depends:
+  - ipython
+  - numpy
+  - pandas
+  - python >=3.7
+  license: MIT
+  license_family: MIT
+  size: 938690
+  timestamp: 1720068928003
 - kind: conda
   name: jedi
   version: 0.19.1
@@ -3056,6 +3092,23 @@ packages:
   license_family: BSD
   size: 341592
   timestamp: 1709159244431
+- kind: conda
+  name: openpyxl
+  version: 3.1.5
+  build: py39hd1e30aa_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/openpyxl-3.1.5-py39hd1e30aa_0.conda
+  sha256: 4a8a8ca8d405533609ae03809b4a1394c8ce710b5bbd4747a621c4a61687010c
+  md5: 05941aed98b79b42c0b13704233309b0
+  depends:
+  - et_xmlfile
+  - libgcc-ng >=12
+  - python >=3.9,<3.10.0a0
+  - python_abi 3.9.* *_cp39
+  license: MIT
+  license_family: MIT
+  size: 601173
+  timestamp: 1723459274611
 - kind: conda
   name: openssl
   version: 3.3.1
