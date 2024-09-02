@@ -123,7 +123,7 @@ convert_seurat_to_loupeR <- function(seurat_obj) {
   }
   suppressMessages(library(loupeR, quietly = T, verbose = F, warn.conflicts = F))
 
-  loupeR_obj <- loupeR::create_loupe_from_seurat(seurat_obj)
+  loupeR_obj <- loupeR::create_loupe_from_seurat(seurat_obj, output_dir = dirname(output_file), output_name = basename(output_file))
   return(loupeR_obj)
 }
 
@@ -171,8 +171,7 @@ if (input_format == "SCE") {
     writeH5AD(sce_obj, output_file, compression = "none")
   } else if (output_format == "loupe") {
     sce_obj <- readRDS(input_file)
-    loupe_obj <- convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
-    saveRDS(loupe_obj, output_file, compress = FALSE)
+    convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
   } else {
     stop("Conversion from SCE to ", output_format, " is not supported.", call. = FALSE)
   }
@@ -188,8 +187,7 @@ if (input_format == "seurat") {
     writeH5AD(convert_seurat_to_sce(seurat_obj), output_file, compression = "none")
   } else if (output_format == "loupe") {
     seurat_obj <- readRDS(input_file)
-    loupe_obj <- convert_seurat_to_loupeR(seurat_obj)
-    saveRDS(loupe_obj, output_file, compress = FALSE)
+    convert_seurat_to_loupeR(seurat_obj)
   } else {
     stop("Conversion from Seurat to ", output_format, " is not supported.", call. = FALSE)
   }
@@ -206,8 +204,7 @@ if (input_format == "anndata") {
     saveRDS(seurat_obj, output_file, compress = FALSE)
   } else if (output_format == "loupe") {
     sce_obj <- convert_h5ad_to_sce(input_file, output_file)
-    loupe_obj <- convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
-    saveRDS(loupe_obj, output_file, compress = FALSE)
+    convert_seurat_to_loupeR(convert_sce_to_seurat(sce_obj))
   } else {
     stop("Conversion from anndata to ", output_format, " is not supported.", call. = FALSE)
   }

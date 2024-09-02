@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# add option for help
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    echo "Usage: $0 -i|--input <input_file> -o|--output <output_file> -f|--from <from_format> -t|--to <to_format>"
+    echo "supported formats: anndata, seurat, SCE, loupe"
+    exit 0
+fi
+
+
 # Check if Docker is installed
 if command -v docker &> /dev/null
 then
@@ -99,4 +107,6 @@ if [ $? -eq 0 ]; then
 else
     echo "Conversion failed."
 fi
+
+
 
