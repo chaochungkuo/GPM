@@ -131,6 +131,10 @@ convert_seurat_to_loupeR <- function(seurat_obj) {
 
 convert_sce_to_seurat <- function(sce_obj) {
   suppressMessages(library(Seurat, quietly = T, verbose = F, warn.conflicts = F))
+
+  # Rename slots to canonical SCE slots
+  names(assays(sce_obj))[names(assays(sce_obj)) == "log_norm"] <- "logcounts"
+  names(assays(sce_obj))[names(assays(sce_obj)) == "p_residuals"] <- "logcounts"
   seurat_obj <- Seurat::as.Seurat(sce_obj)
   return(seurat_obj)
 }
