@@ -123,7 +123,9 @@ convert_seurat_to_loupeR <- function(seurat_obj) {
   }
   suppressMessages(library(loupeR, quietly = T, verbose = F, warn.conflicts = F))
 
-  loupeR_obj <- loupeR::create_loupe_from_seurat(seurat_obj, output_dir = dirname(output_file), output_name = basename(output_file))
+  final_name <- stringr::str_replace_all(output_file, ".cloupe$", "")
+
+  loupeR_obj <- loupeR::create_loupe_from_seurat(seurat_obj, output_dir = dirname(final_name), output_name = basename(final_name))
   return(loupeR_obj)
 }
 
