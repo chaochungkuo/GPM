@@ -1,5 +1,5 @@
 [basic]
-ANALYSIS_DIR = "PROJECT_PROJECT_PATH/analysis"     # Default Analysis directory (provided by GPM)
+ANALYSIS_DIR = "PROJECT_PROJECT_PATH/analysis/scRNAseq_pipeline" # Default Analysis directory (provided by GPM)
 DIR_SAMPLES = "PROJECT_PROJECT_PATH/cellranger/*/outs/per_sample_outs" # CellRanger standard output or ParseBio
 RESOURCE_PATH = "PROJECT_PROJECT_PATH/scRNAseq_pipeline/resources" # Path to the resources directory
 DIR_SAVE = "save"                                                                                 # Directory to save the results
