@@ -223,6 +223,12 @@ inputs: Dict[str, List | Callable] = {
         "raw_name": "raw_feature_bc_matrix",
         "function": sc.read_10x_mtx,
     },
+    "10x_h5": {
+        "files": ["*.h5"],
+        "black_list": [],
+        "raw_name": "",
+        "function": sc.read_10x_h5,
+    },
     "ParseBio": {
         "files": ["all_genes.csv", "cell_metadata.csv", "count_matrix.mtx"],
         "black_list": ["DGE_filtered", "DGE_unfiltered"],
