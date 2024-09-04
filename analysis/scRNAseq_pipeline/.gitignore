@@ -10,3 +10,4 @@ anno_test/
 resources/scTAB
 resources/scGPT
 outs/
+*.html
