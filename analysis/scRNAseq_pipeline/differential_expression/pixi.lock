@@ -76,6 +76,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gmp-6.3.0-hac33072_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gmpy2-2.1.5-py39h048c657_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/graphite2-1.3.13-h59595ed_1003.conda
+      - conda: https://conda.anaconda.org/bioconda/linux-64/gseapy-1.1.3-py39h5b94c0b_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/h11-0.14.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/h2-4.1.0-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/h5py-3.11.0-nompi_py39h24b94d4_102.conda
@@ -229,6 +230,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pixman-0.43.2-h59595ed_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pkgutil-resolve-name-1.3.10-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.2.2-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pooch-1.8.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/prometheus_client-0.20.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/prompt-toolkit-3.0.47-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/psutil-6.0.0-py39hd3abc70_0.conda
@@ -1498,6 +1500,28 @@ packages:
   license_family: LGPL
   size: 96855
   timestamp: 1711634169756
+- kind: conda
+  name: gseapy
+  version: 1.1.3
+  build: py39h5b94c0b_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/bioconda/linux-64/gseapy-1.1.3-py39h5b94c0b_1.tar.bz2
+  sha256: 3fe97a2b7e867a2fb2f58eb3b3655eb6f18bbae73a7b05db4c02b21e58588129
+  md5: f263ebf9dbd108fa0bd10aa20c694431
+  depends:
+  - matplotlib-base >=1.4.3
+  - numpy >=1.13.0
+  - pandas >=0.16
+  - python >=3.9,<3.10.0a0
+  - python_abi 3.9.* *_cp39
+  - requests
+  - scipy
+  - tomli >=1.2.1
+  license: MIT
+  license_family: MIT
+  size: 1296869
+  timestamp: 1717555200650
 - kind: conda
   name: h11
   version: 0.14.0
@@ -4329,6 +4353,24 @@ packages:
   license_family: MIT
   size: 20572
   timestamp: 1715777739019
+- kind: conda
+  name: pooch
+  version: 1.8.2
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/pooch-1.8.2-pyhd8ed1ab_0.conda
+  sha256: f2ee98740ac62ff46700c3cae8a18c78bdb3d6dd80832c6e691e789b844830d8
+  md5: 8dab97d8a9616e07d779782995710aed
+  depends:
+  - packaging >=20.0
+  - platformdirs >=2.5.0
+  - python >=3.7
+  - requests >=2.19.0
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 54375
+  timestamp: 1717777969967
 - kind: conda
   name: prometheus_client
   version: 0.20.0

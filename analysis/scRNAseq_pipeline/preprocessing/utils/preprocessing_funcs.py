@@ -1,15 +1,14 @@
-from os import walk, path, mkdir, listdir
-from scipy.stats import median_abs_deviation
-import pandas as pd
-import numpy as np
-from anndata import AnnData
-from typing import List, Dict, Callable
-import scanpy as sc
-import requests
 from functools import reduce
 from numbers import Number
-from scipy.stats import median_abs_deviation
+from os import listdir, mkdir, path, walk
+from typing import Callable, Dict, List
 
+import numpy as np
+import pandas as pd
+import requests
+import scanpy as sc
+from anndata import AnnData
+from scipy.stats import median_abs_deviation
 
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            Reading Functions                                                                               ###
@@ -34,7 +33,6 @@ def get_sample_name(file_path: str, black_list: list[str], n=3):
 
 
 def is_outlier(adata: AnnData, metric: str, nmads: int):
-
     M = adata.obs[metric]
     outlier = (M < np.median(M) - nmads * median_abs_deviation(M)) | (
         np.median(M) + nmads * median_abs_deviation(M) < M
@@ -88,6 +86,12 @@ inputs: Dict[str, List | Callable] = {
         "raw_name": "raw_feature_bc_matrix",
         "function": sc.read_10x_mtx,
     },
+    "10_h5": {
+        "files": ["*.h5"],
+        "black_list": [],
+        "raw_name": "",
+        "function": sc.read_10x_h5,
+    },
     "ParseBio": {
         "files": ["all_genes.csv", "cell_metadata.csv", "count_matrix.mtx"],
         "black_list": ["DGE_filtered", "DGE_unfiltered"],
@@ -117,7 +121,6 @@ qc_features_fac: Dict[str, List[str]] = {
 
 
 def human2mouse(genes: List[str]) -> List[str]:
-
     r = requests.post(
         url="https://biit.cs.ut.ee/gprofiler/api/orth/orth/",
         json={
@@ -132,18 +135,17 @@ def human2mouse(genes: List[str]) -> List[str]:
     return df.name.replace("N/A", pd.NA).dropna().to_list()
 
 
-from os import walk, path, mkdir, listdir
-from scipy.stats import median_abs_deviation
-import pandas as pd
-import numpy as np
-from anndata import AnnData
-from typing import List, Dict, Callable
-import scanpy as sc
-import requests
 from functools import reduce
 from numbers import Number
-from scipy.stats import median_abs_deviation
+from os import listdir, mkdir, path, walk
+from typing import Callable, Dict, List
 
+import numpy as np
+import pandas as pd
+import requests
+import scanpy as sc
+from anndata import AnnData
+from scipy.stats import median_abs_deviation
 
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            Reading Functions                                                                               ###
@@ -168,7 +170,6 @@ def get_sample_name(file_path: str, black_list: list[str], n=3):
 
 
 def is_outlier(adata: AnnData, metric: str, nmads: int):
-
     M = adata.obs[metric]
     outlier = (M < np.median(M) - nmads * median_abs_deviation(M)) | (
         np.median(M) + nmads * median_abs_deviation(M) < M
@@ -252,7 +253,6 @@ qc_features_fac: Dict[str, List[str]] = {
 
 
 def human2mouse(genes: List[str]) -> List[str]:
-
     r = requests.post(
         url="https://biit.cs.ut.ee/gprofiler/api/orth/orth/",
         json={
@@ -317,7 +317,6 @@ def _compute_outlier_all(adata: AnnData, variables: Dict[str, List]) -> pd.Serie
 
 
 def _compute_outlier_sample(adata: AnnData, variables: Dict[str, List], sample):
-
     sample_dict = variables[sample]
     sample_slice = adata.obs.query(f"sample == '{sample}'")
 
