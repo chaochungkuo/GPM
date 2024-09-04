@@ -17,18 +17,20 @@ bibliography: ../references.bib
 
 ```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 source("/etc/rstudio/Rprofile.site")
-Tag_this_analysis <- "Heatmap_genes"
+Tag_this_analysis <- "visual_genes"
 
 library(data.table)
 library(pheatmap)
 library(openxlsx)
 library(DT)
+library(ggrepel)
+library(ggplot2)
 # library(org.Hs.eg.db)
 # library(org.Mm.eg.db)
 ################# Need to be modified ########################
-DIR_DGEA <- ""
-exp <- fread(paste0(DIR_DGEA, "/DGEA_All_samples_norm_exp_quant.csv")
-
+DIR_DGEA <- "../DGEA"
+exp <- fread(paste0(DIR_DGEA, "/DGEA_All_samples_norm_exp_quant.csv"))
+exp <- data.frame(exp)
 ###############################################################
 fontsize <- 8
 fontsize_row <- 5
@@ -48,6 +50,68 @@ go_heatmap <- function(exp, sel_genes) {
   }
   
 }
+
+go_ma_plot <- function(exp, sel_genes, sample1, sample2) {
+  # Ensure the selected samples are in the expression table
+  if (!all(c(sample1, sample2) %in% colnames(exp))) {
+    stop("Both sample1 and sample2 must be column names in the expression table.")
+  }
+  sample_indices <- match(c(sample1, sample2), colnames(exp))
+  selected_data <- exp[, sample_indices]
+  # Calculate average expression and log fold-change
+  avg_expr <- rowMeans(log10(selected_data + 1))
+  log_fc <- log10(exp[, sample_indices[2]] + 1) - log10(exp[, sample_indices[1]] + 1)
+  # Create a data frame for plotting
+  ma_data <- data.frame(A = avg_expr, M = log_fc, gene_name = exp$gene_name)
+  # Generate the MA plot
+  ggplot(ma_data, aes(x = A, y = M)) +
+    geom_point(alpha = 0.5, colour="skyblue") +
+    # Highlight selected genes with orange color
+    geom_point(data = subset(ma_data, gene_name %in% sel_genes), aes(x = A, y = M), 
+               color = "orange", size = 3, alpha = 0.8) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+    geom_text_repel(aes(label = ifelse(gene_name %in% sel_genes, gene_name, "")),
+                    size = 3, max.overlaps = Inf) +
+    labs(title = paste("MA Plot:", sample2, "vs", sample1), 
+         x = "Average Expression (log10)", 
+         y = "Log Fold Change") +
+    theme_minimal()
+}
+
+go_scatter_plot <- function(exp, sel_genes, sample1, sample2) {
+  # Ensure the selected samples are in the expression table
+  if (!all(c(sample1, sample2) %in% colnames(exp))) {
+    stop("Both sample1 and sample2 must be column names in the expression table.")
+  }
+  
+  # Get the indices of the selected samples
+  sample_indices <- match(c(sample1, sample2), colnames(exp))
+  
+  # Subset the data for the selected samples
+  selected_data <- exp[, sample_indices]
+  
+  # Create a data frame for plotting
+  scatter_data <- data.frame(
+    Sample1 = log10(selected_data[, 1] + 1),
+    Sample2 = log10(selected_data[, 2] + 1),
+    gene_name = exp$gene_name
+  )
+  
+  # Generate the scatter plot
+  ggplot(scatter_data, aes(x = Sample1, y = Sample2)) +
+    geom_point(alpha = 0.5, colour = "skyblue") +
+    # Highlight selected genes with orange color
+    geom_point(data = subset(scatter_data, gene_name %in% sel_genes), 
+               aes(x = Sample1, y = Sample2), 
+               color = "orange", size = 3, alpha = 0.8) +
+    geom_text_repel(data = subset(scatter_data, gene_name %in% sel_genes), 
+                    aes(label = gene_name), 
+                    size = 3, max.overlaps = Inf) +
+    labs(title = paste("Scatter Plot:", sample1, "vs", sample2), 
+         x = paste(sample1, "Expression (log10)"), 
+         y = paste(sample2, "Expression (log10)")) +
+    theme_minimal()
+}
 ```
 
 ### [Back to front page](../Analysis_Report_RNAseq.html)
@@ -66,6 +130,29 @@ go_heatmap(exp, sel_genes)
 ```{r, echo=FALSE, results='markup', eval=TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=2, dpi=400, fig.format='png', fig.asp=0.5}
 sel_genes <- c("ALDOA","BPGM","ENO1","ENO2","GAPDH","GPI","HK1","HK2","HKDC1","PFKL","PFKM","PGAM1","PGAM2","PGAM4","PGK1","PKLR","PKM","TPI1")
 go_heatmap(exp, sel_genes)
+```
+
+# In the comparison between C17 control and C6661 control
+
+## Most well-known oncogenes are mutated in NPC
+
+```{r, echo=TRUE, results='markup', eval=TRUE, warning=FALSE, message=FALSE, fig.height=5, dpi=400, fig.format='png'}
+sel_genes <- c("ABL1", "AKT1", "AKT2", "ARID1A", "BAP1", "BRAF", "CD276", "CDK4", 
+                  "CDKN2A", "CR2", "CXCL3", "DNMT3A", "DNMT3B", "EGFR", "ELL3", 
+                  "EPCAM", "ERBB2", "EZH2", "FGFR1", "FGFR3", "FLT3", "FNDC3B", 
+                  "GATA6", "GSTA3", "HDAC4", "HRAS", "ICAM1", "JAK2", "JUP", 
+                  "KIT", "KMT2B", "KMT2C", "KMT2D", "KRAS", "LAT2", "LHX2", 
+                  "MET", "MUC16", "NRAS", "PAXIP1", "PDGFRA", "PIK3CA", "PRC1", 
+                  "RET", "SNAI2", "SOX4", "SUZ12", "TSHZ3", "UCHL1")
+go_heatmap(exp, sel_genes)
+```
+
+```{r, echo=TRUE, results='markup', eval=TRUE, warning=FALSE, message=FALSE, dpi=400, fig.format='png'}
+go_ma_plot(exp, sel_genes, sample1="C17.IFNbeta_0h", sample2="C6661.IFNbeta_0h")
+```
+
+```{r, echo=TRUE, results='markup', eval=TRUE, warning=FALSE, message=FALSE, dpi=400, fig.format='png'}
+go_scatter_plot(exp, sel_genes, sample1="C17.IFNbeta_0h", sample2="C6661.IFNbeta_0h")
 ```
 
 <!-- INSERTING code chunks here -->
