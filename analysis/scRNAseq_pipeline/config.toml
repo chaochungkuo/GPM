@@ -7,7 +7,8 @@ TECHNOLOGY = "10x"                                                              
 ORGANISM = "human"                                                                                # values(human,  mouse)
 auto_find = true                                                                                  # Automatically find the samples in the DIR_SAMPLES
 
-[basic.samples] # Override auto_find, provide a samples as 'sample = path/to/sample'.
+[basic.samples] # Override auto_find, one sample per line
+# sample1 = "PROJECT_PROJECT_PATH/cellranger/sample1/outs/per_sample_outs"
 
 [normalization]
 NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
