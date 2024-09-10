@@ -1,0 +1,20 @@
+[project]
+authors = ["MoSafi2 <mohamed.mabrouk@rwth-aachen.de>"]
+channels = ["conda-forge"]
+description = "Add a short description here"
+name = "RNA-velocity"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.11.*"
+scanpy = ">=1.10.2,<2"
+ipykernel = ">=6.29.5,<7"
+pixi-kernel = ">=0.4.0,<0.5"
+jupyterlab = ">=4.2.5,<5"
+ipywidgets = ">=8.1.5,<9"
+
+[pypi-dependencies]
+scvelo = { git = "https://github.com/theislab/scvelo" }
