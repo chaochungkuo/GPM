@@ -1,0 +1,82 @@
+---
+title: "PROJECT_PROJECT_STRING"
+author: 
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+library("heatmaply")
+library("readr")
+options(warn = -1)
+
+DIR_base <- "PROJECT_PROJECT_PATH/"
+DIR_project <- paste0(DIR_base, "analysis/")
+DIR_nfcore <- paste0(DIR_base, "nfcore_ChIPseq/")
+DIR_nfcore_res <- paste0(DIR_base, "nfcore_ChIPseq/results/")
+
+source(paste0(DIR_project, "report_functions.R"))
+
+## Load sample sheets from nf-core configuration
+samples <- read.table(file.path(DIR_nfcore,"samplesheet.csv"), header=TRUE, sep = ",")
+rownames(samples) <- samples$sample
+```
+
+
+![](RMD_INSTITUTE_LOGO)
+
+This document is the summary of the bioinformatic analysis done by Genomic Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration. If these results are used in any poster or publications, please acknowledge our core facility with the text below:
+
+> This work was supported by the Genomics Facility, a core facility of the Interdisciplinary Center for Clinical Research (IZKF) Aachen within the Faculty of Medicine at RWTH Aachen University.
+
+Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
+
+
+***
+
+<!-- 
+# Analyses
+
+### 1. [Quality Control](DNAm_array/1_DNAmArray_QC.html)
+### 2. [Processing](DNAm_array/2_DNAmArray_Processing.html)
+### 3. [Differential Analysis](DNAm_array/3_DNAmArray_Differential_Analysis.html)
+### 4. Functional Analyses on the differential methylated genes
+#### - [](DNAm_array/4_DNAmArray_FunctionalAnalysis_.html)
+### 5. [Zoom-in Visualization](DNAm_array/5_DNAmArray_Visualization.html)
+### 6. [Quantification on Promoter Regions](DNAm_array/6_DNAmArray_GeneQuantification.html)
+ -->
+
+<!-- 
+# Supervised learning
+
+### [01_Preprocessing.html](ClassifyAnything/reports/01_Preprocessing.html)
+### [02_Feature_selection.html](ClassifyAnything/reports/02_Feature_selection.html)
+### [03_Model_selection.html](ClassifyAnything/reports/03_Model_selection.html)
+### [03-01_Logistic_Regression.html](ClassifyAnything/reports/03-01_Logistic_Regression.html)
+### [03-02_Decision_Trees.html](ClassifyAnything/reports/03-02_Decision_Trees.html)
+### [03-03_Random_Forest.html](ClassifyAnything/reports/03-03_Random_Forest.html)
+### [03-04_SVM.html](ClassifyAnything/reports/03-04_SVM.html)
+### [04_Model_Evaluation.html](ClassifyAnything/reports/04_Model_Evaluation.html)
+ -->
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r info, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

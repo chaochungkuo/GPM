@@ -1,0 +1,200 @@
+---
+title: "Differential Analysis of TITLEDESCRIPTION"
+author:
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: ../references.bib
+---
+
+```{r setup, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+# load packages required for analysis
+library(knitr)
+library(limma)
+library(RColorBrewer)
+library(pheatmap)
+library(DT)
+library(openxlsx)
+# options(warn = -1)
+
+Tag_this_analysis <- "3_DNAmArray_Differential_Analysis"
+
+load("2_DNAmArray_Processing.RData")
+
+# Define the threshold for significance (e.g., adjusted p-value < 0.05)
+alpha <- 0.001
+```
+
+### [Back to front page](../Analysis_Report_DNAmArray.html)
+
+The steps done in this analysis are done according to [A cross-package Bioconductor workflow for analysing methylation array data](https://www.bioconductor.org/packages/release/workflows/vignettes/methylationArrayAnalysis/inst/doc/methylationArrayAnalysis.html)[@maksimovic2016cross].
+
+> Maksimovic J, Phipson B, Oshlack A. A cross-package Bioconductor workflow for analysing methylation array data. F1000Res. 2016 Jun 8;5:1281. doi: 10.12688/f1000research.8839.3. PMID: 27347385; PMCID: PMC4916993.
+
+The threshold applied on the adjusted p-value is `r alpha`
+
+# Sample Group Counts
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Create a contingency table
+group_counts <- table(targets$Sample_Group)
+# Convert the table to a data frame
+group_counts_df <- as.data.frame(group_counts)
+# Rename the columns to "Group" and "Number"
+colnames(group_counts_df) <- c("Group", "Number")
+datatable(group_counts_df, 
+          options = list(pageLength = nrow(group_counts_df)),
+          rownames = FALSE,  # Removes row names if not needed
+          caption = 'Sample Group Counts')
+```
+
+# Differenial Analysis
+
+We performed the differential analysis on each sample group comparing to the control samples.
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# This is the factor of interest
+groups <- factor(targets$Sample_Group)
+# This is the individual effect that we need to account for
+# individual <- factor(targets$Sample_Source) 
+# Use the above to create a design matrix
+design <- model.matrix(~0 + groups, data=targets)
+colnames(design) <- c(levels(groups))
+
+# Create a contrast matrix for "one vs control" comparisons
+contMatrix <- makeContrasts(
+  ALS_vs_Control = ALS - Control,
+  IBM_vs_Control = IBM - Control,
+  levels = design
+)
+
+```
+
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Fit the linear model
+fit <- lmFit(mVals, design)
+# Apply the contrast matrix
+fit2 <- contrasts.fit(fit, contMatrix)
+# Apply empirical Bayes smoothing
+fit2 <- eBayes(fit2)
+```
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Initialize a vector to store the results
+comparison_names <- colnames(contMatrix)
+significant_cpgs <- numeric(length(comparison_names))
+# Loop through each comparison and count the number of significant CpGs
+for (i in seq_along(comparison_names)) {
+  top_table <- topTable(fit2, coef=comparison_names[i], number=Inf, adjust.method="BH")
+  significant_cpgs[i] <- sum(top_table$adj.P.Val < alpha)
+}
+# Create a data frame to summarize the results
+summary_table <- data.frame(
+  Comparison = comparison_names,
+  Significant_CpGs = significant_cpgs
+)
+# Print the summary table
+datatable(summary_table, 
+          options = list(pageLength = nrow(summary_table)),
+          rownames = FALSE,  # Removes row names if not needed
+          caption = 'Number of Sig. Probes')
+```
+
+## Heatmap of top 500 Sig. Probes in all comparisons
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE, fig.height=10, fig.width=12}
+Num_top_CpGs <- 500
+# Initialize an empty list to store top CpGs for each comparison
+top_cpgs_list <- list()
+
+# Loop through each comparison and extract the top CpGs
+for (i in colnames(contMatrix)) {
+  top_cpgs <- topTable(fit2, coef=i, number=Num_top_CpGs, adjust.method="BH")
+  top_cpgs_list[[i]] <- rownames(top_cpgs)
+}
+
+# Combine all top CpGs into one vector (some CpGs might overlap across comparisons)
+all_top_cpgs <- unique(unlist(top_cpgs_list))
+
+# Subset your original data matrix (e.g., mVals or beta values) to include only the top CpGs
+heatmap_data <- mVals[all_top_cpgs, ]
+
+# Create the column annotation data frame
+column_annotation <- data.frame(
+  Group = factor(targets$Sample_Group)
+)
+rownames(column_annotation) <- colnames(mVals)  # Assuming colnames(mVals) are the sample IDs
+
+# Annotation colors
+group_colors <- brewer.pal(12, "Paired")[1:length(unique(column_annotation$Group))]
+# Create a named vector to map groups to colors
+group_color_mapping <- setNames(group_colors, levels(column_annotation$Group))
+
+# Combine the annotation colors (only for column annotations now)
+annotation_colors <- list(
+  Group = group_color_mapping  # For the column annotations (sample groups)
+)
+
+# Generate heatmap
+pheatmap(heatmap_data,
+         scale = "row",                       # Standardize each CpG (row) across samples
+         clustering_distance_rows = "euclidean",
+         clustering_distance_cols = "euclidean",
+         clustering_method = "complete",
+         show_rownames = FALSE,               # Optionally hide CpG names if too many
+         show_colnames = TRUE,                # Show sample names
+         main = "Heatmap of Top 100 CpGs in Each Comparison",
+         annotation_col = column_annotation,  # Add column annotation
+         annotation_colors = annotation_colors # Apply custom colors
+)
+
+```
+
+# Save data into an excel file
+
+Please download the full statistics here: [`r paste0(Tag_this_analysis, "_statistics.xlsx")`](`r paste0(Tag_this_analysis, "_statistics.xlsx")`)
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Create a new workbook
+wb <- createWorkbook()
+# Loop through each comparison, save top_table to a sheet
+for (i in seq_along(comparison_names)) {
+  top_table <- topTable(fit2, coef=comparison_names[i], number=Inf, adjust.method="BH")
+  # Add a new sheet with the name of the comparison
+  addWorksheet(wb, sheetName = comparison_names[i])
+  # Write the top_table data frame to the worksheet
+  writeData(wb, sheet = comparison_names[i], top_table)
+}
+# Save the workbook to a file
+saveWorkbook(wb, file = paste0(Tag_this_analysis, "_statistics.xlsx"), overwrite = TRUE)
+```
+
+# Save objects
+
+```{r save, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+sel_mValue <- mVals[all_top_cpgs,]
+sel_bValue <- bVals[all_top_cpgs,]
+# Save the objects to a file
+save(comparison_names, fit2, sel_mValue, sel_bValue, file = paste0(Tag_this_analysis, ".RData"))
+```
+
+# References
+
+<div id="refs"></div>
+
+# R session information
+
+```{r session, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

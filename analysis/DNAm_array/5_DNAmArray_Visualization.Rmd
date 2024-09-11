@@ -1,0 +1,128 @@
+---
+title: "Visualization of TITLEDESCRIPTION"
+author:
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: ../references.bib
+---
+
+```{r setup, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+# load packages required for analysis
+library(minfi)
+library(Gviz)
+library(GenomicRanges)
+library(RColorBrewer)
+library(biomaRt)
+# options(warn = -1)
+
+Tag_this_analysis <- "5_DNAmArray_Visualization"
+
+load("1_DNAmArray_QC.RData")
+
+# Define the threshold for significance (e.g., adjusted p-value < 0.05)
+alpha <- 0.01
+```
+
+### [Back to front page](../Analysis_Report_DNAmArray.html)
+
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+cpg_annot <- getAnnotation(mSetSq)  # Assuming mSetSq is your MethylationSet object
+# Split UCSC_RefGene_Name by semicolons to handle cases where multiple genes are listed
+split_genes <- strsplit(cpg_annot$UCSC_RefGene_Name, ";")
+  
+viz_a_gene <- function(genes_of_interest, extend_size) {
+  # Define the genes of interest
+  # genes_of_interest <- "ACSF2"
+  genes_of_interest <- c(genes_of_interest)
+  # extend_size <- 2000
+  # Step 1: Get the CpG annotations and extract CpGs near the genes of interest
+  
+  # Check if any gene names match the genes of interest
+  gene_match <- sapply(split_genes, function(x) any(x %in% genes_of_interest))
+  # Subset cpg_annot to only rows where there's a match to the genes of interest
+  gene_regions <- cpg_annot[gene_match, ]
+  # Ensure chromosome names are consistent (prepend 'chr' if necessary)
+  # gene_regions$chr <- ifelse(grepl("^chr", gene_regions$chr), gene_regions$chr, paste0("chr", gene_regions$chr))
+  # Step 2: Create a GRanges object for the CpGs of interest
+  cpg_granges <- GRanges(seqnames = gene_regions$chr, 
+                         ranges = IRanges(start = gene_regions$pos, 
+                                          end = gene_regions$pos))
+  minbase <- min(start(cpg_granges)) - extend_size
+  maxbase <- max(end(cpg_granges)) + extend_size
+  
+  # Step 3: Extract the Beta-values for these CpGs
+  bVals <- getBeta(mSetSq)[rownames(gene_regions), ]
+  
+  # Create a gene annotation track (using the GeneRegionTrack)
+  # Use Biomart or known gene annotations if needed
+  # Here we'll simulate the gene model based on the gene names provided
+  gtrack <- GenomeAxisTrack()
+  genome_build <- "hg19"
+  chr <- unique(seqnames(cpg_granges))
+  # Create an IdeogramTrack for the chromosome
+  itrack <- IdeogramTrack(genome = genome_build, chromosome = as.integer(sub("chr", "", chr[1])))
+  # Use Biomart to fetch gene annotations
+  mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+  
+  # Create a BiomartGeneRegionTrack to display gene annotations
+  rTrack <- BiomartGeneRegionTrack(genome = genome_build, 
+                                   chromosome = as.integer(sub("chr", "", chr[1])), 
+                                   start = minbase, 
+                                   end = maxbase, 
+                                   mart = mart, 
+                                   name = "RefSeq Genes", 
+                                   showId = TRUE, 
+                                   geneSymbol = TRUE, 
+                                   stacking = "squish")
+  # create genomic ranges object from methylation data
+  cpgData <- GRanges(seqnames=Rle(gene_regions$chr),
+                     ranges=IRanges(start=gene_regions$pos, end=gene_regions$pos),
+                     strand=Rle(rep("*",nrow(gene_regions))),
+                     betas=bVals)
+  # extract data on CpGs in DMR
+  # cpgData <- subsetByOverlaps(cpgData, cpg_granges)
+  pal <- brewer.pal(8,"Set1")[-6]
+  # methylation data track
+  methTrack <- DataTrack(range=cpgData, groups=targets$Sample_Group,
+                         genome = genome_build,
+                         chromosome=as.integer(sub("chr", "", chr[1])), ylim=c(-0.05,1.05), col=pal,
+                         type=c("a","p"), name="DNA Meth. (beta value)",
+                         background.panel="white", legend=TRUE, cex.title=0.8,
+                         cex.axis=0.8, cex.legend=0.8)
+  tracks <- list(itrack, gtrack, methTrack, rTrack)
+  sizes <- c(0.2,0.5,3,1) # set up the relative sizes of the tracks
+  
+  plotTracks(tracks, from=minbase, to=maxbase, showTitle=TRUE, grid=FALSE,
+             lty.grid=3, sizes = sizes, length(tracks),
+             main = paste0("Methylation Signals on CpGs Near ", genes_of_interest[1]), 
+             cex.main=1, extend.left=2000)
+}
+```
+
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE, fig.height=8, fig.width=6, dpi=600}
+viz_a_gene(genes_of_interest="GPSM2", extend_size=2000)
+```
+
+
+# References
+
+<div id="refs"></div>
+
+# R session information
+
+```{r session, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

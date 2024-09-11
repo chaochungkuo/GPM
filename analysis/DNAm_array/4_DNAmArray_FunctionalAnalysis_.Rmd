@@ -1,0 +1,146 @@
+---
+title: "Functional analysis on the DE genes of ALS_vs_Control"
+author:
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: ../references.bib
+---
+
+```{r setup, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+# load packages required for analysis
+library(knitr)
+library(limma)
+library(minfi)
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+library(RColorBrewer)
+library(Gviz)
+library(DMRcate)
+library(ggplot2)
+library(plotly)
+library(stringr)
+library(kableExtra)
+library(pheatmap)
+library(DT)
+library(openxlsx)
+library(clusterProfiler)
+library(org.Hs.eg.db)  # If working with human data
+library(missMethyl)
+# options(warn = -1)
+
+Tag_this_analysis <- "4_DNAmArray_ALS_vs_Control"
+
+load("3_DNAmArray_Differential_Analysis.RData")
+
+# Select the comparison (e.g., "comparison_1")
+comparison_name <- "ALS_vs_Control"
+
+# Define significance thresholds
+p_value_threshold <- 0.001
+m_value_threshold <- 0.2
+```
+
+### [Back to front page](../Analysis_Report_DNAmArray.html)
+
+The threshold applied on the adjusted p-value is `r p_value_threshold` and the cutoff for M Values is `r m_value_threshold`.
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+
+# Extract the top CpGs for this comparison
+top_cpgs <- topTable(fit2, coef = comparison_name, number = Inf, adjust.method = "BH")
+# Identify hypermethylated CpGs (positive M-values)
+hyper_cpgs <- rownames(top_cpgs[top_cpgs$logFC > m_value_threshold & top_cpgs$adj.P.Val < p_value_threshold, ])
+# Identify hypomethylated CpGs (negative M-values)
+hypo_cpgs <- rownames(top_cpgs[top_cpgs$logFC < -m_value_threshold & top_cpgs$adj.P.Val < p_value_threshold, ])
+
+cpg_annot <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+# Map hypermethylated CpGs to genes
+hyper_genes <- unique(cpg_annot$UCSC_RefGene_Name[rownames(cpg_annot) %in% hyper_cpgs])
+hyper_genes <- unique(unlist(strsplit(hyper_genes, ";")))
+# Map hypomethylated CpGs to genes
+hypo_genes <- unique(cpg_annot$UCSC_RefGene_Name[rownames(cpg_annot) %in% hypo_cpgs])
+hypo_genes <- unique(unlist(strsplit(hypo_genes, ";")))
+
+# Create a data frame for the table
+table_data <- data.frame(
+  `Filtered list` = c("Hyper CpGs", 
+                      "Genes related to Hyper CpGs", 
+                      "Hypo CpGs", 
+                      "Genes related to Hypo CpGs"),
+  `Number` = c(length(hyper_cpgs), 
+               length(hyper_genes), 
+               length(hypo_cpgs), 
+               length(hypo_genes))
+)
+
+# Create the table using kable and format it using kableExtra
+kable(table_data, format = "html", col.names = c("Filtered list", "Number")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+                full_width = F, position = "left") %>%
+  column_spec(2, bold = TRUE)  # Optionally make the numbers bold
+```
+
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# GO analysis for hypermethylated genes
+label="GO analysis for hypermethylated genes"
+cat(paste0("## ", label))
+go_res <- enrichGO(gene = hyper_genes, OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP")
+
+dotplot(go_res, showCategory = 10) + ggtitle("Top 10 GO Terms")
+barplot(go_res, showCategory = 10) + ggtitle("Top 10 GO Terms")
+
+datatable(as.data.frame(go_res), 
+          extensions = 'Buttons', 
+          options = list(
+            dom = 'Blfrtip',
+            buttons = list(
+              list(extend = 'csv', text = 'Download CSV'),  # Download CSV button
+              list(extend = 'excel', text = 'Download XLSX')  # Download XLSX button
+            ),
+            pageLength = 10, autoWidth = TRUE, searchHighlight = TRUE), 
+          rownames = FALSE) %>%
+  formatRound(columns = c("RichFactor", "FoldEnrichment", "zScore", "pvalue", "p.adjust", "qvalue"), digits = 4)
+```
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+label="GO analysis for hypomethylated genes"
+cat(paste0("## ", label))
+go_res <- enrichGO(gene = hypo_genes, OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP")
+
+dotplot(go_res, showCategory = 10) + ggtitle("Top 10 GO Terms")
+barplot(go_res, showCategory = 10) + ggtitle("Top 10 GO Terms")
+
+datatable(as.data.frame(go_res), 
+          extensions = 'Buttons', 
+          options = list(
+            dom = 'Blfrtip',
+            buttons = list(
+              list(extend = 'csv', text = 'Download CSV'),  # Download CSV button
+              list(extend = 'excel', text = 'Download XLSX')  # Download XLSX button
+            ),
+            pageLength = 10, autoWidth = TRUE, searchHighlight = TRUE), 
+          rownames = FALSE) %>%
+  formatRound(columns = c("RichFactor", "FoldEnrichment", "zScore", "pvalue", "p.adjust", "qvalue"), digits = 4)
+```
+
+
+# References
+
+<div id="refs"></div>
+
+# R session information
+
+```{r session, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```
