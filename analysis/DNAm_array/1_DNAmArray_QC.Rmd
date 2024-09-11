@@ -1,0 +1,151 @@
+---
+title: "Quality Control of TITLEDESCRIPTION"
+author:
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: ../references.bib
+---
+
+```{r setup, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+# load packages required for analysis
+library(knitr)
+library(limma)
+library(minfi)
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+library(IlluminaHumanMethylation450kmanifest)
+library(RColorBrewer)
+library(missMethyl)
+library(minfiData)
+library(Gviz)
+library(DMRcate)
+library(ggplot2)
+library(stringr)
+# options(warn = -1)
+
+Tag_this_analysis <- "1_DNAmArray_QC"
+PATH_IDAT <- ""
+```
+
+### [Back to front page](../Analysis_Report_DNAmArray.html)
+
+The steps done in this analysis are done according to [A cross-package Bioconductor workflow for analysing methylation array data](https://www.bioconductor.org/packages/release/workflows/vignettes/methylationArrayAnalysis/inst/doc/methylationArrayAnalysis.html)[@maksimovic2016cross].
+
+Maksimovic J, Phipson B, Oshlack A. A cross-package Bioconductor workflow for analysing methylation array data. F1000Res. 2016 Jun 8;5:1281. doi: 10.12688/f1000research.8839.3. PMID: 27347385; PMCID: PMC4916993.
+
+# Loading data
+
+```{r load, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+# get the 450k annotation data
+ann450k <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+# head(ann450k)
+# read in the sample sheet for the experiment
+targets <- read.metharray.sheet(PATH_IDAT, pattern="samplesheet.csv")
+targets <- targets[targets$Sample_Group != "",]
+targets <- targets[targets$Note != "dropped",]
+# read in the raw data from the IDAT files
+rgSet <- read.metharray.exp(base=PATH_IDAT,
+                            targets=targets, force=TRUE)
+# give the samples descriptive names
+targets$ID <- paste(targets$Sample_Group,targets$Sample.Name,sep=".")
+sampleNames(rgSet) <- targets$ID
+rgSet
+```
+
+
+# Quality control
+
+```{r qc, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+# calculate the detection p-values
+detP <- detectionP(rgSet)
+
+qcReport(rgSet, sampNames=targets$ID, sampGroups=targets$Sample_Group, 
+         pdf=paste0(Tag_this_analysis,"_Report.pdf"))
+```
+
+
+```{r pfigure, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# examine mean detection p-values across all samples to identify any failed samples
+pal <- brewer.pal(length(unique(targets$Sample_Group)), "Dark2")
+# Set up the layout with extra margin space on the right for the legend
+par(mar=c(9, 5, 2, 9) + 0.1)
+# Create the bar plot
+barplot(colMeans(detP), col=pal[factor(targets$Sample_Group)], las=2, 
+        cex.names=0.8, ylab="Mean detection p-values")
+# Add a horizontal line at p-value 0.05
+abline(h=0.05, col="red")
+# Add the legend to the right of the plot area
+legend("topright", inset=c(-0.37, 0), legend=levels(factor(targets$Sample_Group)), fill=pal, bg="white", xpd=TRUE)
+```
+
+```{r filter, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# remove poor quality samples
+keep <- colMeans(detP) < 0.05
+rgSet <- rgSet[,keep]
+# remove poor quality samples from targets data
+targets <- targets[keep,]
+```
+
+# Normalisation
+
+```{r normalization, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# normalize the data; this results in a GenomicRatioSet object
+mSetSq <- preprocessQuantile(rgSet)
+# create a MethylSet object from the raw data for plotting
+mSetRaw <- preprocessRaw(rgSet)
+```
+
+# Filtering samples
+
+```{r echo=TRUE, message=FALSE, warning=FALSE, results='asis'}
+# Extract current sample IDs from `mSetSq`
+# current_samples <- mSetSq$Sample.Name
+# Get the sample IDs you want to keep
+# keep_groups <- c("ALS", "IBM", "Multiminicores", "NMA", "PM", "Control")
+# samples_to_keep <- targets$Sample.Name[targets$Sample_Group %in% keep_groups]
+# Subset the `mSetSq` object based on `samples_to_keep`
+# mSetSq <- subset(mSetSq, samples_to_keep %in% current_samples)
+# mSetSq@colData <- mSetSq@colData[mSetSq@colData$Sample.Name %in% samples_to_keep,]
+```
+
+```{r densityplots, echo=TRUE, results='asis', warning=FALSE, message=FALSE, fig.height=6}
+# Set up the plotting area to have 2 rows and 1 column (vertical arrangement)
+par(mfrow = c(1, 2))
+
+# Plot 1: Raw data
+densityPlot(rgSet, sampGroups = targets$Sample_Group, main = "Raw", legend = FALSE)
+# Add legend to the right of the first plot
+legend("top", legend = levels(factor(targets$Sample_Group)), 
+       text.col = brewer.pal(8, "Dark2"), bty = "n")
+
+# Plot 2: Normalized data
+densityPlot(getBeta(mSetSq), sampGroups = targets$Sample_Group, main = "Normalized", legend = FALSE)
+# Add legend to the right of the second plot
+legend("top", legend = levels(factor(targets$Sample_Group)), 
+       text.col = brewer.pal(8, "Dark2"), bty = "n")
+```
+
+```{r save, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Save the objects to a file
+save(targets, mSetSq, detP, file = paste0(Tag_this_analysis, ".RData"))
+```
+
+# References
+
+<div id="refs"></div>
+
+# R session information
+
+```{r session, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

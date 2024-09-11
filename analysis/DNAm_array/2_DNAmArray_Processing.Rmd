@@ -1,0 +1,400 @@
+---
+title: "Processing of TITLEDESCRIPTION"
+author:
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: ../references.bib
+---
+
+```{r setup, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+# load packages required for analysis
+library(knitr)
+library(limma)
+library(minfi)
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+library(IlluminaHumanMethylation450kmanifest)
+library(RColorBrewer)
+library(missMethyl)
+library(minfiData)
+library(Gviz)
+library(DMRcate)
+library(ggplot2)
+library(plotly)
+library(stringr)
+library(methylationArrayAnalysis)
+# options(warn = -1)
+
+Tag_this_analysis <- "2_DNAmArray_Processing"
+
+load("1_DNAmArray_QC.RData")
+```
+
+### [Back to front page](../Analysis_Report_DNAmArray.html)
+
+The steps done in this analysis are done according to [A cross-package Bioconductor workflow for analysing methylation array data](https://www.bioconductor.org/packages/release/workflows/vignettes/methylationArrayAnalysis/inst/doc/methylationArrayAnalysis.html)[@maksimovic2016cross].
+
+Maksimovic J, Phipson B, Oshlack A. A cross-package Bioconductor workflow for analysing methylation array data. F1000Res. 2016 Jun 8;5:1281. doi: 10.12688/f1000research.8839.3. PMID: 27347385; PMCID: PMC4916993.
+
+# Before filtering
+
+## PCA (Principal Component Analysis) {.tabset}
+
+PCA seeks to find the directions (principal components) that maximize the variance in the data. It transforms the original variables into a new set of orthogonal variables (principal components) that capture the most variance. The first principal component explains the most variance, and each subsequent component explains the maximum variance possible under the constraint that it is orthogonal to the previous components.
+
+### 2D PCA
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Perform PCA on the M-values
+pca_res <- prcomp(t(getM(mSetSq)), scale. = TRUE)
+# Prepare data frames for plotly (2D PCA)
+df_pca_2d <- data.frame(PC1 = pca_res$x[,1], PC2 = pca_res$x[,2], 
+                        Group = factor(targets$Sample_Group),
+                        Name = targets$Sample.Name)
+# Define colors
+pal <- brewer.pal(length(unique(targets$Sample_Group)), "Dark2")
+# 2D PCA Plot
+pca_plot_2d <- plot_ly(df_pca_2d, x = ~PC1, y = ~PC2, type = 'scatter', mode = 'markers',
+              color = ~Group, colors = pal) %>%
+  layout(title = 'PCA Plot (2D) by Sample Group',
+         xaxis = list(title = paste0('PC1 (', round(100 * summary(pca_res)$importance[2, 1], 2), '% Variance Explained)')),
+         yaxis = list(title = paste0('PC2 (', round(100 * summary(pca_res)$importance[2, 2], 2), '% Variance Explained)')))
+pca_plot_2d
+```
+
+### 3D PCA
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Prepare data frames for plotly (3D PCA)
+df_pca_3d <- data.frame(PC1 = pca_res$x[,1], PC2 = pca_res$x[,2], PC3 = pca_res$x[,3], Group = factor(targets$Sample_Group))
+
+# 3D PCA Plot
+pca_plot_3d <- plot_ly(df_pca_3d, x = ~PC1, y = ~PC2, z = ~PC3, type = 'scatter3d', mode = 'markers',
+              color = ~Group, colors = pal) %>%
+  layout(title = 'PCA Plot (3D) by Sample Group',
+         scene = list(
+           xaxis = list(title = paste0('PC1 (', round(100 * summary(pca_res)$importance[2, 1], 2), '% Variance Explained)')),
+           yaxis = list(title = paste0('PC2 (', round(100 * summary(pca_res)$importance[2, 2], 2), '% Variance Explained)')),
+           zaxis = list(title = paste0('PC3 (', round(100 * summary(pca_res)$importance[2, 3], 2), '% Variance Explained)'))
+         ))
+pca_plot_3d
+```
+
+## MDS (Multidimensional Scaling)) {.tabset}
+
+MDS focuses on preserving the pairwise distances or dissimilarities between data points. It tries to position the points in a lower-dimensional space such that the distances between points in the plot are as close as possible to the original distances in the high-dimensional space.
+
+### 2D MDS
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Generate MDS coordinates using cmdscale
+mds_res <- cmdscale(dist(t(getM(mSetSq))), k = 2) # k = 2 for 2D MDS
+# Prepare data frames for plotly (2D MDS)
+df_mds_2d <- data.frame(Dim1 = mds_res[,1], Dim2 = mds_res[,2], Group = factor(targets$Sample_Group))
+# Define colors
+pal <- brewer.pal(length(unique(targets$Sample_Group)), "Dark2")
+# 2D MDS Plot
+mds_plot_2d <- plot_ly(df_mds_2d, x = ~Dim1, y = ~Dim2, type = 'scatter', mode = 'markers',
+              color = ~Group, colors = pal) %>%
+  layout(title = 'MDS Plot (2D) by Sample Group',
+         xaxis = list(title = 'Dimension 1'),
+         yaxis = list(title = 'Dimension 2'))
+mds_plot_2d
+```
+
+### 3D MDS
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Generate MDS coordinates using cmdscale
+mds_res_3d <- cmdscale(dist(t(getM(mSetSq))), k = 3) # k = 3 for 3D MDS
+
+# Prepare data frames for plotly (3D MDS)
+df_mds_3d <- data.frame(Dim1 = mds_res_3d[,1], Dim2 = mds_res_3d[,2], Dim3 = mds_res_3d[,3], Group = factor(targets$Sample_Group))
+
+# 3D MDS Plot
+mds_plot_3d <- plot_ly(df_mds_3d, x = ~Dim1, y = ~Dim2, z = ~Dim3, type = 'scatter3d', mode = 'markers',
+              color = ~Group, colors = pal) %>%
+  layout(title = 'MDS Plot (3D) by Sample Group',
+         scene = list(
+           xaxis = list(title = 'Dimension 1'),
+           yaxis = list(title = 'Dimension 2'),
+           zaxis = list(title = 'Dimension 3')
+         ))
+mds_plot_3d
+
+```
+
+## Calculating M-values and beta values
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# calculate M-values for statistical analysis
+mVals <- getM(mSetSq)
+bVals <- getBeta(mSetSq)
+```
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Increase the right margin to make space for the legend
+par(mar=c(5, 4, 4, 8) + 0.1)
+# Plot the density plot
+densityPlot(bVals, sampGroups=targets$Sample_Group, main="Beta values", 
+            legend=FALSE, xlab="Beta values")
+# Place the legend outside the plot area
+legend("topright", inset=c(-0.3,0), legend = levels(factor(targets$Sample_Group)), 
+       text.col=brewer.pal(8,"Dark2"), xpd=TRUE, bty = "n")
+```
+
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Increase the right margin to make space for the legend
+par(mar=c(5, 4, 4, 8) + 0.1)
+# Plot the density plot
+densityPlot(mVals, sampGroups=targets$Sample_Group, main="M values", 
+            legend=FALSE, xlab="M values")
+# Place the legend outside the plot area
+legend("topright", inset=c(-0.3,0), legend = levels(factor(targets$Sample_Group)), 
+       text.col=brewer.pal(8,"Dark2"), xpd=TRUE, bty = "n")
+```
+
+# Filtering probes
+
+## Detection p-value
+
+Poor performing probes are generally filtered out prior to differential methylation analysis. As the signal from these probes is unreliable, by removing them we perform fewer statistical tests and thus incur a reduced multiple testing penalty. We filter out probes that have failed in one or more samples based on detection p-value.
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# ensure probes are in the same order in the mSetSq and detP objects
+detP <- detP[match(featureNames(mSetSq),rownames(detP)),]
+# remove any probes that have failed in one or more samples
+keep <- rowSums(detP < 0.01) == ncol(mSetSq) 
+mSetSq <- mSetSq[keep,]
+```
+
+|Probes | Number |
+|------------- | ------------:|
+|Total before filtering | `r length(keep)`|
+|To be removed  | `r sum(!keep)`|
+|To be kept  | `r sum(keep)`|
+
+## Probes on the X and Y chromosomes
+
+Depending on the nature of your samples and your biological question you may also choose to filter out the probes from the X and Y chromosomes or probes that are known to have common SNPs at the CpG site.
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# get the 450k annotation data
+ann450k <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+# if your data includes males and females, remove probes on the sex chromosomes
+keep <- !(featureNames(mSetSq) %in% ann450k$Name[ann450k$chr %in% c("chrX","chrY")])
+mSetSq <- mSetSq[keep,]
+```
+
+|Probes | Number |
+|------------- | ------------:|
+|Total before filtering | `r length(keep)`|
+|To be removed  | `r sum(!keep)`|
+|To be kept  | `r sum(keep)`|
+
+## SNPs
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# remove probes with SNPs at CpG site
+mSetSq <- dropLociWithSnps(mSetSq)
+```
+
+|Probes | Number |
+|------------- | ------------:|
+|Total before filtering | `r length(keep)`|
+|Total after filtering | `r dim(mSetSq)[1]`|
+
+## Cross-reactive CpGs
+
+We will also filter out probes that have shown to be cross-reactive, that is, probes that have been demonstrated to map to multiple places in the genome. This list was originally published by Chen et al. (2013) and can be obtained from [the authors’ website](http://www.sickkids.ca/MS-Office-Files/Research/Weksberg%20Lab/48639-non-specific-probes-Illumina450k.xlsx).
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# exclude cross reactive probes
+dataDirectory <- system.file("extdata", package = "methylationArrayAnalysis")
+xReactiveProbes <- read.csv(file=paste(dataDirectory,
+                                       "48639-non-specific-probes-Illumina450k.csv",
+                                       sep="/"), stringsAsFactors=FALSE)
+keep <- !(featureNames(mSetSq) %in% xReactiveProbes$TargetID)
+mSetSq <- mSetSq[keep,]
+```
+
+| Probes | Number |
+| ------------- | ------------:|
+| Total before filtering | `r length(keep)`|
+| To be removed  | `r sum(!keep)`|
+| To be kept  | `r sum(keep)`|
+
+# After filtering
+
+### Filtered t-SNE
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Load necessary library
+library(Rtsne)
+
+# Perform t-SNE on the transposed M-values (same input as PCA)
+set.seed(42)  # Set a seed for reproducibility
+tsne_res <- Rtsne(t(getM(mSetSq)), perplexity = 15, theta = 0.5, dims = 2)
+
+# Prepare data frames for plotly (2D t-SNE)
+df_tsne_2d <- data.frame(
+  TSNE1 = tsne_res$Y[,1],
+  TSNE2 = tsne_res$Y[,2],
+  Group = factor(targets$Sample_Group)
+)
+
+# Define colors (same palette as used in PCA plot)
+pal <- brewer.pal(length(unique(targets$Sample_Group)), "Set1")
+
+# 2D t-SNE Plot
+tsne_plot_2d <- plot_ly(df_tsne_2d, x = ~TSNE1, y = ~TSNE2, type = 'scatter', mode = 'markers',
+              color = ~Group, colors = pal) %>%
+  layout(title = 't-SNE Plot (2D) by Sample Group',
+         xaxis = list(title = 't-SNE1'),
+         yaxis = list(title = 't-SNE2'))
+
+# Show the plot
+tsne_plot_2d
+
+```
+
+## Filtered PCA (Principal Component Analysis) {.tabset}
+
+PCA seeks to find the directions (principal components) that maximize the variance in the data. It transforms the original variables into a new set of orthogonal variables (principal components) that capture the most variance. The first principal component explains the most variance, and each subsequent component explains the maximum variance possible under the constraint that it is orthogonal to the previous components.
+
+### Filtered 2D PCA
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Perform PCA on the M-values
+pca_res <- prcomp(t(getM(mSetSq)), scale. = TRUE)
+# Prepare data frames for plotly (2D PCA)
+df_pca_2d <- data.frame(PC1 = pca_res$x[,1], PC2 = pca_res$x[,2], Group = factor(targets$Sample_Group))
+# Define colors
+pal <- brewer.pal(length(unique(targets$Sample_Group)), "Dark2")
+# 2D PCA Plot
+pca_plot_2d <- plot_ly(df_pca_2d, x = ~PC1, y = ~PC2, type = 'scatter', mode = 'markers',
+              color = ~Group, colors = pal) %>%
+  layout(title = 'PCA Plot (2D) by Sample Group',
+         xaxis = list(title = paste0('PC1 (', round(100 * summary(pca_res)$importance[2, 1], 2), '% Variance Explained)')),
+         yaxis = list(title = paste0('PC2 (', round(100 * summary(pca_res)$importance[2, 2], 2), '% Variance Explained)')))
+pca_plot_2d
+```
+
+### Filtered 3D PCA
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Prepare data frames for plotly (3D PCA)
+df_pca_3d <- data.frame(PC1 = pca_res$x[,1], PC2 = pca_res$x[,2], PC3 = pca_res$x[,3], Group = factor(targets$Sample_Group))
+# 3D PCA Plot
+pca_plot_3d <- plot_ly(df_pca_3d, x = ~PC1, y = ~PC2, z = ~PC3, type = 'scatter3d', mode = 'markers',
+              color = ~Group, colors = pal) %>%
+  layout(title = 'PCA Plot (3D) by Sample Group',
+         scene = list(
+           xaxis = list(title = paste0('PC1 (', round(100 * summary(pca_res)$importance[2, 1], 2), '% Variance Explained)')),
+           yaxis = list(title = paste0('PC2 (', round(100 * summary(pca_res)$importance[2, 2], 2), '% Variance Explained)')),
+           zaxis = list(title = paste0('PC3 (', round(100 * summary(pca_res)$importance[2, 3], 2), '% Variance Explained)'))
+         ))
+pca_plot_3d
+```
+
+## Filtered MDS (Multidimensional Scaling) {.tabset}
+
+MDS focuses on preserving the pairwise distances or dissimilarities between data points. It tries to position the points in a lower-dimensional space such that the distances between points in the plot are as close as possible to the original distances in the high-dimensional space.
+
+### Filtered 2D MDS
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Generate MDS coordinates using cmdscale
+mds_res <- cmdscale(dist(t(getM(mSetSq))), k = 2) # k = 2 for 2D MDS
+# Prepare data frames for plotly (2D MDS)
+df_mds_2d <- data.frame(Dim1 = mds_res[,1], Dim2 = mds_res[,2], Group = factor(targets$Sample_Group))
+# Define colors
+pal <- brewer.pal(length(unique(targets$Sample_Group)), "Dark2")
+# 2D MDS Plot
+mds_plot_2d <- plot_ly(df_mds_2d, x = ~Dim1, y = ~Dim2, type = 'scatter', mode = 'markers',
+              color = ~Group, colors = pal) %>%
+  layout(title = 'MDS Plot (2D) by Sample Group',
+         xaxis = list(title = 'Dimension 1'),
+         yaxis = list(title = 'Dimension 2'))
+mds_plot_2d
+```
+
+### Filtered 3D MDS
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Generate MDS coordinates using cmdscale
+mds_res_3d <- cmdscale(dist(t(getM(mSetSq))), k = 3) # k = 3 for 3D MDS
+# Prepare data frames for plotly (3D MDS)
+df_mds_3d <- data.frame(Dim1 = mds_res_3d[,1], Dim2 = mds_res_3d[,2], Dim3 = mds_res_3d[,3], Group = factor(targets$Sample_Group))
+# 3D MDS Plot
+mds_plot_3d <- plot_ly(df_mds_3d, x = ~Dim1, y = ~Dim2, z = ~Dim3, type = 'scatter3d', mode = 'markers',
+              color = ~Group, colors = pal) %>%
+  layout(title = 'MDS Plot (3D) by Sample Group',
+         scene = list(
+           xaxis = list(title = 'Dimension 1'),
+           yaxis = list(title = 'Dimension 2'),
+           zaxis = list(title = 'Dimension 3')
+         ))
+mds_plot_3d
+```
+
+## Calculating M-values and beta values
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# calculate M-values for statistical analysis
+mVals <- getM(mSetSq)
+bVals <- getBeta(mSetSq)
+```
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Increase the right margin to make space for the legend
+par(mar=c(5, 4, 4, 8) + 0.1)
+# Plot the density plot
+densityPlot(bVals, sampGroups=targets$Sample_Group, main="Beta values", 
+            legend=FALSE, xlab="Beta values")
+# Place the legend outside the plot area
+legend("topright", inset=c(-0.3,0), legend = levels(factor(targets$Sample_Group)), 
+       text.col=brewer.pal(8,"Dark2"), xpd=TRUE, bty = "n")
+```
+
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+# Increase the right margin to make space for the legend
+par(mar=c(5, 4, 4, 8) + 0.1)
+# Plot the density plot
+densityPlot(mVals, sampGroups=targets$Sample_Group, main="M values", 
+            legend=FALSE, xlab="M values")
+# Place the legend outside the plot area
+legend("topright", inset=c(-0.3,0), legend = levels(factor(targets$Sample_Group)), 
+       text.col=brewer.pal(8,"Dark2"), xpd=TRUE, bty = "n")
+```
+
+# Save objects
+
+```{r save, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+write.csv(bVals, file = "processed_bVals.csv")
+write.csv(mVals, file = "processed_mVals.csv")
+# Save the objects to a file
+save(targets, bVals, mVals, file = paste0(Tag_this_analysis, ".RData"))
+```
+
+# References
+
+<div id="refs"></div>
+
+# R session information
+
+```{r session, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```

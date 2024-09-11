@@ -1,0 +1,135 @@
+---
+title: "Methylation profile on genes"
+author:
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: ../references.bib
+---
+
+```{r setup, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+# load packages required for analysis
+library(minfi)
+library(Gviz)
+library(GenomicRanges)
+library(RColorBrewer)
+library(biomaRt)
+library(pheatmap)
+# options(warn = -1)
+
+Tag_this_analysis <- "6_DNAmArray_Genes"
+
+load("1_DNAmArray_QC.RData")
+
+# Define the threshold for significance (e.g., adjusted p-value < 0.05)
+alpha <- 0.01
+```
+
+### [Back to front page](../Analysis_Report_DNAmArray.html)
+
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE, fig.height=8, fig.width=6, dpi=600}
+# Define the promoter region (e.g., 2000bp upstream and 500bp downstream of the TSS)
+promoter_upstream <- 2000
+promoter_downstream <- 500
+
+heatmap_promoters <- function(genes_of_interest) {
+  # Get CpG annotation from the preprocessed MethylationSet (mSetSq)
+  cpg_annot <- getAnnotation(mSetSq)
+  split_genes <- strsplit(cpg_annot$UCSC_RefGene_Name, ";")
+  
+  # Filter CpGs that fall within the promoter regions of the genes of interest
+  gene_match <- sapply(split_genes, function(x) any(x %in% genes_of_interest))
+  # Subset cpg_annot to only rows where there's a match to the genes of interest
+  cpg_promoters <- cpg_annot[gene_match, ]
+  # Create a simplified gene annotation by selecting the first matching gene from genes_of_interest
+  cpg_promoters$Gene <- sapply(split_genes[gene_match], function(x) {
+    intersect(x, genes_of_interest)[1]  # Select the first matching gene
+  })
+  # Restrict to the promoter regions by calculating genomic ranges
+  promoter_ranges <- GRanges(
+    seqnames = cpg_promoters$chr,
+    ranges = IRanges(start = pmin(cpg_promoters$pos - promoter_upstream, cpg_promoters$pos + promoter_downstream),
+                     end = pmax(cpg_promoters$pos - promoter_upstream, cpg_promoters$pos + promoter_downstream))
+  )
+  # Subset the CpG sites that overlap with the promoter regions
+  cpg_promoters_filtered <- cpg_promoters[promoter_ranges %over% GRanges(cpg_promoters$chr, IRanges(cpg_promoters$pos, cpg_promoters$pos)), ]
+  
+  # Extract Beta-values for the CpGs in the promoter regions
+  bVals_promoters <- getBeta(mSetSq)[rownames(cpg_promoters_filtered), ]
+  
+  # Ensure CpGs are ordered by gene
+  cpg_promoters_filtered <- cpg_promoters_filtered[order(cpg_promoters_filtered$Gene), ]
+  bVals_promoters <- bVals_promoters[rownames(cpg_promoters_filtered), ]
+  
+  # Create a simplified row annotation with just the primary gene name
+  row_annotation <- data.frame(Gene = cpg_promoters_filtered$Gene)
+  rownames(row_annotation) <- rownames(cpg_promoters_filtered)  # Ensure row names match CpGs
+  
+  # Annotate samples with group information
+  # Assuming you have a data frame 'targets' with group annotations
+  sample_annotation <- data.frame(Group = targets$Sample_Group)
+  rownames(sample_annotation) <- colnames(bVals_promoters)
+  
+  # Define color palettes for row (gene) and column (group) annotations
+
+  # Step 1: Define colors for genes (row annotation)
+  unique_genes <- unique(row_annotation$Gene)
+  # gene_colors <- brewer.pal(n = length(unique_genes), name = "Set3")
+  gene_colors <- colorRampPalette(brewer.pal(12, "Set3"))(length(unique_genes))
+  names(gene_colors) <- unique_genes  # Assign colors to each unique gene
+  
+  # Step 2: Define colors for sample groups (column annotation)
+  unique_groups <- unique(sample_annotation$Group)
+  group_colors <- brewer.pal(n = length(unique_groups), name = "Dark2")
+  names(group_colors) <- unique_groups  # Assign colors to each unique group
+  
+  # Step 3: Create a list of colors for annotation
+  annotation_colors <- list(
+    Gene = gene_colors,  # For row annotation (genes)
+    Group = group_colors  # For column annotation (sample groups)
+  )
+  # Generate the heatmap
+  pheatmap(
+    bVals_promoters, 
+    annotation_col = sample_annotation,    # Column annotation for sample groups
+    annotation_row = row_annotation,       # Row annotation with simplified gene names
+    cluster_rows = FALSE,                  # Do not cluster rows, keep order by gene
+    show_rownames = FALSE,                 # Optionally hide row names if there are too many CpGs
+    show_colnames = TRUE,
+    border_color = NA,
+    scale = "row", fontsize=5,              # Scale by rows (CpGs)
+    color = colorRampPalette(c("blue", "white", "red"))(50),  # Color palette for Beta-values
+    main = "Beta Values of CpGs on Promoter Regions Grouped by Genes",
+    annotation_colors = annotation_colors
+  )
+}
+
+
+```
+
+# ALS known genes
+
+```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE, fig.height=8, fig.width=6, dpi=600}
+heatmap_promoters(genes_of_interest=c("PFN1","TARDBP","HNRNPA2B1","C9orf72","SOD1","VCP","TREM2","HNRNPA1","VAPB","DCTN1","SQSTM1","ALS2","OPTN","DNAJB2"))
+```
+
+# References
+
+<div id="refs"></div>
+
+# R session information
+
+```{r session, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```
