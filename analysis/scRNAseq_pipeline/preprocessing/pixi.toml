@@ -3,13 +3,17 @@ name = "Preprocessing"
 version = "0.1.0"
 description = "Module for pre-preprocessing of sc-RNA-seq datasets."
 authors = ["MoSafi2 <mohamed.mabrouk@rwth-aachen.de>"]
-channels = ["conda-forge", "bioconda", "paul.martin-2", "pytorch"]
+channels = ["conda-forge", "bioconda", "paul.martin-2", "pytorch", "nvidia"]
 platforms = ["linux-64"]
 
 [system-requirements]
 linux = "4.12.14"
 
-[dependencies]
+[target.linux-64.dependencies]
+gcc_linux-64 = { version = "*" }
+
+
+[feature.base.dependencies]
 scanpy = ">=1.10.1,<1.11"
 ipykernel = ">=6.29.3,<6.30"
 python = "3.11.*"
@@ -17,8 +21,10 @@ tomlkit = ">=0.12.5,<0.13"
 pixi-kernel = ">=0.3.0,<0.4"
 jupyterlab = ">=4.2.1,<4.3"
 nbconvert = ">=7.16.4,<7.17"
+
+[feature.preprocessing.dependencies]
 igraph = "*"
-leidenalg = ">=0.10.2,<0.11"
+leidenalg = "*"
 patchworklib = ">=0.6.3,<0.7"
 plotnine = ">=0.13.6,<0.14"
 scikit-image = ">=0.22.0,<0.23"
@@ -42,9 +48,41 @@ jupyter_bokeh = ">=4.0.5,<4.1"
 plotly = ">=5.22.0,<5.23"
 holoviews = ">=1.19.0,<1.20"
 quarto = ">=1.4.550,<1.5"
-kneed = ">=0.8.5,<0.9"
 pooch = ">=1.8.2,<2"
 
-[pypi-dependencies]
-kneed = "*"
 
+[feature.scgpt]
+pypi-dependencies = { scgpt = "==0.2.1" }
+channels = ["pytorch", "nvidia", "conda-forge", "bioconda"]
+
+[feature.scgpt.dependencies]
+python = "3.9.*"
+ipykernel = ">=6.29.5,<7"
+pip = ">=24.2,<25"
+tomlkit = ">=0.13.2,<0.14"
+faiss-gpu = "1.8.0"
+aiobotocore = "==2.3.3"
+huggingface_hub = ">=0.24.5,<0.25"
+pytorch = { channel = "pytorch", version = "<2.2" }
+scanpy = ">=1.10.2,<2"
+
+
+[feature.sctab.dependencies]
+merlin-dataloader = { version = ">=23.8.0,<24", channel = "nvidia" }
+merlin-core = { version = ">=23.8.0,<24", channel = "nvidia" }
+lightning = ">=2.4.0,<3"
+torchmetrics = ">=1.4.0.post0,<2"
+tensorboard = ">=2.17.0,<3"
+sparqlwrapper = ">=2.0.0,<3"
+pytorch = "2.*"
+huggingface_hub = ">=0.24.5,<0.25"
+
+
+[pypi-dependencies]
+gputil = "*"
+
+
+[environments]
+default = ["base", "preprocessing"]
+sctab = ["base", "sctab"]
+scgpt = ["scgpt"]
