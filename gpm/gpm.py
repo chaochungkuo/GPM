@@ -339,10 +339,10 @@ class GPM():
                 for i, file in enumerate(analysis_dict[group][label]):
                     if i == 0:
                         click.echo("{:<25} {:<}".format(label,
-                                                        file.split("/")[2]))
+                                                        file.split("/")[-1]))
                     else:
                         click.echo("{:<25} {:<}".format("",
-                                                        file.split("/")[2]))
+                                                        file.split("/")[-1]))
             click.echo("")
 
     def load_analysis_config(self):
