@@ -1,12 +1,15 @@
+import urllib.request
 from numbers import Number
-from os import path
-from typing import Callable, Dict, List
+from os import path, system
+from typing import Any, Callable, Dict, List
 
 import numpy as np
 import pandas as pd
 import requests
 import scanpy as sc
 from anndata import AnnData
+from matplotlib import pyplot as plt
+from matplotlib.figure import Figure
 from scipy.sparse import issparse
 from scipy.stats import median_abs_deviation
 
@@ -187,12 +190,11 @@ qc_features_rules: Dict[str, List[str]] = {
 
 
 def _compute_outliers(
-    df: pd.DataFrame,
-    variable: str,
+    series: pd.Series,
     value: List | Number,
     max_only: bool = False,
     log_transform: bool = False,
-) -> pd.DataFrame:
+) -> pd.Series:
     """computes outliers for the given variable in the dataframe
 
     Args:
@@ -203,47 +205,7 @@ def _compute_outliers(
         df: the input dataframe with an additional column for the outliers
     """
 
-    if isinstance(value, list):
-
-        min_val = value[0]
-        max_val = value[1]
-        max_only = False  # Make sure not to override the user input
-
-    if isinstance(value, Number):
-        if not value > 0:
-            raise ValueError("Please provide a positive number of nmads")
-
-        if log_transform:
-            series = np.log1p(df[variable])
-        else:
-            series = df[variable]
-
-        min_val = np.median(series) - (median_abs_deviation(series) * value)
-        max_val = np.median(series) + (median_abs_deviation(series) * value)
-
-    if max_only:
-        df[f"{variable}_outlier"] = df[variable].gt(max_val)
-    else:
-        df[f"{variable}_outlier"] = df[variable].lt(min_val) | df[variable].gt(max_val)
-
-    df[f"{variable}_outlier"].fillna(False)
-
-    return df
-
-
-def compute_outliers_var_bulk(
-    df: pd.DataFrame,
-    variable: str,
-    value: List | Number,
-    max_only: bool = False,
-    log_transform: bool = False,
-):
-    
     # Validate the input
-    if variable not in df:
-        raise KeyError(
-            "the provided QC variable does not exist in the data, check the variable names again."
-        )
 
     if not isinstance(value, (list, Number)):
         raise ValueError(
@@ -254,67 +216,62 @@ def compute_outliers_var_bulk(
         if not value > 0:
             raise ValueError("Please provide a positive number of nmads")
 
+    if isinstance(value, list):
+        min_val: Number = value[0]
+        max_val: Number = value[1]
+        max_only = False  # Make sure not to override the user input
 
-    return _compute_outliers(df, variable, value, max_only, log_transform) 
+    if isinstance(value, Number):
+        if not value > 0:
+            raise ValueError("Please provide a positive number of nmads")
+
+        if log_transform:
+            series = np.log1p(series)
+
+        min_val: float = np.median(series) - (median_abs_deviation(series) * value)
+        max_val: float = np.median(series) + (median_abs_deviation(series) * value)
+
+    if max_only:
+        outliers: pd.Series[bool] = series.gt(max_val)
+    else:
+        outliers: pd.Series[bool] = series.lt(min_val) | series.gt(max_val)
+    outliers.fillna(False)
+
+    return outliers
 
 
+def compute_outliers(
+    df: pd.DataFrame,
+    qc_dict: Dict[str, List | Number],
+    max_only: List[str],
+    log_transform: List[str],
+) -> pd.DataFrame:
+    missing_keys = [key for key in qc_dict.keys() if key not in df.columns]
 
+    if len(missing_keys) > 0:
+        raise KeyError(
+            f"the following QC variables {','.join(missing_keys)} does not exist in the data, check the variable names again."
+        )
 
+    for key in qc_dict.keys():
+        if f"{key}_outlier" not in df.columns:
+            df[f"{key}_outlier"] = False
 
-def compute_outlier_sample(
-    adata: AnnData,
-    variable: str,
-    value: List | Number,
-    sample: str,
-    max_only: bool = False,
-    log_transform: bool = False,
-) -> None:
-    adata.obs["outlier"] = False
-    for sample in variables.keys():
-        _compute_outlier_sample(adata, variables, sample)
+        if key in max_only:
+            max_flag = True
+        else:
+            max_flag = False
 
+        if key in log_transform:
+            log_flag = True
+        else:
+            log_flag = False
 
-def _compute_outlier_sample(adata: AnnData, variables: Dict[str, List], sample) -> None:
-    sample_dict = variables[sample]
-    sample_slice = adata.obs.query(f"sample == '{sample}'")
+        df[f"{key}_outlier"] = _compute_outliers(
+            df[key], qc_dict[key], max_flag, log_flag
+        )
 
-    for key in sample_dict.keys():
-        if key not in sample_slice.columns:
-            raise KeyError(
-                "the provided QC variable does not exist in the data, check the variable names again."
-            )
-
-        if f"{key}_outlier" not in sample_slice.columns:
-            sample_slice[f"{key}_outlier"] = False
-
-        if isinstance(sample_dict[key], list):
-            if len(sample_dict[key]) != 2:
-                raise ValueError(
-                    "Provide a list of length 2 for the lower and upper bound of the QC-variable."
-                )
-
-            min_val = sample_dict[key][0]
-            max_val = sample_dict[key][1]
-
-        if isinstance(sample_dict[key], Number):
-            if not sample_dict[key] > 0:
-                raise ValueError("Please provide a positive number of nmads")
-            min_val = np.median(sample_slice[key]) - (
-                median_abs_deviation(sample_slice[key]) * sample_dict[key]
-            )
-            max_val = np.median(adata.obs[key]) + (
-                median_abs_deviation(sample_slice[key]) * sample_dict[key]
-            )
-
-        final_slice = sample_slice[key].lt(min_val) | sample_slice[key].gt(max_val)
-
-        adata.obs.loc[adata.obs["sample"] == sample, f"{key}_outlier"] = final_slice
-        adata.obs.loc[adata.obs["sample"] == sample, f"{key}_outlier"].fillna(False)
-
-    # Aggregating outliers in the 'outlier' column
-    adata.obs.loc[adata.obs["sample"] == sample, "outlier"] = adata.obs.loc[
-        adata.obs["sample"] == sample, [f"{x}_outlier" for x in sample_dict.keys()]
-    ].any(axis=1)
+    return df
 
 
 def get_keys(qc_dict):
@@ -348,7 +305,6 @@ def get_var_features_num(adata: AnnData, variable_features: int | float) -> int:
 
 
 def is_raw_counts(matrix) -> bool:
-
     if issparse(matrix):
         return matrix.count_nonzero() == matrix.astype("uint32").count_nonzero()
     else:
@@ -366,3 +322,52 @@ def select_n_uniform(length, n):
     step = length / n
     indices = [round(i * step) for i in range(n)]
     return indices
+
+
+def validate_qc_dict(dc: Dict, df: pd.DataFrame) -> bool:
+    if all(map(lambda x: isinstance(x, (list, Number)), dc.values())):
+        return True
+    elif all(map(lambda x: isinstance(x, (dict)), dc.values())):
+        if df["sample"].unique() == dc.keys():
+            return True
+
+        raise ValueError(
+            "The QC dictionary keys are either not covering all samples or the sample names are not matching the sample names in the dataframe."
+        )
+    else:
+        return False
+
+
+def GenomeInfoDB_fix(tmpdirname):
+    # Workaround failure to install GenomeInfoDbData using pixi
+    dn_path = path.join(tmpdirname, "GenomeInfoDbData_1.2.11.tar.gz")
+    dn_url = "https://bioconductor.org/packages/3.18/data/annotation/src/contrib/GenomeInfoDbData_1.2.11.tar.gz"
+    urllib.request.urlretrieve(dn_url, filename=dn_path)
+    system(f"R CMD INSTALL {dn_path}")
+
+
+def create_panel_fig(
+    total_plots,
+    ncols,
+    figsize,
+    wspace,
+    hspace,
+) -> tuple[Figure, Any]:
+    ncols = 2
+    nrows = total_plots // ncols + total_plots % ncols
+
+    fig, axes = plt.subplots(
+        nrows=nrows,
+        ncols=ncols,
+        figsize=(
+            ncols * figsize + figsize * wspace * (ncols - 1),
+            nrows * figsize + hspace * (nrows - 1),
+        ),
+    )
+    fig.subplots_adjust(wspace=wspace, hspace=hspace)
+    axes = axes.flatten()
+
+    if len(axes) > total_plots:
+        for i in range(total_plots, len(axes)):
+            fig.delaxes(axes[i])
+    return fig, axes

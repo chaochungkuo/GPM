@@ -7,7 +7,7 @@
 
 
 TODO - QC:
-- [ ] Make QC for all samples invidually and then merge them.
+- [X] Make QC per sample by default.
 - [ ] Refactor the sample discovery code
 - [ ] Add Documentation for the usage of the QC module.
 - [ ] Simpify the plotting of the QC module and clean up the manifest file.
