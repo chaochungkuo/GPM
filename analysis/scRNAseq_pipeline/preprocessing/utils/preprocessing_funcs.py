@@ -171,6 +171,10 @@ def _compute_outliers(
 
     return outliers
 
+    if isinstance(value, list):
+        min_val: Number = value[0]
+        max_val: Number = value[1]
+        max_only = False  # Make sure not to override the user input
 
 def compute_outliers(
     df: pd.DataFrame,
