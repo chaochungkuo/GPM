@@ -8,6 +8,9 @@ from os import path, walk
 import scanpy as sc
 from preprocessing_funcs import read_parsebio, splitall
 
+import scanpy as sc
+from utils.preprocessing_funcs import get_sample_name
+
 
 class AutoDiscover(ABC):
     """Protocol for the AutoDiscover class. This class provides arbitary implmenetation to discover scRNA-seq samples in a directory.
