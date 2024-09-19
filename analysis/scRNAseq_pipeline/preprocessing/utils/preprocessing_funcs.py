@@ -347,11 +347,12 @@ def GenomeInfoDB_fix(tmpdirname):
 
 
 def create_panel_fig(
+    *,
     total_plots,
-    ncols,
-    figsize,
-    wspace,
-    hspace,
+    ncols = 2,
+    figsize = 3,
+    wspace = 0.5,
+    hspace = 0.5,
 ) -> tuple[Figure, Any]:
     ncols = 2
     nrows = total_plots // ncols + total_plots % ncols
