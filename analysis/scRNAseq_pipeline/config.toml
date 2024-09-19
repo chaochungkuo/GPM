@@ -12,7 +12,7 @@ sample1 = "PROJECT_PROJECT_PATH/cellranger/sample1/outs/per_sample_outs"
 
 [normalization]
 NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
-COUNTS_LAYER = "counts"           # Layer where counts are stores (values: countes, X, decontXcounts)  (default: 'counts').
+COUNTS_LAYER = "counts"           # Layer where counts are stores (values: counts, X, decontXcounts)  (default: 'counts').
 
 [clustering]
 CLUSTERING_COL = ""            # str: Final column for clustering, Default: "" (unset)
@@ -20,7 +20,6 @@ INTEGRATE_SAMPLES = false
 INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not implemented yet
 
 [annotation]
-ANNOTATE_SAMPLES = false
 # str|List: values ('celltypist', 'scGPT', 'scTAB', 'markers'), use scGPT on GPU only for large datasets
 ANNOTATION_METHOD = ["scTAB"]
 ANNOTATION_COLUMN = ""        # str: Final column for annotation, Default: "" (unset)
