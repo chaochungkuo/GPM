@@ -140,51 +140,8 @@ def human2mouse(genes: List[str]) -> List[str]:
     return df.name.replace("N/A", pd.NA).dropna().to_list()
 
 
-###------------------------------------------------------------------------------------------------------------------------------------------------------------###
-###                                                            Reading Functions                                                                               ###
-###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
-
-## Technology components
-
-inputs: Dict[str, List | Callable] = {
-    "10x": {
-        "files": ["features.tsv.gz", "barcodes.tsv.gz", "matrix.mtx.gz"],
-        "black_list": ["filtered_feature_bc", "raw_feature_bc", "count", "outs"],
-        "raw_name": "raw_feature_bc_matrix",
-        "function": sc.read_10x_mtx,
-    },
-    "10x_h5": {
-        "files": ["*.h5"],
-        "black_list": [],
-        "raw_name": "",
-        "function": sc.read_10x_h5,
-    },
-    "ParseBio": {
-        "files": ["all_genes.csv", "cell_metadata.csv", "count_matrix.mtx"],
-        "black_list": ["DGE_filtered", "DGE_unfiltered"],
-        "function": read_parsebio,
-    },
-    "Singleron": {
-        "files": ["features.tsv.gz", "barcodes.tsv.gz", "matrix.mtx.gz"],
-        "black_list": ["starsolo", "raw", "filtered"],
-        "raw_name": "raw",
-        "function": sc.read_10x_mtx,
-    },
-}
-
-
-qc_features_rules: Dict[str, List[str]] = {
-    "human": {"mito": ["MT-"], "ribo": ["RBS", "RPL"], "hb": ["^HB[^(P)]"]},
-    "mouse": {
-        "mito": ["mt"],
-        "ribo": ["Rps", "Rpl"],
-        "hb": ["^Hb[^(p)]"],  # Validate this later
-    },
-}
-
-
-###------------------------------------------------------------------------------------------------------------------------------------###
+###----------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            QC Functions                                                                                    ###
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
