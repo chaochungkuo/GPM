@@ -35,16 +35,8 @@ def get_sample_name(file_path: str, black_list: list[str], n=3):
     return res
 
 
-def is_outlier(adata: AnnData, metric: str, nmads: int):
-    M = adata.obs[metric]
-    outlier = (M < np.median(M) - nmads * median_abs_deviation(M)) | (
-        np.median(M) + nmads * median_abs_deviation(M) < M
-    )
-    return outlier
-
-
 def read_parsebio(data_path: str) -> AnnData:
-    """Reads ParseBio
+    """Reads the output of spipe parsebio pipeline and returns an AnnData object.
 
     Args:
         data_path (str): path to the parsebio output.
@@ -57,15 +49,15 @@ def read_parsebio(data_path: str) -> AnnData:
 
     # reading in gene and cell data
     gene_data = pd.read_csv(data_path + "all_genes.csv")
-    cell_meta = pd.read_csv(data_path + "cell_metadata.csv")
+    cell_meta: pd.DataFrame = pd.read_csv(data_path + "cell_metadata.csv")
 
     # find genes with nan values and filter
-    gene_data = gene_data[gene_data.gene_name.notnull()]
-    notNa = gene_data.index
+    gene_data: pd.DataFrame = gene_data[gene_data.gene_name.notnull()]
+    notNa: pd.Index = gene_data.index
     notNa = notNa.to_list()
 
     # remove genes with nan values and assign gene names
-    adata = adata[:, notNa]
+    adata: AnnData = adata[:, notNa]
     adata.var = gene_data
     adata.var.set_index("gene_name", inplace=True)
     adata.var.index.name = None
@@ -82,6 +74,8 @@ def read_parsebio(data_path: str) -> AnnData:
 
 ## Technology components
 
+
+# TODO: Move to Autodiscover
 inputs: Dict[str, List | Callable] = {
     "10x": {
         "files": ["features.tsv.gz", "barcodes.tsv.gz", "matrix.mtx.gz"],
@@ -126,6 +120,15 @@ qc_features_rules: Dict[str, List[str]] = {
 
 
 def human2mouse(genes: List[str]) -> List[str]:
+    """Converts human gene names to mouse gene names using the gprofiler API
+
+    Args:
+        genes (List[str]): a list of human gene names
+
+    Returns:
+        List[str]: converted list of mouse gene names. Failed conversions are replaced with pd.NA.
+    """
+
     r = requests.post(
         url="https://biit.cs.ut.ee/gprofiler/api/orth/orth/",
         json={
@@ -140,7 +143,6 @@ def human2mouse(genes: List[str]) -> List[str]:
     return df.name.replace("N/A", pd.NA).dropna().to_list()
 
 
-
 ###----------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            QC Functions                                                                                    ###
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
@@ -152,35 +154,30 @@ def _compute_outliers(
     max_only: bool = False,
     log_transform: bool = False,
 ) -> pd.Series:
-    """computes outliers for the given variable in the dataframe
+    """computes outliers for the given variable in the dataframe.
 
     Args:
-        adata (AnnData): Input AnnData object
-        variable: name of the column to use to for outlier detection
-        value: value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
+        adata (AnnData): Input AnnData object.
+        value (List | Number): value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
+        max_only (bool, optional): If True, only the upper bound is used for outlier detection. Defaults to False.
+        log_transform (bool, optional): If True, the variable is log transformed before outlier detection. Defaults to False.
     Returns:
         df: the input dataframe with an additional column for the outliers
     """
 
     # Validate the input
-
     if not isinstance(value, (list, Number)):
         raise ValueError(
             "Please provide a positive number of nmads or a list of length 2 for the lower and upper bound of the QC-variable."
         )
 
-    if isinstance(value, Number):
-        if not value > 0:
-            raise ValueError("Please provide a positive number of nmads")
-
     if isinstance(value, list):
         min_val: Number = value[0]
         max_val: Number = value[1]
-        max_only = False  # Make sure not to override the user input
 
     if isinstance(value, Number):
         if not value > 0:
-            raise ValueError("Please provide a positive number of nmads")
+            raise ValueError("Please provide a positive number of nmads.")
 
         if log_transform:
             series = np.log1p(series)
@@ -203,6 +200,7 @@ def compute_outliers(
     max_only: List[str],
     log_transform: List[str],
 ) -> pd.DataFrame:
+
     missing_keys = [key for key in qc_dict.keys() if key not in df.columns]
 
     if len(missing_keys) > 0:
@@ -295,7 +293,7 @@ def validate_qc_dict(dc: Dict, df: pd.DataFrame) -> bool:
         return False
 
 
-def GenomeInfoDB_fix(tmpdirname):
+def GenomeInfoDB_fix(tmpdirname) -> None:
     # Workaround failure to install GenomeInfoDbData using pixi
     dn_path = path.join(tmpdirname, "GenomeInfoDbData_1.2.11.tar.gz")
     dn_url = "https://bioconductor.org/packages/3.18/data/annotation/src/contrib/GenomeInfoDbData_1.2.11.tar.gz"
@@ -306,10 +304,10 @@ def GenomeInfoDB_fix(tmpdirname):
 def create_panel_fig(
     *,
     total_plots,
-    ncols = 2,
-    figsize = 3,
-    wspace = 0.5,
-    hspace = 0.5,
+    ncols=2,
+    figsize=3,
+    wspace=0.5,
+    hspace=0.5,
 ) -> tuple[Figure, Any]:
     ncols = 2
     nrows = total_plots // ncols + total_plots % ncols
