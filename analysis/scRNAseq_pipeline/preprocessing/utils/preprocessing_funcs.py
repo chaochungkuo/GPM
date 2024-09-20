@@ -114,9 +114,10 @@ def human2mouse(genes: list[str]) -> list[str]:
     return df.name.replace("N/A", pd.NA).dropna().to_list()
 
     Args:
-        adata (AnnData): Input AnnData object
-        variable: name of the column to use to for outlier detection
-        value: value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
+        adata (AnnData): Input AnnData object.
+        value (List | Number): value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
+        max_only (bool, optional): If True, only the upper bound is used for outlier detection. Defaults to False.
+        log_transform (bool, optional): If True, the variable is log transformed before outlier detection. Defaults to False.
     Returns:
         df: the input dataframe with an additional column for the outliers
     """
