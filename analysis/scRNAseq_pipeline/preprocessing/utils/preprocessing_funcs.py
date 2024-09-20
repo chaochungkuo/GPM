@@ -96,11 +96,13 @@ inputs: Dict[str, List | Callable] = {
         "files": ["all_genes.csv", "cell_metadata.csv", "count_matrix.mtx"],
         "black_list": ["DGE_filtered", "DGE_unfiltered"],
         "function": read_parsebio,
+        "raw_name": "",
     },
     "Singleron": {
         "files": ["features.tsv.gz", "barcodes.tsv.gz", "matrix.mtx.gz"],
         "black_list": ["starsolo", "raw"],
         "function": sc.read_10x_mtx,
+        "raw_name": "",
     },
 }
 
