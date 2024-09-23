@@ -54,9 +54,11 @@ def read_parsebio(data_path: PathLike) -> AnnData:
 
     adata: AnnData = sc.read_mtx(path.join(data_path, "count_matrix.mtx"))
 
+
     # reading in gene and cell data
     gene_data = pd.read_csv(path.join(data_path, "all_genes.csv"))
     cell_meta: pd.DataFrame = pd.read_csv(path.join(data_path, "cell_metadata.csv"))
+
 
     # find genes with nan values and filter
     gene_data: pd.DataFrame = gene_data[gene_data.gene_name.notnull()]
@@ -80,15 +82,6 @@ def read_parsebio(data_path: PathLike) -> AnnData:
 
 
 ## Technology components
-
-qc_features_rules = {
-    "human": {"mito": ["MT-"], "ribo": ["RBS", "RPL"], "hb": ["^HB[^(P)]"]},
-    "mouse": {
-        "mito": ["mt"],
-        "ribo": ["Rps", "Rpl"],
-        "hb": ["^Hb[^(p)]"],  # Validate this later
-    },
-}
 
 
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
