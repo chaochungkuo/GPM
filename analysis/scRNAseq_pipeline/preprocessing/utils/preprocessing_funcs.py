@@ -1,7 +1,8 @@
 import urllib.request
 from collections.abc import Callable
 from numbers import Number
-from os import path, system
+from os import PathLike, path, system
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -18,25 +19,9 @@ from scipy.stats import median_abs_deviation
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
 
-# Configs
-## Utility Functions
-def get_sample_name(file_path: str, black_list: list[str], n=3):
-    """ "Function to return probable sample name from a path, it recurselvy goes through the path and returns the first element not in the black list."""
-    if n == 0:
-        return ""
-
-    tmp = path.basename(file_path)
-    _d = path.dirname(file_path)
-
-    if all(entry not in tmp for entry in black_list):
-        return tmp
-    else:
-        res = get_sample_name(_d, black_list, n - 1)
-    return res
-
-
 # From: https://www.oreilly.com/library/view/python-cookbook/0596001673/ch04s16.html
 def splitall(p) -> list[str]:
+    """Splits a path into all its parts."""
     allparts = []
     while True:
         parts = path.split(p)
@@ -57,7 +42,7 @@ def splitall(p) -> list[str]:
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
 
-def read_parsebio(data_path: str) -> AnnData:
+def read_parsebio(data_path: PathLike) -> AnnData:
     """Reads the output of spipe parsebio pipeline and returns an AnnData object.
 
     Args:
@@ -67,19 +52,19 @@ def read_parsebio(data_path: str) -> AnnData:
         AnnData: Return AnnData object containing .X, .obs, and .var components
     """
 
-    adata = sc.read_mtx(data_path + "count_matrix.mtx")
+    adata: AnnData = sc.read_mtx(path.join(data_path, "count_matrix.mtx"))
 
     # reading in gene and cell data
-    gene_data = pd.read_csv(data_path + "all_genes.csv")
-    cell_meta: pd.DataFrame = pd.read_csv(data_path + "cell_metadata.csv")
+    gene_data = pd.read_csv(path.join(data_path, "all_genes.csv"))
+    cell_meta: pd.DataFrame = pd.read_csv(path.join(data_path, "cell_metadata.csv"))
 
     # find genes with nan values and filter
     gene_data: pd.DataFrame = gene_data[gene_data.gene_name.notnull()]
-    notNa: pd.Index = gene_data.index
-    notNa = notNa.to_list()
+    not_na: pd.Index = gene_data.index
+    not_na_ls: list[str] = not_na.to_list()
 
     # remove genes with nan values and assign gene names
-    adata: AnnData = adata[:, notNa]
+    adata: AnnData = adata[:, not_na_ls]
     adata.var = gene_data
     adata.var.set_index("gene_name", inplace=True)
     adata.var.index.name = None
@@ -96,37 +81,7 @@ def read_parsebio(data_path: str) -> AnnData:
 
 ## Technology components
 
-
-# TODO: Move to Autodiscover
-inputs: dict[str, list | Callable] = {
-    "10x": {
-        "files": ["features.tsv.gz", "barcodes.tsv.gz", "matrix.mtx.gz"],
-        "black_list": ["filtered_feature_bc", "raw_feature_bc", "count", "outs"],
-        "raw_name": "raw_feature_bc_matrix",
-        "function": sc.read_10x_mtx,
-    },
-    "10_h5": {
-        "files": ["*.h5"],
-        "black_list": [],
-        "raw_name": "",
-        "function": sc.read_10x_h5,
-    },
-    "ParseBio": {
-        "files": ["all_genes.csv", "cell_metadata.csv", "count_matrix.mtx"],
-        "black_list": ["DGE_filtered", "DGE_unfiltered"],
-        "function": read_parsebio,
-        "raw_name": "",
-    },
-    "Singleron": {
-        "files": ["features.tsv.gz", "barcodes.tsv.gz", "matrix.mtx.gz"],
-        "black_list": ["starsolo", "raw"],
-        "function": sc.read_10x_mtx,
-        "raw_name": "",
-    },
-}
-
-
-qc_features_rules: dict[str, list[str]] = {
+qc_features_rules = {
     "human": {"mito": ["MT-"], "ribo": ["RBS", "RPL"], "hb": ["^HB[^(P)]"]},
     "mouse": {
         "mito": ["mt"],
@@ -158,6 +113,7 @@ def human2mouse(genes: list[str]) -> list[str]:
             "target": "mmusculus",
             "query": genes,
         },
+        timeout=60,
     )
     df = pd.DataFrame(
         r.json()["result"],
@@ -172,7 +128,7 @@ def human2mouse(genes: list[str]) -> list[str]:
 
 def _compute_outliers(
     series: pd.Series,
-    value: list | Number,
+    value: list | int | float,
     max_only: bool = False,
     log_transform: bool = False,
 ) -> pd.Series:
@@ -188,21 +144,21 @@ def _compute_outliers(
     """
 
     # Validate the input
-    if not isinstance(value, (list, Number)):
+    if not isinstance(value, (list, int, float)):
         raise ValueError(
             "Please provide a positive number of nmads or a list of length 2 for the lower and upper bound of the QC-variable."
         )
 
     if isinstance(value, list):
-        min_val: Number = value[0]
-        max_val: Number = value[1]
+        min_val: float = value[0]
+        max_val: float = value[1]
 
-    if isinstance(value, Number):
+    if isinstance(value, (int, float)):
         if not value > 0:
             raise ValueError("Please provide a positive number of nmads.")
 
         if log_transform:
-            series = np.log1p(series)
+            series: np.ndarray = np.log1p(series)
 
         min_val: float = np.median(series) - (median_abs_deviation(series) * value)
         max_val: float = np.median(series) + (median_abs_deviation(series) * value)
