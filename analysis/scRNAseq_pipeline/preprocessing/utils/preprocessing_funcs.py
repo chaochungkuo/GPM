@@ -1,7 +1,7 @@
 import urllib.request
+from collections.abc import Callable
 from numbers import Number
 from os import path, system
-from typing import Any, Callable, Dict, List
 
 import numpy as np
 import pandas as pd
@@ -36,7 +36,7 @@ def get_sample_name(file_path: str, black_list: list[str], n=3):
 
 
 # From: https://www.oreilly.com/library/view/python-cookbook/0596001673/ch04s16.html
-def splitall(p):
+def splitall(p) -> list[str]:
     allparts = []
     while True:
         parts = path.split(p)
@@ -98,7 +98,7 @@ def read_parsebio(data_path: str) -> AnnData:
 
 
 # TODO: Move to Autodiscover
-inputs: Dict[str, List | Callable] = {
+inputs: dict[str, list | Callable] = {
     "10x": {
         "files": ["features.tsv.gz", "barcodes.tsv.gz", "matrix.mtx.gz"],
         "black_list": ["filtered_feature_bc", "raw_feature_bc", "count", "outs"],
@@ -126,7 +126,7 @@ inputs: Dict[str, List | Callable] = {
 }
 
 
-qc_features_rules: Dict[str, List[str]] = {
+qc_features_rules: dict[str, list[str]] = {
     "human": {"mito": ["MT-"], "ribo": ["RBS", "RPL"], "hb": ["^HB[^(P)]"]},
     "mouse": {
         "mito": ["mt"],
@@ -141,14 +141,14 @@ qc_features_rules: Dict[str, List[str]] = {
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
 
-def human2mouse(genes: List[str]) -> List[str]:
+def human2mouse(genes: list[str]) -> list[str]:
     """Converts human gene names to mouse gene names using the gprofiler API
 
     Args:
-        genes (List[str]): a list of human gene names
+        genes (list[str]): a list of human gene names
 
     Returns:
-        List[str]: converted list of mouse gene names. Failed conversions are replaced with pd.NA.
+        list[str]: converted list of mouse gene names. Failed conversions are replaced with pd.NA.
     """
 
     r = requests.post(
@@ -172,7 +172,7 @@ def human2mouse(genes: List[str]) -> List[str]:
 
 def _compute_outliers(
     series: pd.Series,
-    value: List | Number,
+    value: list | Number,
     max_only: bool = False,
     log_transform: bool = False,
 ) -> pd.Series:
@@ -180,7 +180,7 @@ def _compute_outliers(
 
     Args:
         adata (AnnData): Input AnnData object.
-        value (List | Number): value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
+        value (list | Number): value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
         max_only (bool, optional): If True, only the upper bound is used for outlier detection. Defaults to False.
         log_transform (bool, optional): If True, the variable is log transformed before outlier detection. Defaults to False.
     Returns:
@@ -218,9 +218,9 @@ def _compute_outliers(
 
 def compute_outliers(
     df: pd.DataFrame,
-    qc_dict: Dict[str, List | Number],
-    max_only: List[str],
-    log_transform: List[str],
+    qc_dict: dict[str, list | Number],
+    max_only: list[str],
+    log_transform: list[str],
 ) -> pd.DataFrame:
 
     missing_keys = [key for key in qc_dict.keys() if key not in df.columns]
@@ -301,7 +301,7 @@ def select_n_uniform(length, n):
     return indices
 
 
-def validate_qc_dict(dc: Dict, df: pd.DataFrame) -> bool:
+def validate_qc_dict(dc: dict, df: pd.DataFrame) -> bool:
     if all(map(lambda x: isinstance(x, (list, Number)), dc.values())):
         return True
     elif all(map(lambda x: isinstance(x, (dict)), dc.values())):
