@@ -54,7 +54,6 @@ def read_parsebio(data_path: PathLike) -> AnnData:
 
     adata: AnnData = sc.read_mtx(path.join(data_path, "count_matrix.mtx"))
 
-
     # reading in gene and cell data
     gene_data = pd.read_csv(path.join(data_path, "all_genes.csv"))
     cell_meta: pd.DataFrame = pd.read_csv(path.join(data_path, "cell_metadata.csv"))
@@ -113,16 +112,7 @@ def human2mouse(genes: list[str]) -> list[str]:
     )
     return df.name.replace("N/A", pd.NA).dropna().to_list()
 
-    Args:
-        adata (AnnData): Input AnnData object.
-        value (list | Number): value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
-        max_only (bool, optional): If True, only the upper bound is used for outlier detection. Defaults to False.
-        log_transform (bool, optional): If True, the variable is log transformed before outlier detection. Defaults to False.
-    Returns:
-        df: the input dataframe with an additional column for the outliers
-    """
-
-###----------------------------------------------------------------------------------------------------------------------------------###
+###---------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            QC Functions                                                                                    ###
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
@@ -171,11 +161,6 @@ def _compute_outliers(
     outliers.fillna(False)
 
     return outliers
-
-    if isinstance(value, list):
-        min_val: Number = value[0]
-        max_val: Number = value[1]
-        max_only = False  # Make sure not to override the user input
 
 def compute_outliers(
     df: pd.DataFrame,

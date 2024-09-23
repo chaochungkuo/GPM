@@ -8,9 +8,6 @@ from os import path, walk
 import scanpy as sc
 from preprocessing_funcs import read_parsebio, splitall
 
-import scanpy as sc
-from preprocessing_funcs import read_parsebio, splitall
-
 
 class AutoDiscover(ABC):
     """Protocol for the AutoDiscover class. This class provides arbitary implmenetation to discover scRNA-seq samples in a directory.
@@ -66,15 +63,6 @@ class AutoDiscover(ABC):
     @abstractmethod
     @lru_cache
     def _collect_paths(self) -> list[str]: ...
-
-    @abstractmethod
-    def raw_read_function(self, samples: None | dict[str, str] = None) -> Callable: ...
-
-    @abstractmethod
-    def get_samples(self) -> dict[str, str]: ...
-
-    @abstractmethod
-    def get_raw_samples(self) -> dict[str, str]: ...
 
 class SingeleronAutoDiscover(AutoDiscover):
     """Implementation of the AutoDiscover protocol for the Singleron scRNA-seq data."""
