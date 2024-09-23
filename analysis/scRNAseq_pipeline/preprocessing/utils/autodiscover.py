@@ -9,9 +9,7 @@ import scanpy as sc
 from preprocessing_funcs import read_parsebio, splitall
 
 import scanpy as sc
-from utils.preprocessing_funcs import read_parsebio, splitall
-
-# TODO: Refactor this module to Group similar functionality, and clean the code a bit.
+from preprocessing_funcs import read_parsebio, splitall
 
 
 class AutoDiscover(ABC):
@@ -70,10 +68,13 @@ class AutoDiscover(ABC):
     def _collect_paths(self) -> list[str]: ...
 
     @abstractmethod
-    def get_samples(self) -> Dict[str, str]: ...
+    def raw_read_function(self, samples: None | dict[str, str] = None) -> Callable: ...
 
     @abstractmethod
-    def get_raw_samples(self) -> Dict[str, str]: ...
+    def get_samples(self) -> dict[str, str]: ...
+
+    @abstractmethod
+    def get_raw_samples(self) -> dict[str, str]: ...
 
 class SingeleronAutoDiscover(AutoDiscover):
     """Implementation of the AutoDiscover protocol for the Singleron scRNA-seq data."""

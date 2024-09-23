@@ -115,7 +115,7 @@ def human2mouse(genes: list[str]) -> list[str]:
 
     Args:
         adata (AnnData): Input AnnData object.
-        value (List | Number): value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
+        value (list | Number): value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
         max_only (bool, optional): If True, only the upper bound is used for outlier detection. Defaults to False.
         log_transform (bool, optional): If True, the variable is log transformed before outlier detection. Defaults to False.
     Returns:
