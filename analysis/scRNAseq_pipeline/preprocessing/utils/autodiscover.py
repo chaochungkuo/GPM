@@ -70,8 +70,10 @@ class AutoDiscover(ABC):
     def _collect_paths(self) -> list[str]: ...
 
     @abstractmethod
-    def get_raw_sample_names(self) -> Dict[str, str]:
-        pass
+    def get_samples(self) -> Dict[str, str]: ...
+
+    @abstractmethod
+    def get_raw_samples(self) -> Dict[str, str]: ...
 
 class SingeleronAutoDiscover(AutoDiscover):
     """Implementation of the AutoDiscover protocol for the Singleron scRNA-seq data."""
