@@ -113,7 +113,7 @@ class ParseBioAutoDiscover(AutoDiscover):
             "count_matrix.mtx",
         ]
 
-    def _get_samples_paths(self) -> List[str]:
+    def _get_sample_paths(self) -> List[str]:
         paths: List[str] = self._collect_paths()
         filtered_samples: List[str] = [
             p for p in paths if not path.basename(p).endswith("DGE_filtered")
@@ -132,11 +132,11 @@ class ParseBioAutoDiscover(AutoDiscover):
         return [
             p
             for p in unfiltered_samples
-            if not path.basename(path.basename(p)).endswith("all-sample")
+            if not path.basename(path.dirname(p)).endswith("all-sample")
         ]
 
     def get_samples(self) -> Dict[str, str]:
-        sample_paths: List[str] = self._get_samples_paths()
+        sample_paths: List[str] = self._get_sample_paths()
         return super()._get_names(sample_paths)
 
     def get_raw_samples(self) -> Dict[str, str]:
