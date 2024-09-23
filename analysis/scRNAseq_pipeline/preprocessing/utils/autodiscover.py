@@ -9,7 +9,7 @@ import scanpy as sc
 from preprocessing_funcs import read_parsebio, splitall
 
 import scanpy as sc
-from utils.preprocessing_funcs import get_sample_name, read_parsebio, splitall
+from utils.preprocessing_funcs import read_parsebio, splitall
 
 # TODO: Refactor this module to Group similar functionality, and clean the code a bit.
 
@@ -69,6 +69,9 @@ class AutoDiscover(ABC):
     @lru_cache
     def _collect_paths(self) -> list[str]: ...
 
+    @abstractmethod
+    def get_raw_sample_names(self) -> Dict[str, str]:
+        pass
 
 class SingeleronAutoDiscover(AutoDiscover):
     """Implementation of the AutoDiscover protocol for the Singleron scRNA-seq data."""
