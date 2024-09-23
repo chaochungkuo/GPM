@@ -1,16 +1,17 @@
 """This module provides the implementation of sample discovery from the output of multiple scRNA-seq pipelines."""
 
+from abc import ABC, abstractmethod
 from functools import cache, reduce
 from os import path, walk
-from typing import Callable, Dict, List, Protocol
+from typing import Callable, Dict, List
 
 import scanpy as sc
-from utils.preprocessing_funcs import get_sample_name, read_parsebio, splitall
+from utils.preprocessing_funcs import read_parsebio, splitall
 
 # TODO: Refactor this module to Group similar functionality, and clean the code a bit.
 
 
-class AutoDiscover(Protocol):
+class AutoDiscover(ABC):
     """Protocol for the AutoDiscover class. This class provides arbitary implmenetation to discover scRNA-seq samples in a directory.
     Implementation are free to use different heuristics to discover samples but they should implement the following methods:
     - get_samples_paths: Returns the paths to the samples in the directory.
@@ -25,50 +26,78 @@ class AutoDiscover(Protocol):
         """Initialize the AutoDiscover instance with the root path of the directory containing the samples."""
         self.root_path: str = root_path
 
+    @abstractmethod
     def get_samples_paths(self) -> List[str]:
         """Return a list paths to the samples in the directory."""
         pass
 
+    @abstractmethod
     def get_read_function(self) -> Callable:
         """Return a read function that can be used to load the data."""
         pass
+    
+    @abstractmethod
+    def get_raw_sample_read_function(self, samples=None) -> Callable:
+        pass
 
-    def get_sample_names(self) -> List[str]:
+    @abstractmethod
+    def get_sample_names(self) -> Dict[str, str]:
         """Tries to automatically infer the sample names from the paths."""
         pass
 
+    @abstractmethod
+    def get_raw_sample_names(self) -> Dict[str, str]:
+        pass
 
-class SingeleronAutoDiscover:
+    @staticmethod
+    def _get_names(samples):
+
+        common_prefix = path.commonpath(samples)
+        updated_ps = [path.relpath(p, common_prefix) for p in samples]
+        split_ps = [splitall(p) for p in updated_ps]
+        common = reduce(lambda x, y: set(x).intersection(set(y)), split_ps)
+
+        sample_names = list(
+            map(
+                lambda x: [el for el in x if el not in common],
+                split_ps,
+            )
+        )
+        sample_names = list(map(lambda x: "_".join(x), sample_names))
+        return dict(zip(sample_names, samples))
+
+    @abstractmethod
+    def _collect_paths():
+        pass
+
+
+class SingeleronAutoDiscover(AutoDiscover):
     """Implementation of the AutoDiscover protocol for the Singleron scRNA-seq data."""
 
-    def __init__(self, root_path: str) -> None:
+    def __init__(self, root_path: str = None) -> None:
         self.root_path: str = root_path
         self.components = ["barcodes.tsv.gz", "features.tsv.gz", "matrix.mtx.gz"]
 
-    def get_samples_paths(self) -> List[str]:
+    def get_sample_paths(self) -> List[str]:
         paths = self._collect_paths()
         return [p for p in paths if not path.basename(p).endswith("raw")]
-
-    def get_sample_names(self) -> Dict[str, str]:
-        samples: List[str] = self.get_samples_paths()
-        return [
-            get_sample_name(s, ["raw", "filtered", "cell_calling"]) for s in samples
-        ]
-
-    def get_read_function(self) -> Callable:
-        return sc.read_10x_mtx
 
     def get_raw_samples_paths(self) -> List[str]:
         paths = self._collect_paths()
         return [p for p in paths if path.basename(p).endswith("raw")]
 
-    def get_raw_sample_names(self) -> List[str]:
-        samples: List[str] = self.get_raw_samples_paths()
-        return [
-            get_sample_name(s, ["raw", "filtered", "cell_calling"]) for s in samples
-        ]
+    def get_sample_names(self) -> Dict[str, str]:
+        samples = self.get_sample_paths()
+        return super()._get_names(samples)
 
-    def get_raw_sample_read_function(self) -> Callable:
+    def get_raw_sample_names(self) -> List[str]:
+        samples = self.get_raw_samples_paths()
+        return super()._get_names(samples)
+
+    def get_read_function(self, samples=None) -> Callable:
+        return sc.read_10x_mtx
+
+    def get_raw_sample_read_function(self, samples=None) -> Callable:
         return sc.read_10x_mtx
 
     @cache
@@ -80,9 +109,9 @@ class SingeleronAutoDiscover:
         return sample_paths
 
 
-class ParseBioAutoDiscover:
+class ParseBioAutoDiscover(AutoDiscover):
 
-    def __init__(self, root_path: str) -> None:
+    def __init__(self, root_path: str = None) -> None:
         self.root_path: str = root_path
         self.components: List[str] = [
             "all_genes.csv",
@@ -101,16 +130,6 @@ class ParseBioAutoDiscover:
             if not path.basename(path.dirname(p)).endswith("all-sample")
         ]
 
-    def get_sample_names(self) -> Dict[str, str]:
-        sample_paths: List[str] = self.get_samples_paths()
-        return {
-            get_sample_name(s, ["DGE_filtered", "DGE_unfiltered", "all-sample"]): s
-            for s in sample_paths
-        }
-
-    def get_read_function(self) -> Callable:
-        return read_parsebio
-
     def get_raw_samples_paths(self) -> List[str]:
         paths = self._collect_paths()
         unfiltered_samples: List[str] = [
@@ -122,7 +141,18 @@ class ParseBioAutoDiscover:
             if not path.basename(path.basename(p)).endswith("all-sample")
         ]
 
-    def get_raw_sample_read_function(self) -> Callable:
+    def get_sample_names(self) -> Dict[str, str]:
+        sample_paths: List[str] = self.get_samples_paths()
+        return super()._get_names(sample_paths)
+
+    def get_raw_sample_names(self) -> Dict[str, str]:
+        samples = self.get_raw_samples_paths()
+        return super()._get_names(samples)
+
+    def get_read_function(self, samples=None) -> Callable:
+        return read_parsebio
+
+    def get_raw_sample_read_function(self, samples=None) -> Callable:
         return read_parsebio
 
     @cache
@@ -137,9 +167,9 @@ class ParseBioAutoDiscover:
 
 # Documentation for CellRange output: https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/outputs/cr-outputs-overview
 # https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-pipestance-structure
-class CellRangerAutoDiscover:
+class CellRangerAutoDiscover(AutoDiscover):
 
-    def __init__(self, root_path: str) -> None:
+    def __init__(self, root_path: str = None) -> None:
         self.root_path: str = root_path
 
     # CellRanger Multi has the prefix 'sample' in the file names in 'per_sample_outs' directory
@@ -153,26 +183,6 @@ class CellRangerAutoDiscover:
             ):
                 final_samples.append(sample)
         return final_samples
-
-    def get_sample_names(self) -> Dict[str, str]:
-
-        sample_paths: List[str] = self.get_samples_paths()
-        common_prefix = path.commonpath(sample_paths)
-        updated_ps = [path.relpath(p, common_prefix) for p in sample_paths]
-        split_ps = [splitall(p) for p in updated_ps]
-        common = reduce(lambda x, y: set(x).intersection(set(y)), split_ps)
-
-        sample_names = list(
-            map(
-                lambda x: [el for el in x if el not in common],
-                split_ps,
-            )
-        )
-        sample_names = list(map(lambda x: "_".join(x), sample_names))
-        return dict(zip(sample_names, sample_paths))
-
-    def get_read_function(self) -> Callable:
-        return sc.read_10x_h5
 
     # For CellRanger Multi, there is no raw '.h5' file, it exists as a directory.
     def get_raw_samples_paths(self) -> List[str]:
@@ -197,25 +207,33 @@ class CellRangerAutoDiscover:
 
         raise LookupError("Can't find all raw counterparts for all samples.")
 
+    def get_sample_names(self) -> Dict[str, str]:
+        sample_paths: List[str] = self.get_samples_paths()
+        return super()._get_names(sample_paths)
+
     def get_raw_sample_names(self) -> Dict[str, str]:
-
         raw_paths = self.get_raw_samples_paths()
-        common_prefix = path.commonpath(raw_paths)
-        updated_ps = [path.relpath(p, common_prefix) for p in raw_paths]
-        split_ps = [splitall(p) for p in updated_ps]
-        common = reduce(lambda x, y: set(x).intersection(set(y)), split_ps)
+        return super()._get_names(raw_paths)
 
-        sample_names = list(
-            map(
-                lambda x: [el for el in x if el not in common],
-                split_ps,
-            )
-        )
-        sample_names = list(map(lambda x: "_".join(x), sample_names))
-        return dict(zip(sample_names, raw_paths))
+    def get_read_function(self, samples: List[str] = None) -> Callable:
 
-    def get_raw_read_function(self) -> Callable:
-        raw_sample_paths = self.get_raw_samples_paths()
+        if samples is None:
+            sample_paths = self.get_samples_paths()
+        else:
+            sample_paths = samples
+
+        if all([p.endswith(".h5") for p in sample_paths]):
+            return sc.read_10x_h5
+        else:
+            return sc.read_10x_mtx
+
+    def get_raw_read_function(self, samples: List[str] = None) -> Callable:
+
+        if samples is None:
+            raw_sample_paths = self.get_raw_samples_paths()
+        else:
+            raw_sample_paths = samples
+
         if all([p.endswith(".h5") for p in raw_sample_paths]):
             return sc.read_10x_h5
         else:
@@ -244,7 +262,7 @@ class CellRangerAutoDiscover:
         return sample_paths
 
 
-autodiscover = {
+discover_factory: Dict[str, AutoDiscover] = {
     "10x": CellRangerAutoDiscover,
     "Singleron": SingeleronAutoDiscover,
     "PraseBio": ParseBioAutoDiscover,

@@ -5,6 +5,7 @@
 - Variable regression was removed from QC module. It is not considered part of the standard QC process to regress variables.
 - reading of `10X` output was chnaged to read `.h5` files by default instead of reading separate files for `barcodes`, `features`, and `matrix` .
 - Sample Autodiscovery was complelty re-factored and it is not more robust and faster in sample path finding and sample names, it can also detect the output of several output formats from 'CellRanger' as 'Multi' and 'Aggr' outputs. in addition to Singerlon and ParseBio outputs.
+- New section `basic.raw_samples` was added to the `config.toml` to specify the raw samples that can be used for Ambient RNA detection and doublet detection.
   
 # Version 0.1.0
 - Initial version of the workflow.
