@@ -14,7 +14,7 @@ from scipy.sparse import issparse
 from scipy.stats import median_abs_deviation
 
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
-###                                                            Reading Functions                                                                               ###
+###                                                            Utility Functions                                                                               ###
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
 
@@ -33,6 +33,28 @@ def get_sample_name(file_path: str, black_list: list[str], n=3):
     else:
         res = get_sample_name(_d, black_list, n - 1)
     return res
+
+
+# From: https://www.oreilly.com/library/view/python-cookbook/0596001673/ch04s16.html
+def splitall(p):
+    allparts = []
+    while True:
+        parts = path.split(p)
+        if parts[0] == p:  # sentinel for absolute paths
+            allparts.insert(0, parts[0])
+            break
+        elif parts[1] == p:  # sentinel for relative paths
+            allparts.insert(0, parts[1])
+            break
+        else:
+            p = parts[0]
+            allparts.insert(0, parts[1])
+    return allparts
+
+
+###------------------------------------------------------------------------------------------------------------------------------------------------------------###
+###                                                            Reading Functions                                                                               ###
+###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 
 
 def read_parsebio(data_path: str) -> AnnData:
