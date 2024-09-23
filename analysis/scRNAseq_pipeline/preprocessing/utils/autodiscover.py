@@ -18,7 +18,7 @@ class AutoDiscover(ABC):
     - get_sample_names: Returns the names of the samples.
     - get_read_function: Returns the function to read the samples.
     Optionally, the following methods can be implemented:
-    - get_raw_samples_paths: Returns the paths to the raw samples in the directory.
+    - get_raw_sample_paths: Returns the paths to the raw samples in the directory.
     - get_raw_sample_read_function: Returns the function to read the raw samples.
     """
 
@@ -27,27 +27,21 @@ class AutoDiscover(ABC):
         self.root_path: str = root_path
 
     @abstractmethod
-    def get_samples_paths(self) -> List[str]:
-        """Return a list paths to the samples in the directory."""
-        pass
+    def _get_sample_paths(self) -> List[str]: ...
+
+    def _get_raw_sample_paths(self) -> List[str]: ...
 
     @abstractmethod
-    def get_read_function(self) -> Callable:
-        """Return a read function that can be used to load the data."""
-        pass
-    
-    @abstractmethod
-    def get_raw_sample_read_function(self, samples=None) -> Callable:
-        pass
+    def read_function(self) -> Callable: ...
 
     @abstractmethod
-    def get_sample_names(self) -> Dict[str, str]:
-        """Tries to automatically infer the sample names from the paths."""
-        pass
+    def raw_read_function(self, samples=None) -> Callable: ...
 
     @abstractmethod
-    def get_raw_sample_names(self) -> Dict[str, str]:
-        pass
+    def get_samples(self) -> Dict[str, str]: ...
+
+    @abstractmethod
+    def get_raw_samples(self) -> Dict[str, str]: ...
 
     @staticmethod
     def _get_names(samples):
@@ -67,7 +61,7 @@ class AutoDiscover(ABC):
         return dict(zip(sample_names, samples))
 
     @abstractmethod
-    def _collect_paths():
+    def _collect_paths(self):
         pass
 
 
@@ -78,26 +72,26 @@ class SingeleronAutoDiscover(AutoDiscover):
         self.root_path: str = root_path
         self.components = ["barcodes.tsv.gz", "features.tsv.gz", "matrix.mtx.gz"]
 
-    def get_sample_paths(self) -> List[str]:
+    def _get_sample_paths(self) -> List[str]:
         paths = self._collect_paths()
         return [p for p in paths if not path.basename(p).endswith("raw")]
 
-    def get_raw_samples_paths(self) -> List[str]:
+    def _get_raw_sample_paths(self) -> List[str]:
         paths = self._collect_paths()
         return [p for p in paths if path.basename(p).endswith("raw")]
 
-    def get_sample_names(self) -> Dict[str, str]:
-        samples = self.get_sample_paths()
+    def get_samples(self) -> Dict[str, str]:
+        samples = self._get_sample_paths()
         return super()._get_names(samples)
 
-    def get_raw_sample_names(self) -> List[str]:
-        samples = self.get_raw_samples_paths()
+    def get_raw_samples(self) -> List[str]:
+        samples = self._get_raw_sample_paths()
         return super()._get_names(samples)
 
-    def get_read_function(self, samples=None) -> Callable:
+    def read_function(self, samples=None) -> Callable:
         return sc.read_10x_mtx
 
-    def get_raw_sample_read_function(self, samples=None) -> Callable:
+    def raw_read_function(self, samples=None) -> Callable:
         return sc.read_10x_mtx
 
     @cache
@@ -119,7 +113,7 @@ class ParseBioAutoDiscover(AutoDiscover):
             "count_matrix.mtx",
         ]
 
-    def get_samples_paths(self) -> List[str]:
+    def _get_samples_paths(self) -> List[str]:
         paths: List[str] = self._collect_paths()
         filtered_samples: List[str] = [
             p for p in paths if not path.basename(p).endswith("DGE_filtered")
@@ -130,7 +124,7 @@ class ParseBioAutoDiscover(AutoDiscover):
             if not path.basename(path.dirname(p)).endswith("all-sample")
         ]
 
-    def get_raw_samples_paths(self) -> List[str]:
+    def _get_raw_sample_paths(self) -> List[str]:
         paths = self._collect_paths()
         unfiltered_samples: List[str] = [
             p for p in paths if not path.basename(p).endswith("DGE_unfiltered")
@@ -141,18 +135,18 @@ class ParseBioAutoDiscover(AutoDiscover):
             if not path.basename(path.basename(p)).endswith("all-sample")
         ]
 
-    def get_sample_names(self) -> Dict[str, str]:
-        sample_paths: List[str] = self.get_samples_paths()
+    def get_samples(self) -> Dict[str, str]:
+        sample_paths: List[str] = self._get_samples_paths()
         return super()._get_names(sample_paths)
 
-    def get_raw_sample_names(self) -> Dict[str, str]:
-        samples = self.get_raw_samples_paths()
+    def get_raw_samples(self) -> Dict[str, str]:
+        samples = self._get_raw_sample_paths()
         return super()._get_names(samples)
 
-    def get_read_function(self, samples=None) -> Callable:
+    def read_function(self, samples=None) -> Callable:
         return read_parsebio
 
-    def get_raw_sample_read_function(self, samples=None) -> Callable:
+    def raw_read_function(self, samples=None) -> Callable:
         return read_parsebio
 
     @cache
@@ -173,7 +167,7 @@ class CellRangerAutoDiscover(AutoDiscover):
         self.root_path: str = root_path
 
     # CellRanger Multi has the prefix 'sample' in the file names in 'per_sample_outs' directory
-    def get_samples_paths(self) -> List[str]:
+    def _get_sample_paths(self) -> List[str]:
         sample_paths = self._collect_paths()
         final_samples = []
         for sample in sample_paths:
@@ -185,10 +179,15 @@ class CellRangerAutoDiscover(AutoDiscover):
         return final_samples
 
     # For CellRanger Multi, there is no raw '.h5' file, it exists as a directory.
-    def get_raw_samples_paths(self) -> List[str]:
+    def _get_raw_sample_paths(self) -> List[str]:
         all_paths = self._collect_paths()
-        sample_paths = self.get_samples_paths()
-        raw_paths = [p for p in all_paths if p not in sample_paths]
+        sample_paths = self._get_sample_paths()
+        raw_paths = []
+        for sample in all_paths:
+            if not (
+                sample in sample_paths or "molecule_info.h5" in path.basename(sample)
+            ):
+                raw_paths.append(sample)
 
         # All raw samples are in '.h5' format
         if len(raw_paths) == len(sample_paths):
@@ -207,37 +206,35 @@ class CellRangerAutoDiscover(AutoDiscover):
 
         raise LookupError("Can't find all raw counterparts for all samples.")
 
-    def get_sample_names(self) -> Dict[str, str]:
-        sample_paths: List[str] = self.get_samples_paths()
+    def get_samples(self) -> Dict[str, str]:
+        sample_paths: List[str] = self._get_sample_paths()
         return super()._get_names(sample_paths)
 
-    def get_raw_sample_names(self) -> Dict[str, str]:
-        raw_paths = self.get_raw_samples_paths()
+    def get_raw_samples(self) -> Dict[str, str]:
+        raw_paths = self._get_raw_sample_paths()
         return super()._get_names(raw_paths)
 
-    def get_read_function(self, samples: List[str] = None) -> Callable:
+    def read_function(self, samples: List[str] = None) -> Callable:
 
         if samples is None:
-            sample_paths = self.get_samples_paths()
+            sample_paths = self._get_sample_paths()
         else:
             sample_paths = samples
 
         if all([p.endswith(".h5") for p in sample_paths]):
             return sc.read_10x_h5
-        else:
-            return sc.read_10x_mtx
+        return sc.read_10x_mtx
 
-    def get_raw_read_function(self, samples: List[str] = None) -> Callable:
+    def raw_read_function(self, samples: List[str] = None) -> Callable:
 
         if samples is None:
-            raw_sample_paths = self.get_raw_samples_paths()
+            raw_sample_paths = self._get_sample_paths()
         else:
             raw_sample_paths = samples
 
         if all([p.endswith(".h5") for p in raw_sample_paths]):
             return sc.read_10x_h5
-        else:
-            return sc.read_10x_mtx
+        return sc.read_10x_mtx
 
     @cache
     def _collect_paths(self) -> List[str]:
