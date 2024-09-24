@@ -6,7 +6,7 @@ from functools import lru_cache, reduce
 from os import path, walk
 
 import scanpy as sc
-from preprocessing_funcs import read_parsebio, splitall
+from utils.preprocessing_funcs import read_parsebio, splitall
 
 
 class AutoDiscover(ABC):
@@ -43,7 +43,6 @@ class AutoDiscover(ABC):
 
     @staticmethod
     def _get_names(samples) -> dict[str, str]:
-
         common_prefix: str = path.commonpath(samples)
         updated_ps: list[str] = [path.relpath(p, common_prefix) for p in samples]
         split_ps = [splitall(p) for p in updated_ps]
@@ -63,6 +62,7 @@ class AutoDiscover(ABC):
     @abstractmethod
     @lru_cache
     def _collect_paths(self) -> list[str]: ...
+
 
 class SingeleronAutoDiscover(AutoDiscover):
     """Implementation of the AutoDiscover protocol for the Singleron scRNA-seq data."""
@@ -106,7 +106,6 @@ class SingeleronAutoDiscover(AutoDiscover):
 
 
 class ParseBioAutoDiscover(AutoDiscover):
-
     def __init__(self, root_path: str | None = None) -> None:
         self.root_path: str | None = root_path
         self.components: list[str] = [
@@ -167,7 +166,6 @@ class ParseBioAutoDiscover(AutoDiscover):
 # Documentation for CellRange output: https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/outputs/cr-outputs-overview
 # https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-pipestance-structure
 class CellRangerAutoDiscover(AutoDiscover):
-
     def __init__(self, root_path: str | None = None) -> None:
         self.root_path: str | None = root_path
 
@@ -220,7 +218,6 @@ class CellRangerAutoDiscover(AutoDiscover):
         return super()._get_names(raw_paths)
 
     def read_function(self, samples: dict[str, str] | None = None) -> Callable:
-
         if samples is None:
             sample_paths = self._get_sample_paths()
         else:
@@ -231,7 +228,6 @@ class CellRangerAutoDiscover(AutoDiscover):
         return sc.read_10x_mtx
 
     def raw_read_function(self, samples: dict[str, str] | None = None) -> Callable:
-
         if samples is None:
             raw_sample_paths = self._get_sample_paths()
         else:
