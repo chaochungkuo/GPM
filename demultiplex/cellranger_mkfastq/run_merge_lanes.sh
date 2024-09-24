@@ -38,3 +38,4 @@ mkdir -p multiqc
 multiqc -f . ./fastq_screen/ -o ./multiqc
 
 rm -r $MERGED_DIR
+rm -r ./fastqc ./fastq_screen
