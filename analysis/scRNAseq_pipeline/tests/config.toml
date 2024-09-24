@@ -1,0 +1,26 @@
+[basic]
+ANALYSIS_DIR = "tests"  # Default Analysis directory (provided by GPM)
+DIR_SAMPLES = "tests"   # CellRanger standard output or ParseBio
+RESOURCE_PATH = "tests" # Path to the resources directory
+DIR_SAVE = "save"       # Directory to save the results
+TECHNOLOGY = "10x"      # values (10x, ParseBio, Singleron)
+ORGANISM = "human"      # values(human,  mouse)
+auto_find = true        # Automatically find the samples in the DIR_SAMPLES
+
+[basic.samples] # Override auto_find, one sample per line
+
+[basic.raw_samples] # Override auto_find, one sample per line
+
+[normalization]
+NORMALIZATION_METHOD = "log_norm" # Normalization method. values ('log_norm', 'p_residuals')
+COUNTS_LAYER = "counts"           # Layer where counts are stores (values: counts, X, decontXcounts)  (default: 'counts').
+
+[clustering]
+CLUSTERING_COL = ""            # str: Final column for clustering, Default: "" (unset)
+INTEGRATE_SAMPLES = false
+INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not implemented yet
+
+[annotation]
+# str|List: values ('celltypist', 'scGPT', 'scTAB', 'markers'), use scGPT on GPU only for large datasets
+ANNOTATION_METHOD = ["scTAB"]
+ANNOTATION_COLUMN = ""        # str: Final column for annotation, Default: "" (unset)
