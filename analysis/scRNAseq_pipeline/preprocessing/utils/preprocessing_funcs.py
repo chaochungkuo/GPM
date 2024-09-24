@@ -58,7 +58,6 @@ def read_parsebio(data_path: PathLike) -> AnnData:
     gene_data = pd.read_csv(path.join(data_path, "all_genes.csv"))
     cell_meta: pd.DataFrame = pd.read_csv(path.join(data_path, "cell_metadata.csv"))
 
-
     # find genes with nan values and filter
     gene_data: pd.DataFrame = gene_data[gene_data.gene_name.notnull()]
     not_na: pd.Index = gene_data.index
@@ -81,7 +80,14 @@ def read_parsebio(data_path: PathLike) -> AnnData:
 
 
 ## Technology components
-
+qc_features_rules: dict[str, list[str]] = {
+    "human": {"mito": ["MT-"], "ribo": ["RBS", "RPL"], "hb": ["^HB[^(P)]"]},
+    "mouse": {
+        "mito": ["mt"],
+        "ribo": ["Rps", "Rpl"],
+        "hb": ["^Hb[^(p)]"],  # Validate this later
+    },
+}
 
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            QC Functions                                                                                    ###
@@ -111,6 +117,7 @@ def human2mouse(genes: list[str]) -> list[str]:
         r.json()["result"],
     )
     return df.name.replace("N/A", pd.NA).dropna().to_list()
+
 
 ###---------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            QC Functions                                                                                    ###
@@ -162,13 +169,13 @@ def _compute_outliers(
 
     return outliers
 
+
 def compute_outliers(
     df: pd.DataFrame,
     qc_dict: dict[str, list | Number],
     max_only: list[str],
     log_transform: list[str],
 ) -> pd.DataFrame:
-
     missing_keys = [key for key in qc_dict.keys() if key not in df.columns]
 
     if len(missing_keys) > 0:

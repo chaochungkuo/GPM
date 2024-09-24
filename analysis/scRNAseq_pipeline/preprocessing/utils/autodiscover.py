@@ -1,4 +1,6 @@
-"""This module provides the implementation of sample discovery from the output of multiple scRNA-seq pipelines."""
+"""The module provides the implementation of sample discovery from the output of multiple scRNA-seq pipelines."""
+
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
@@ -176,6 +178,7 @@ class CellRangerAutoDiscover(AutoDiscover):
         for sample in sample_paths:
             if not (
                 "raw_feature_bc_matrix" in path.basename(sample)
+                or "raw_probe_bc" in path.basename(sample)
                 or "molecule_info.h5" in path.basename(sample)
             ):
                 final_samples.append(sample)
@@ -229,7 +232,7 @@ class CellRangerAutoDiscover(AutoDiscover):
 
     def raw_read_function(self, samples: dict[str, str] | None = None) -> Callable:
         if samples is None:
-            raw_sample_paths = self._get_sample_paths()
+            raw_sample_paths = self._get_raw_sample_paths()
         else:
             raw_sample_paths = list(samples.values())
 
