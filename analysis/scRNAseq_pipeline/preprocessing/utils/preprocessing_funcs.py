@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import urllib.request
 from collections.abc import Callable
 from numbers import Number
@@ -14,9 +16,9 @@ from matplotlib.figure import Figure
 from scipy.sparse import issparse
 from scipy.stats import median_abs_deviation
 
-###------------------------------------------------------------------------------------------------------------------------------------------------------------###
-###                                                            Utility Functions                                                                               ###
-###------------------------------------------------------------------------------------------------------------------------------------------------------------###
+###----------------------------------------------------------------------------------------------###
+###                                        Utility Functions                                     ###
+###----------------------------------------------------------------------------------------------###
 
 
 # From: https://www.oreilly.com/library/view/python-cookbook/0596001673/ch04s16.html
@@ -37,21 +39,23 @@ def splitall(p) -> list[str]:
     return allparts
 
 
-###------------------------------------------------------------------------------------------------------------------------------------------------------------###
-###                                                            Reading Functions                                                                               ###
-###------------------------------------------------------------------------------------------------------------------------------------------------------------###
+###----------------------------------------------------------------------------------------------###
+###                                        Reading Functions                                     ###
+###----------------------------------------------------------------------------------------------###
 
 
 def read_parsebio(data_path: PathLike) -> AnnData:
-    """Reads the output of spipe parsebio pipeline and returns an AnnData object.
+    """Read the output of spipe parsebio pipeline and returns an AnnData object.
 
     Args:
-        data_path (str): path to the parsebio output.
+    ----
+       data_path (PathLike): Path to the parsebio output.
 
     Returns:
+    -------
         AnnData: Return AnnData object containing .X, .obs, and .var components
-    """
 
+    """
     adata: AnnData = sc.read_mtx(path.join(data_path, "count_matrix.mtx"))
 
     # reading in gene and cell data
@@ -95,15 +99,17 @@ qc_features_rules: dict[str, list[str]] = {
 
 
 def human2mouse(genes: list[str]) -> list[str]:
-    """Converts human gene names to mouse gene names using the gprofiler API
+    """Convert human gene names to mouse gene names using the gprofiler API.
 
     Args:
+    ----
         genes (list[str]): a list of human gene names
 
     Returns:
+    -------
         list[str]: converted list of mouse gene names. Failed conversions are replaced with pd.NA.
-    """
 
+    """
     r = requests.post(
         url="https://biit.cs.ut.ee/gprofiler/api/orth/orth/",
         json={
@@ -130,17 +136,20 @@ def _compute_outliers(
     max_only: bool = False,
     log_transform: bool = False,
 ) -> pd.Series:
-    """computes outliers for the given variable in the dataframe.
+    """Compute outliers for the given variable in the dataframe.
 
     Args:
+    ----
         adata (AnnData): Input AnnData object.
         value (list | Number): value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
         max_only (bool, optional): If True, only the upper bound is used for outlier detection. Defaults to False.
         log_transform (bool, optional): If True, the variable is log transformed before outlier detection. Defaults to False.
-    Returns:
-        df: the input dataframe with an additional column for the outliers
-    """
 
+    Returns:
+    -------
+        df: the input dataframe with an additional column for the outliers
+
+    """
     # Validate the input
     if not isinstance(value, (list, int, float)):
         raise ValueError(
@@ -301,4 +310,5 @@ def create_panel_fig(
     if len(axes) > total_plots:
         for i in range(total_plots, len(axes)):
             fig.delaxes(axes[i])
+    return fig, axes
     return fig, axes
