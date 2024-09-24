@@ -251,6 +251,7 @@ class CellRangerAutoDiscover(AutoDiscover):
             "SC_RNA_AGGREGATOR_CS",  # CellRanger Aggr
             "SC_MULTI_CS",  # CellRanger Multi
             "SC_RNA_REANALYZER_CS",  # CellRanger Reanalyze
+            "SPATIAL_RNA_COUNTER_CS",  # Space Ranger
         ]
         sample_paths: list[str] = []
         if self.root_path is not None:
