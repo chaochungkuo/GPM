@@ -90,7 +90,11 @@ RNAseq_maplot_plotly_ERCC(deseq_output$res_combined_ERCC)
 ## Heatmap
 
 ```{r DGEA_FILETAG-plotly-heatmap, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-RNAseq_heatmap_plotly(deseq_output$deseq2res)
+if(sigtable){
+  RNAseq_heatmap_plotly(deseq_output$deseq2res)
+} else {
+  RNAseq_heatmap_plotly_ignoregroup(deseq_output$deseq2res, n = 100)
+}
 ```
 
 
@@ -117,7 +121,11 @@ RNAseq_maplot_ggplot2(deseq_output)
 ## Heatmap
 
 ```{r DGEA_FILETAG-ggplot2-heatmap, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-RNAseq_heatmap_ggplot2(deseq_output)
+if(sigtable){
+  RNAseq_heatmap_ggplot2(deseq_output)
+} else {
+  RNAseq_heatmap_ggplot2_ignoregroup(deseq_output, n = 100)
+}
 ```
 
 `r if(sigtable){"# Tables {.tabset}"}`
