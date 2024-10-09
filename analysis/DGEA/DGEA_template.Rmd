@@ -164,8 +164,10 @@ write.csv(deseq_output$deseq2res,File_stats)
 write.csv(deseq_output$norm_count,File_norm_expression)
 
 wb <- createWorkbook()
-addWorksheet(wb, "DGEA_stats")
-writeData(wb, "DGEA_stats", deseq_output$deseq2res)
+if(sigtable){
+  addWorksheet(wb, "DGEA_stats")
+  writeData(wb, "DGEA_stats", deseq_output$deseq2res)
+}
 addWorksheet(wb, "norm_exp_quant")
 writeData(wb, "norm_exp_quant", deseq_output$norm_count)
 ## Save workbook to working directory
