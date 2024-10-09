@@ -61,7 +61,6 @@ After delivery this report, we can schedule a short meeting to discuss the resul
 Please click the hyperlinked list below:
 
 1. [Raw Data](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/1_Raw_data):
-    * BCL files from the sequencer
     * FASTQ files after demultiplexing
 2. [Processed Data](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/2_Processed_data):
     * BAM and bai files after alignment

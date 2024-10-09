@@ -45,10 +45,8 @@ Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/service
 # Download/Browse the files
 
 1. [Raw Data](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data): 
-    * BCL files from the sequencer
     * FASTQ files after demultiplexing
 2. [Processed Data](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data): 
-    
     * multi output for count and multiplexing_analysis. 
       + bam and bai for unassigned alignments
       + raw feature bc count matrix
