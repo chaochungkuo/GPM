@@ -165,6 +165,37 @@ class ParseBioAutoDiscover(AutoDiscover):
         return sample_paths
 
 
+class ScaleBioAutoDiscover(AutoDiscover):
+
+    def __init__(self, root_path: str | None = None) -> None:
+        self.root_path: str | None = root_path
+        self.components = ["barcodes.tsv", "features.tsv", "matrix.mtx"]
+
+    def _get_sample_paths(self) -> list[str]:
+        paths = self._collect_paths()
+        return [p for p in paths if path.basename(p).endswith("filtered")]
+
+    def _get_raw_sample_paths(self) -> list[str]:
+        paths = self._collect_paths()
+        return [p for p in paths if path.basename(p).endswith("raw")]
+
+    def get_samples(self) -> dict[str, str]:
+        samples = self._get_sample_paths()
+        return super()._get_names(samples)
+
+    def get_raw_samples(self) -> dict[str, str]:
+        samples = self._get_raw_sample_paths()
+        return super()._get_names(samples)
+
+    def read_function(self, samples=None) -> Callable:
+        _ = samples
+        return sc.read_10x_mtx
+
+    def raw_read_function(self, samples=None) -> Callable:
+        _ = samples
+        return sc.read_10x_mtx
+
+
 # Documentation for CellRange output: https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/outputs/cr-outputs-overview
 # https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-pipestance-structure
 class CellRangerAutoDiscover(AutoDiscover):
