@@ -1,3 +1,6 @@
+# Version 0.2.1
+## QC
+- Added `ScaleBio` to `AutoDiscover` module to automatically discover samples from simple `ScaleBio` nextflow pipeline output.
 # Version 0.2.0
 ## QC
 - Changed the `CONTACT_SAMPLES` variable to `QC_PER_SAMPLE`. \n  now all samples are concatenated and the `QC_PER_SAMPLE` controls if the outlier cells are detected in aggregate or per sample. 

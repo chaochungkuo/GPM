@@ -14,21 +14,18 @@ from utils.preprocessing_funcs import read_parsebio, read_scalebio, splitall
 class AutoDiscover(ABC):
     """Protocol for the AutoDiscover class. This class provides arbitary implmenetation to discover scRNA-seq samples in a directory.
     Implementation are free to use different heuristics to discover samples but they should implement the following methods:
-    - get_samples_paths: Returns the paths to the samples in the directory.
-    - get_sample_names: Returns the names of the samples.
-    - get_read_function: Returns the function to read the samples.
-    Optionally, the following methods can be implemented:
-    - get_raw_sample_paths: Returns the paths to the raw samples in the directory.
-    - get_raw_sample_read_function: Returns the function to read the raw samples.
+    - get_samples: Returns the names of the samples.
+    - read_function: Returns the function to read the samples.
+    Optionally, the following methods can be implemented or left as no-op:
+    - get_raw_samples: Returns the paths to the raw samples in the directory.
+    - raw_read_function: Returns the function to read the raw samples.
     """
 
     @abstractmethod
     def __init__(self, root_path: str | None = None) -> None: ...
 
-    @abstractmethod
     def _get_sample_paths(self) -> list[str]: ...
 
-    @abstractmethod
     def _get_raw_sample_paths(self) -> list[str]: ...
 
     @abstractmethod
