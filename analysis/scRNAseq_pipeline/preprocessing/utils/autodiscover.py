@@ -8,7 +8,7 @@ from functools import lru_cache, reduce
 from os import path, walk
 
 import scanpy as sc
-from utils.preprocessing_funcs import read_parsebio, splitall
+from utils.preprocessing_funcs import read_parsebio, read_scalebio, splitall
 
 
 class AutoDiscover(ABC):
@@ -171,9 +171,14 @@ class ScaleBioAutoDiscover(AutoDiscover):
         self.root_path: str | None = root_path
         self.components = ["barcodes.tsv", "features.tsv", "matrix.mtx"]
 
+    # ScaleBio pipeline does seperate filtering that StarSolo pipeline they are present in the /samples directory
+    # Samples have the name scheme: <sample_name>.ScaleRNA.filtered.matrix
+    # https://github.com/ScaleBio/ScaleRna/blob/master/docs/outputs.md
     def _get_sample_paths(self) -> list[str]:
         paths = self._collect_paths()
-        return [p for p in paths if path.basename(p).endswith("filtered")]
+        return [
+            p for p in paths if path.basename(p).endswith(".ScaleRNA.filtered.matrix")
+        ]
 
     def _get_raw_sample_paths(self) -> list[str]:
         paths = self._collect_paths()
@@ -189,11 +194,20 @@ class ScaleBioAutoDiscover(AutoDiscover):
 
     def read_function(self, samples=None) -> Callable:
         _ = samples
-        return sc.read_10x_mtx
+        return read_scalebio
 
     def raw_read_function(self, samples=None) -> Callable:
         _ = samples
-        return sc.read_10x_mtx
+        return read_scalebio
+
+    @lru_cache
+    def _collect_paths(self) -> list[str]:
+        sample_paths = []
+        if self.root_path is not None:
+            for root, _, files in walk(self.root_path):
+                if set(self.components).issubset(set(files)):
+                    sample_paths.append(root)
+        return sample_paths
 
 
 # Documentation for CellRange output: https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/outputs/cr-outputs-overview
@@ -300,4 +314,5 @@ discover_factory: dict[str, type[AutoDiscover]] = {
     "10x": CellRangerAutoDiscover,
     "Singleron": SingeleronAutoDiscover,
     "PraseBio": ParseBioAutoDiscover,
+    "ScaleBio": ScaleBioAutoDiscover,
 }
