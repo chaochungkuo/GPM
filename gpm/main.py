@@ -152,7 +152,7 @@ def analysis(project_config, report, show_list, add_template):
 # @click.option('-s', '--sym', "prefix", required=False, default="",
 #               help="Add the sprefixymbolic prefix to all symbolic paths.")
 @click.option('-nc', '--no-cloud', "no_cloud", required=False, default=False,
-               help="Do not create cloud export.")
+               help="Do not create cloud export (Default: False).")
 @click.option('-u', '--user', "username", required=False, default=None,
               help="Define the user name if needed.")
 @click.option('-t', '--tar', "tar", required=False, default=False,
