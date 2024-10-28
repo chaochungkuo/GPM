@@ -14,7 +14,7 @@ from gpm.helper import remove_end_slash, get_gpmdata_path, \
 from gpm.messages import show_tree, show_instructions
 from gpm import PROJECT_INI_FILE
 from gpm.exports import check_export_directory, get_htaccess_path, \
-                        htpasswd_create_user
+                        htpasswd_create_user, owncloud_login, owncloud_export
 from gpm.project_ini_struc import tags_GPM
 
 
@@ -488,13 +488,21 @@ class GPM():
         export_URL = os.path.join(get_gpm_config("EXPORT", "EXPORT_URL"),
                                   self.profile["Project"]["project_name"])
         export_user, export_password = htpasswd_create_user(
-            export_dir,
-            export_URL,
-            self.profile["Project"]["name1"].lower(),
-            self.profile["Project"]["application"])
+                                                            export_dir,
+                                                            export_URL,
+                                                            self.profile["Project"]["name1"].lower(),
+                                                            self.profile["Project"]["application"]
+                                                            )
         self.profile["Export"]["export_URL"] = export_URL
         self.profile["Export"]["export_user"] = export_user
         self.profile["Export"]["export_password"] = export_password
+
+    
+    def create_cloud_export(self, export_folder):
+        oc = owncloud_login()
+        cloud_url = owncloud_export(oc, export_folder, self.profile["Export"]["export_password"])
+        self.profile["Export"]["download_url"] = cloud_url
+
 
     def update_username(self, username):
         self.profile["Export"]["export_user"] = username

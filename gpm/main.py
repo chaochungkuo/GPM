@@ -151,6 +151,8 @@ def analysis(project_config, report, show_list, add_template):
               help="Define the config file of the project.")
 # @click.option('-s', '--sym', "prefix", required=False, default="",
 #               help="Add the sprefixymbolic prefix to all symbolic paths.")
+@click.option('-nc', '--no-cloud', "no_cloud", required=False, default=False,
+               help="Do not create cloud export.")
 @click.option('-u', '--user', "username", required=False, default=None,
               help="Define the user name if needed.")
 @click.option('-t', '--tar', "tar", required=False, default=False,
@@ -158,7 +160,7 @@ def analysis(project_config, report, show_list, add_template):
 @click.option("-g", "--gzip", "gzip", default=False, show_default=True,
               is_flag=True,
               help="Generate tar.gz instead of tar.")
-def export(export_folder, config, username, tar, gzip):
+def export(export_folder, config, no_cloud, username, tar, gzip):
     """
     Export the project to the target folder with symbolic links.
     """
@@ -177,6 +179,8 @@ def export(export_folder, config, username, tar, gzip):
             pm.update_username(username)
         pm.add_htaccess(export_folder)
         pm.create_user(export_folder)
+        if not no_cloud:
+            pm.create_cloud_export(os.path.basename(export_folder))
         pm.update_log()
         pm.write_project_config_file()
 

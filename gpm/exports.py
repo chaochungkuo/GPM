@@ -10,6 +10,7 @@ import xtarfile as tarfile
 from tqdm import tqdm
 import hashlib
 import re
+from owncloud import Client  # type: ignore
 
 
 def check_export_directory(export_folder):
@@ -31,24 +32,34 @@ def get_htaccess_path():
     return config_path
 
 
-def htpasswd_create_user(export_folder, url, username,
-                         app=None):
+def htpasswd_create_user(export_folder, url, username, app=None):
     """Create the new user in the target directory with password"""
     export_base_path = Path(export_folder).parent.absolute()
     if os.path.exists(os.path.join(export_base_path, ".htpasswd")):
-        subprocess.run(["cp",
-                        os.path.join(export_base_path, ".htpasswd"),
-                        os.path.join(export_folder, ".htpasswd")])
+        subprocess.run(
+            [
+                "cp",
+                os.path.join(export_base_path, ".htpasswd"),
+                os.path.join(export_folder, ".htpasswd"),
+            ]
+        )
         # shutil.copy(os.path.join(export_base_path, ".htpasswd"),
         #             os.path.join(export_folder, ".htpasswd"))
         password = generate_password()
-        cmd = " ".join(["htpasswd", "-b",
-                        os.path.join(export_folder, ".htpasswd"),
-                        username, password])
+        cmd = " ".join(
+            [
+                "htpasswd",
+                "-b",
+                os.path.join(export_folder, ".htpasswd"),
+                username,
+                password,
+            ]
+        )
         subprocess.run(cmd, shell=True)
         click.echo()
-        click.echo(click.style("Create new user for export directory:",
-                               fg='bright_green'))
+        click.echo(
+            click.style("Create new user for export directory:", fg="bright_green")
+        )
         click.echo("Directory:\t" + export_folder)
         export_URL = url
         if app:
@@ -57,9 +68,8 @@ def htpasswd_create_user(export_folder, url, username,
             for repo_app in get_gpm_config("GPM", "GPM_REPORTS"):
                 if repo_app.lower() == app.lower():
                     export_URL = "".join(
-                        [url,
-                         "/3_Reports/analysis/Analysis_Report_",
-                         repo_app, ".html"])
+                        [url, "/3_Reports/analysis/Analysis_Report_", repo_app, ".html"]
+                    )
         click.echo("URL:\t" + export_URL)
         click.echo("user:\t" + username)
         click.echo("password:\t" + password)
@@ -75,7 +85,7 @@ def create_user(export_folder, export_URL, username):
 
 def generate_password():
     source = string.ascii_letters + string.digits
-    result_str = ''.join((random.choice(source) for i in range(12)))
+    result_str = "".join((random.choice(source) for i in range(12)))
     return result_str
 
 
@@ -87,20 +97,46 @@ def export_empty_folder(export_URL, export_dir, username):
         contents = [le.rstrip() for le in f1.readlines()]
     for i, line in enumerate(contents):
         if "GPM_TITLE_NAME" in line:
-            contents[i] = line.replace("GPM_TITLE_NAME",
-                                       os.path.basename(export_dir))
+            contents[i] = line.replace("GPM_TITLE_NAME", os.path.basename(export_dir))
 
     with open(os.path.join(export_dir, ".htaccess"), "w") as f2:
         for line in contents:
             if "PROJECT_PROJECT_NAME" in line:
-                line = line.replace("PROJECT_PROJECT_NAME",
-                                    os.path.basename(export_dir))
+                line = line.replace(
+                    "PROJECT_PROJECT_NAME", os.path.basename(export_dir)
+                )
             print(line, file=f2)
     # Create user
-    htpasswd_create_user(export_dir,
-                         os.path.join(export_URL,
-                                      os.path.basename(export_dir)),
-                         username.lower(), None)
+    _, password = htpasswd_create_user(
+        export_dir,
+        os.path.join(export_URL, os.path.basename(export_dir)),
+        username.lower(),
+        None,
+    )
+
+    oc = owncloud_login()
+    url = owncloud_export(oc, os.path.basename(export_dir), password)
+    click.echo("Download URL: " + url)
+
+
+def owncloud_login() -> Client:
+    owncloud_pass = os.getenv("OWNCLOUD_SHARE_PASS")
+    if owncloud_pass is None:
+        click.echo(
+            "Could not find the password for the owncloud account, please set the environment variable `OWNCLOUD_SHARE_PASS`"
+        )
+        sys.exit()
+    oc = Client(get_gpm_config("EXPORT", "EXPORT_CLOUD_URL"))
+    oc.login("GPM", owncloud_pass)
+    return oc
+
+
+def owncloud_export(oc, path, password=None) -> str:
+    PATH_PREFIX = get_gpm_config("EXPORT", "EXPORT_CLOUD_PREFIX")
+    out = oc.share_file_with_link(
+        PATH_PREFIX + path, password=password, public_upload=False
+    )
+    return out.get_link()
 
 
 def relpath(path_file):
@@ -118,6 +154,7 @@ def relpath(path_file):
 def tar_exports(export_folder, dry_run, gzip, same_server=False):
     def fits_pattern(filename, pattern):
         return bool(re.match(pattern.replace("*", ".*"), filename))
+
     regex_patterns = get_gpm_config("EXPORT", "TAR_EXPORT_IGNORE")
     if export_folder == ".":
         export_folder = os.getcwd()
@@ -126,7 +163,7 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False):
     compressed_folder = os.path.join(export_folder, "compressed_tar")
     # Create compressed_tar folder
     if not os.path.exists(compressed_folder):
-        click.echo(click.style("Create the folder:", fg='bright_green'))
+        click.echo(click.style("Create the folder:", fg="bright_green"))
         click.echo(compressed_folder)
         if not dry_run:
             os.makedirs(compressed_folder)
@@ -134,18 +171,21 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False):
     for filename in os.listdir(export_folder):
         if filename.startswith("."):
             continue
-        fits_any_pattern = any(fits_pattern(filename, pattern)
-                               for pattern in regex_patterns)
+        fits_any_pattern = any(
+            fits_pattern(filename, pattern) for pattern in regex_patterns
+        )
         if fits_any_pattern:
             continue
         else:
             path_file = os.path.join(export_folder, filename)
             if gzip:
-                tarfile = os.path.join(compressed_folder,
-                                       name+"_" + filename + ".tar.gz")
+                tarfile = os.path.join(
+                    compressed_folder, name + "_" + filename + ".tar.gz"
+                )
             else:
-                tarfile = os.path.join(compressed_folder,
-                                       name+"_" + filename + ".tar")
+                tarfile = os.path.join(
+                    compressed_folder, name + "_" + filename + ".tar"
+                )
             # print("path_file: " + path_file)
             if os.path.islink(path_file):
                 path_file = os.readlink(path_file)
@@ -153,10 +193,8 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False):
                 # path_file = relpath(path_file)
                 print("path_file link: " + path_file)
             if os.path.isdir(path_file) and "compressed_tar" not in filename:
-                click.echo(click.style("Tar the folder:", fg='bright_green'))
-                click.echo(path_file + click.style(" => ",
-                                                   fg='bright_green') +
-                           tarfile)
+                click.echo(click.style("Tar the folder:", fg="bright_green"))
+                click.echo(path_file + click.style(" => ", fg="bright_green") + tarfile)
                 if not dry_run:
                     tar_folder(path_file, tarfile, gzip)
 
@@ -164,9 +202,9 @@ def tar_exports(export_folder, dry_run, gzip, same_server=False):
 def tar_folder(input_folder, output_tar, gzip):
     regex_patterns = get_gpm_config("EXPORT", "TAR_EXPORT_IGNORE")
     if gzip:
-        tar_mode = 'w:gz'
+        tar_mode = "w:gz"
     else:
-        tar_mode = 'w'
+        tar_mode = "w"
     if os.path.exists(output_tar):
         click.echo(output_tar + " exists.")
     else:
@@ -186,9 +224,9 @@ def tar_folder(input_folder, output_tar, gzip):
                 for name in files:
                     full_path = os.path.join(root, name)
                     total_size += get_size(full_path)
-            progress_bar = tqdm(total=total_size,
-                                desc='Creating tar archive',
-                                unit='B', unit_scale=True)
+            progress_bar = tqdm(
+                total=total_size, desc="Creating tar archive", unit="B", unit_scale=True
+            )
             for root, dirs, files in os.walk(input_folder, followlinks=True):
                 # Filter root
                 if os.path.basename(root) in regex_patterns:
@@ -231,7 +269,7 @@ def calculate_md5(file_path):
 
 def save_md5_to_file(file_path):
     md5_checksum = calculate_md5(file_path)
-    with open(file_path+".md5", 'w') as md5_file:
+    with open(file_path + ".md5", "w") as md5_file:
         md5_file.write(md5_checksum)
 
 
