@@ -45,8 +45,7 @@ Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/service
 
 # Download/Browse the files
 
-1. [Raw Data](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data): 
-    * BCL files from the sequencer
+1. [Raw Data](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data):
     * FASTQ files after demultiplexing
     * [MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data/FASTQ_multiQC) for the quality check
 2. [Processed Data](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data): 

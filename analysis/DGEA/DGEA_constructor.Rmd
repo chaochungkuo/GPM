@@ -58,20 +58,6 @@ rownames(samples) <- samples$sample
 samples
 ```
 
-```{r 3dPCA, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-description <- "All samples"
-filtered_samples <- samples[complete.cases(samples$group),]
-if ( render_3DPCA == TRUE ) {
-  deseq_output <- run_deseq_salmon(filtered_samples, 
-                                   spikein=norm_spikein_ERCC, 
-                                   paired=FALSE,
-                                   countsFromAbundance=countsFromAbundance,
-                                   lengthcorrection=lengthcorrection)
-  Plotly_3D_PCA <- RNAseq_3D_PCA_plotly(deseq_output$norm_count, filtered_samples)
-}
-```
-
-
 ```{r All_samples, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 filetag <- "All_samples"
 description <- str_replace_all(filetag, "_", " ")

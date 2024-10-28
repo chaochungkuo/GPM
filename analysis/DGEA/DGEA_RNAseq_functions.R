@@ -315,6 +315,41 @@ RNAseq_heatmap_plotly <- function(deseq2res) {
             label_names = c("Gene", "Sample", "Expression"))
 }
 
+RNAseq_heatmap_plotly_ignoregroup <- function(deseq2res, n = 100) {
+  # Extract expression data
+  # Assuming expression data starts from the 9th column to the second last column
+  expr_data <- deseq2res[, 9:(ncol(deseq2res) - 1)]
+  # Calculate variance for each gene across samples
+  gene_variances <- apply(expr_data, 1, var, na.rm = TRUE)
+  # Add variance as a new column to the results
+  deseq2res$variance <- gene_variances
+  # Select top 'n' genes with the highest variance
+  top_genes <- deseq2res[order(deseq2res$variance, decreasing = TRUE), ][1:min(n, nrow(deseq2res)), ]
+  # Define the heatmap title
+  heatmap_title <- paste("Heatmap of Top", min(n, nrow(deseq2res)), "High Variance Genes")
+  # Prepare the expression matrix for the heatmap
+  # Adding 1 to avoid log10(0) issues and applying log10 transformation
+  heatmap_matrix <- log10(top_genes[, 9:(ncol(top_genes) - 1)] + 1)
+  # Remove row names to use custom labels
+  rownames(heatmap_matrix) <- NULL
+  # Generate the heatmap using heatmaply
+  heatmaply::heatmaply(
+    heatmap_matrix,
+    main = heatmap_title,
+    method = "plotly",
+    labRow = top_genes$gene_name,  # Assuming 'gene_name' column exists
+    xlab = "Samples",
+    ylab = "Genes",
+    showticklabels = c(TRUE, FALSE),
+    show_dendrogram = c(FALSE, TRUE),
+    key.title = "Scaled\nExpression\n(log10)",
+    label_names = c("Gene", "Sample", "Expression"),
+    fontsize_row = 10,               # Adjust as needed for readability
+    fontsize_col = 10,               # Adjust as needed for readability
+    colors = viridis::viridis(256)    # Optional: Use a color palette for better visualization
+  )
+}
+
 RNAseq_PCA_ggplot2 <- function(deseq_output, samples2) {
   t <- t(deseq_output$norm_count[, c(-1,-2)])
   prin_comp <- prcomp(t, rank. = 2)
@@ -400,6 +435,78 @@ RNAseq_heatmap_ggplot2 <- function(deseq_output) {
               plot.margin = margin(l = 0 + margin_spacer(heatmap_t$sample)))
   fig
 }
+
+RNAseq_heatmap_ggplot2_ignoregroup <- function(deseq_output, n = 100) {
+  # Helper function to calculate left margin spacer based on sample name length
+  margin_spacer <- function(x) {
+    # x is the vector of sample names
+    max_length <- max(nchar(as.character(x)), na.rm = TRUE)
+    if (max_length > 8) {
+      return((max_length - 8) * 4)
+    } else {
+      return(0)
+    }
+  }
+  # Extract DESeq2 results
+  deseq2res <- deseq_output$deseq2res
+  # Check if 'gene_id' column exists
+  if (!"gene_id" %in% colnames(deseq2res)) {
+    stop("The 'deseq2res' data frame must contain a 'gene_id' column.")
+  }
+  # Extract expression data
+  # Assuming expression data starts from the 9th column to the second last column
+  expr_data <- deseq2res[, 9:(ncol(deseq2res) - 1)]
+  # Calculate variance for each gene across samples
+  gene_variances <- apply(expr_data, 1, var, na.rm = TRUE)
+  # Add variance as a new column to the results
+  deseq2res <- deseq2res %>%
+    mutate(variance = gene_variances)
+  # Select top 'n' genes with the highest variance
+  top_genes <- deseq2res %>%
+    arrange(desc(variance)) %>%
+    slice_head(n = min(n, nrow(deseq2res)))
+  # Define the heatmap title
+  heatmap_title <- paste("Heatmap of Top", min(n, nrow(deseq2res)), "High Variance Genes")
+  # Extract sample names
+  samples_names <- colnames(top_genes)[9:(ncol(top_genes) - 1)]
+  # Prepare the expression matrix
+  # Adding 1 to avoid log10(0) issues and applying log10 transformation
+  heatmap_t <- top_genes[, 9:(ncol(top_genes) - 1)] %>%
+    log10(. + 1) %>%
+    scale(center = TRUE, scale = TRUE)  # Standardize the data
+  # Perform hierarchical clustering to order genes
+  ord <- hclust(dist(heatmap_t, method = "euclidean"), method = "ward.D")$order
+  # Combine gene_id with the scaled expression data
+  heatmap_df <- top_genes %>%
+    slice(ord) %>%
+    select(gene_id) %>%
+    bind_cols(as.data.frame(heatmap_t)) %>%
+    pivot_longer(
+      cols = -gene_id,
+      names_to = "sample",
+      values_to = "Expression"
+    )
+  # Set factor levels for proper ordering in the heatmap
+  heatmap_df$gene_id <- factor(heatmap_df$gene_id, levels = top_genes$gene_id[ord])
+  heatmap_df$sample <- factor(heatmap_df$sample, levels = samples_names)
+  # Create the heatmap using ggplot2
+  fig <- ggplot(heatmap_df, aes(x = sample, y = gene_id, fill = Expression)) +
+    geom_tile() +
+    ggtitle(heatmap_title) +
+    ylab("Genes") +
+    xlab("Samples") +
+    scale_fill_viridis(name = "Scaled\nExpression\n(log10)", option = "viridis") +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 10),
+      plot.margin = unit(c(1, 1, 1, margin_spacer(heatmap_df$sample)), "pt")
+    )
+  return(fig)
+}
+
 ###########################################################
 ## Output tables
 ###########################################################

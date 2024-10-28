@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import urllib.request
 from collections.abc import Callable
 from numbers import Number
 from os import PathLike, path, system
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -43,20 +46,20 @@ def splitall(p) -> list[str]:
 
 
 def read_parsebio(data_path: PathLike) -> AnnData:
-    """Reads the output of spipe parsebio pipeline and returns an AnnData object.
+    """Read the output of spipe parsebio pipeline and returns an AnnData object.
 
     Args:
         data_path (str): path to the parsebio output.
 
     Returns:
         AnnData: Return AnnData object containing .X, .obs, and .var components
-    """
 
-    adata: AnnData = sc.read_mtx(path.join(data_path, "count_matrix.mtx"))
+    """
+    adata: AnnData = sc.read_mtx(Path(data_path, "count_matrix.mtx"))
 
     # reading in gene and cell data
-    gene_data = pd.read_csv(path.join(data_path, "all_genes.csv"))
-    cell_meta: pd.DataFrame = pd.read_csv(path.join(data_path, "cell_metadata.csv"))
+    gene_data = pd.read_csv(Path(data_path, "all_genes.csv"))
+    cell_meta: pd.DataFrame = pd.read_csv(Path(data_path, "cell_metadata.csv"))
 
     # find genes with nan values and filter
     gene_data: pd.DataFrame = gene_data[gene_data.gene_name.notnull()]
@@ -79,6 +82,40 @@ def read_parsebio(data_path: PathLike) -> AnnData:
     return adata
 
 
+def read_scalebio(data_path: PathLike) -> AnnData:
+    """Read the output of spipe parsebio pipeline and returns an AnnData object.
+
+    Args:
+        data_path (str): path to the parsebio output.
+
+    Returns:
+        AnnData: Return AnnData object containing .X, .obs, and .var components.
+
+    """
+    adata: AnnData = sc.read_mtx(Path(data_path, "matrix.mtx")).T
+
+    # reading in gene and cell data
+    gene_data = pd.read_table(
+        Path(data_path, "features.tsv"), names=["gene_id", "gene_name", "gene_type"]
+    )
+    cell_meta: pd.DataFrame = pd.read_table(
+        Path(data_path, "barcodes.tsv"), names=["barcode"]
+    )
+
+    gene_data: pd.DataFrame = gene_data[gene_data.gene_name.notna()]
+    adata.var = gene_data
+    adata.var.set_index("gene_name", inplace=True)
+    adata.var.index.name = None
+    adata.var_names_make_unique()
+
+    # add cell meta data to anndata object
+    adata.obs = cell_meta
+    adata.obs.set_index("barcode", inplace=True)
+    adata.obs.index.name = None
+    adata.obs_names_make_unique()
+    return adata
+
+
 ## Technology components
 qc_features_rules: dict[str, list[str]] = {
     "human": {"mito": ["MT-"], "ribo": ["RBS", "RPL"], "hb": ["^HB[^(P)]"]},
@@ -87,7 +124,7 @@ qc_features_rules: dict[str, list[str]] = {
         "ribo": ["Rps", "Rpl"],
         "hb": ["^Hb[^(p)]"],  # Validate this later
     },
-}
+}  # type: ignore
 
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            QC Functions                                                                                    ###
@@ -95,7 +132,7 @@ qc_features_rules: dict[str, list[str]] = {
 
 
 def human2mouse(genes: list[str]) -> list[str]:
-    """Converts human gene names to mouse gene names using the gprofiler API
+    """Convert human gene names to mouse gene names using the gprofiler API.
 
     Args:
         genes (list[str]): a list of human gene names
@@ -103,7 +140,6 @@ def human2mouse(genes: list[str]) -> list[str]:
     Returns:
         list[str]: converted list of mouse gene names. Failed conversions are replaced with pd.NA.
     """
-
     r = requests.post(
         url="https://biit.cs.ut.ee/gprofiler/api/orth/orth/",
         json={
@@ -113,10 +149,10 @@ def human2mouse(genes: list[str]) -> list[str]:
         },
         timeout=60,
     )
-    df = pd.DataFrame(
+    conversion = pd.DataFrame(
         r.json()["result"],
     )
-    return df.name.replace("N/A", pd.NA).dropna().to_list()
+    return conversion.name.replace("N/A", pd.NA).dropna().to_list()
 
 
 ###---------------------------------------------------------------------------------------------------------------------------------###
@@ -130,17 +166,19 @@ def _compute_outliers(
     max_only: bool = False,
     log_transform: bool = False,
 ) -> pd.Series:
-    """computes outliers for the given variable in the dataframe.
+    """Compute outliers for the given variable in the dataframe.
 
     Args:
         adata (AnnData): Input AnnData object.
-        value (list | Number): value to use for outlier detection, if a list is provided, it is used as the lower and upper bound
-        max_only (bool, optional): If True, only the upper bound is used for outlier detection. Defaults to False.
-        log_transform (bool, optional): If True, the variable is log transformed before outlier detection. Defaults to False.
+        value (list | Number): value to use for outlier detection, if a list is provided,
+        it is used as the lower and upper bound.
+        max_only (bool, optional): If True, only the upper bound is used for outlier detection.
+        log_transform (bool, optional): If True, the variable is log transformed before outlier detection.
+
     Returns:
         df: the input dataframe with an additional column for the outliers
-    """
 
+    """
     # Validate the input
     if not isinstance(value, (list, int, float)):
         raise ValueError(

@@ -8,27 +8,24 @@ from functools import lru_cache, reduce
 from os import path, walk
 
 import scanpy as sc
-from utils.preprocessing_funcs import read_parsebio, splitall
+from utils.preprocessing_funcs import read_parsebio, read_scalebio, splitall
 
 
 class AutoDiscover(ABC):
     """Protocol for the AutoDiscover class. This class provides arbitary implmenetation to discover scRNA-seq samples in a directory.
     Implementation are free to use different heuristics to discover samples but they should implement the following methods:
-    - get_samples_paths: Returns the paths to the samples in the directory.
-    - get_sample_names: Returns the names of the samples.
-    - get_read_function: Returns the function to read the samples.
-    Optionally, the following methods can be implemented:
-    - get_raw_sample_paths: Returns the paths to the raw samples in the directory.
-    - get_raw_sample_read_function: Returns the function to read the raw samples.
+    - get_samples: Returns the names of the samples.
+    - read_function: Returns the function to read the samples.
+    Optionally, the following methods can be implemented or left as no-op:
+    - get_raw_samples: Returns the paths to the raw samples in the directory.
+    - raw_read_function: Returns the function to read the raw samples.
     """
 
     @abstractmethod
     def __init__(self, root_path: str | None = None) -> None: ...
 
-    @abstractmethod
     def _get_sample_paths(self) -> list[str]: ...
 
-    @abstractmethod
     def _get_raw_sample_paths(self) -> list[str]: ...
 
     @abstractmethod
@@ -165,6 +162,51 @@ class ParseBioAutoDiscover(AutoDiscover):
         return sample_paths
 
 
+class ScaleBioAutoDiscover(AutoDiscover):
+
+    def __init__(self, root_path: str | None = None) -> None:
+        self.root_path: str | None = root_path
+        self.components = ["barcodes.tsv", "features.tsv", "matrix.mtx"]
+
+    # ScaleBio pipeline does seperate filtering that StarSolo pipeline they are present in the /samples directory
+    # Samples have the name scheme: <sample_name>.ScaleRNA.filtered.matrix
+    # https://github.com/ScaleBio/ScaleRna/blob/master/docs/outputs.md
+    def _get_sample_paths(self) -> list[str]:
+        paths = self._collect_paths()
+        return [
+            p for p in paths if path.basename(p).endswith(".ScaleRNA.filtered.matrix")
+        ]
+
+    def _get_raw_sample_paths(self) -> list[str]:
+        paths = self._collect_paths()
+        return [p for p in paths if path.basename(p).endswith("raw")]
+
+    def get_samples(self) -> dict[str, str]:
+        samples = self._get_sample_paths()
+        return super()._get_names(samples)
+
+    def get_raw_samples(self) -> dict[str, str]:
+        samples = self._get_raw_sample_paths()
+        return super()._get_names(samples)
+
+    def read_function(self, samples=None) -> Callable:
+        _ = samples
+        return read_scalebio
+
+    def raw_read_function(self, samples=None) -> Callable:
+        _ = samples
+        return read_scalebio
+
+    @lru_cache
+    def _collect_paths(self) -> list[str]:
+        sample_paths = []
+        if self.root_path is not None:
+            for root, _, files in walk(self.root_path):
+                if set(self.components).issubset(set(files)):
+                    sample_paths.append(root)
+        return sample_paths
+
+
 # Documentation for CellRange output: https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/outputs/cr-outputs-overview
 # https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-pipestance-structure
 class CellRangerAutoDiscover(AutoDiscover):
@@ -269,4 +311,5 @@ discover_factory: dict[str, type[AutoDiscover]] = {
     "10x": CellRangerAutoDiscover,
     "Singleron": SingeleronAutoDiscover,
     "PraseBio": ParseBioAutoDiscover,
+    "ScaleBio": ScaleBioAutoDiscover,
 }
