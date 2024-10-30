@@ -501,6 +501,7 @@ class GPM():
     def create_cloud_export(self, export_folder):
         oc = owncloud_login()
         cloud_url = owncloud_export(oc, export_folder, self.profile["Export"]["export_password"])
+        click.echo("Downlowd URL:\t"+cloud_url)
         self.profile["Export"]["download_url"] = cloud_url
 
 

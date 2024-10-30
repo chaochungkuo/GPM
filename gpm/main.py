@@ -227,7 +227,7 @@ def export(export_folder, config, no_cloud, username, tar, gzip):
         if username:
             pm.update_username(username)
         pm.add_htaccess(export_folder)
-        pm.create_user(export_folder)
+        pm.create_user(export_folder) # Here the echo is happening
         if not no_cloud:
             pm.create_cloud_export(os.path.basename(export_folder))
         pm.update_log()

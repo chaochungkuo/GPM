@@ -70,9 +70,9 @@ def htpasswd_create_user(export_folder, url, username, app=None):
                     export_URL = "".join(
                         [url, "/3_Reports/analysis/Analysis_Report_", repo_app, ".html"]
                     )
-        click.echo("URL:\t" + export_URL)
         click.echo("user:\t" + username)
         click.echo("password:\t" + password)
+        click.echo("URL:\t" + export_URL)
         return username, password
     else:
         click.echo("Skip setting htpasswd")
@@ -134,10 +134,8 @@ def owncloud_login() -> Client:
 
 def owncloud_export(oc, path, password=None) -> str:
     PATH_PREFIX = get_gpm_config("EXPORT", "EXPORT_CLOUD_PREFIX")
-    print(Path("/", PATH_PREFIX, path))
-    print(password)
     out = oc.share_file_with_link(
-        Path(PATH_PREFIX, path), password=password, public_upload=False
+        str(Path(PATH_PREFIX, path)), password=password, public_upload=False
     )
     return out.get_link()
 
