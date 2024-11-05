@@ -329,7 +329,7 @@ RNAseq_heatmap_plotly_ignoregroup <- function(deseq2res, n = 100) {
   heatmap_title <- paste("Heatmap of Top", min(n, nrow(deseq2res)), "High Variance Genes")
   # Prepare the expression matrix for the heatmap
   # Adding 1 to avoid log10(0) issues and applying log10 transformation
-  heatmap_matrix <- log10(top_genes[, 9:(ncol(top_genes) - 1)] + 1)
+  heatmap_matrix <- log10(top_genes[, 9:(ncol(top_genes) - 2)] + 1)
   # Remove row names to use custom labels
   rownames(heatmap_matrix) <- NULL
   # Generate the heatmap using heatmaply
@@ -455,7 +455,7 @@ RNAseq_heatmap_ggplot2_ignoregroup <- function(deseq_output, n = 100) {
   }
   # Extract expression data
   # Assuming expression data starts from the 9th column to the second last column
-  expr_data <- deseq2res[, 9:(ncol(deseq2res) - 1)]
+  expr_data <- deseq2res[, 9:(ncol(deseq2res) - 2)]
   # Calculate variance for each gene across samples
   gene_variances <- apply(expr_data, 1, var, na.rm = TRUE)
   # Add variance as a new column to the results
