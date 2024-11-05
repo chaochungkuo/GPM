@@ -126,7 +126,6 @@ def owncloud_login() -> Client:
             "Could not find the password for the owncloud account, please set the environment variable `OWNCLOUD_SHARE_PASS`"
         )
         sys.exit()
-    # oc = Client(get_gpm_config("EXPORT", "EXPORT_CLOUD_URL"))
     oc = Client("https://genomics.rwth-aachen.de/cloud")
     oc.login("GPM", owncloud_pass)
     return oc
