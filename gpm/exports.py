@@ -70,9 +70,9 @@ def htpasswd_create_user(export_folder, url, username, app=None):
                     export_URL = "".join(
                         [url, "/3_Reports/analysis/Analysis_Report_", repo_app, ".html"]
                     )
-        click.echo("user:\t" + username)
-        click.echo("password:\t" + password)
-        click.echo("URL:\t" + export_URL)
+        # click.echo("user:\t" + username)
+        # click.echo("password:\t" + password)
+        # click.echo("URL:\t" + export_URL)
         return username, password
     else:
         click.echo("Skip setting htpasswd")
@@ -116,7 +116,7 @@ def export_empty_folder(export_URL, export_dir, username):
 
     oc = owncloud_login()
     url = owncloud_export(oc, os.path.basename(export_dir), password)
-    click.echo("Download URL: " + url)
+    # click.echo("Download URL: " + url)
 
 
 def owncloud_login() -> Client:
@@ -126,7 +126,6 @@ def owncloud_login() -> Client:
             "Could not find the password for the owncloud account, please set the environment variable `OWNCLOUD_SHARE_PASS`"
         )
         sys.exit()
-    # oc = Client(get_gpm_config("EXPORT", "EXPORT_CLOUD_URL"))
     oc = Client("https://genomics.rwth-aachen.de/cloud")
     oc.login("GPM", owncloud_pass)
     return oc

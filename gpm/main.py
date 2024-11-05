@@ -230,6 +230,7 @@ def export(export_folder, config, no_cloud, username, tar, gzip):
         pm.create_user(export_folder) # Here the echo is happening
         if not no_cloud:
             pm.create_cloud_export(os.path.basename(export_folder))
+        pm.echo_export_info()
         pm.update_log()
         pm.write_project_config_file()
 

@@ -7,19 +7,32 @@ import shutil
 from collections import OrderedDict
 import configparser
 from datetime import datetime
-from gpm.helper import remove_end_slash, get_gpmdata_path, \
-                       check_project_name, get_dict_from_configs, \
-                       replace_variables_by_dict, check_analysis_name, \
-                       copy_samplesheet, get_gpm_config, append_file_to_another
+from gpm.helper import (
+    remove_end_slash,
+    get_gpmdata_path,
+    check_project_name,
+    get_dict_from_configs,
+    replace_variables_by_dict,
+    check_analysis_name,
+    copy_samplesheet,
+    get_gpm_config,
+    append_file_to_another,
+)
 from gpm.messages import show_tree, show_instructions
 from gpm import PROJECT_INI_FILE
-from gpm.exports import check_export_directory, get_htaccess_path, \
-                        htpasswd_create_user, owncloud_login, owncloud_export
+from gpm.exports import (
+    check_export_directory,
+    get_htaccess_path,
+    htpasswd_create_user,
+    owncloud_login,
+    owncloud_export,
+)
 from gpm.project_ini_struc import tags_GPM
 
 
-class GPM():
+class GPM:
     """A class for a genomic project."""
+
     def __init__(self):
         """
         Initiate a project.
@@ -71,11 +84,9 @@ class GPM():
             return ""
         else:
             if len(filepath) > len(self.profile["Project"]["project.ini"]):
-                prefix = filepath.replace(
-                    self.profile["Project"]["project.ini"], "")
+                prefix = filepath.replace(self.profile["Project"]["project.ini"], "")
             else:
-                prefix = self.profile["Project"]["project.ini"].replace(
-                    filepath, "")
+                prefix = self.profile["Project"]["project.ini"].replace(filepath, "")
             return prefix
 
     def update_with_symlink(self, prefix):
@@ -87,8 +98,7 @@ class GPM():
                 if self.exports[section][tag].startswith("/"):
                     # self.exports[section][tag] = os.path.join(
                     #     prefix, self.exports[section][tag])
-                    self.exports[section][tag] = \
-                        prefix + self.exports[section][tag]
+                    self.exports[section][tag] = prefix + self.exports[section][tag]
                     # print(self.exports[section][tag])
 
     def write_project_config_file(self):
@@ -106,7 +116,7 @@ class GPM():
             for key, value in options.items():
                 config.set(section, key, str(value))
         # Write the configuration to the file
-        with open(self.profile["Project"]["project.ini"], 'w') as config_file:
+        with open(self.profile["Project"]["project.ini"], "w") as config_file:
             config.write(config_file)
 
     def update_log(self):
@@ -120,7 +130,7 @@ class GPM():
             full_command[0] = "gpm"
         full_command = " ".join(full_command)
         current_datetime = datetime.now()
-        formatted_timestamp = current_datetime.strftime('%y%m%d %H:%M')
+        formatted_timestamp = current_datetime.strftime("%y%m%d %H:%M")
         new_entry = formatted_timestamp + " >>> " + full_command
         self.logs.append(new_entry)
 
@@ -128,8 +138,8 @@ class GPM():
         for section, options in self.profile.items():
             if section != "Logs":
                 for tag, value in options.items():
-                    if "PROJECT_"+tag.upper() in line:
-                        line = line.replace("PROJECT_"+tag.upper(), value)
+                    if "PROJECT_" + tag.upper() in line:
+                        line = line.replace("PROJECT_" + tag.upper(), value)
         return line
 
     def replace_variable(self, line, config_dict):
@@ -150,7 +160,7 @@ class GPM():
         :return: None
         """
         config_dict = get_dict_from_configs()
-        with open(source, 'r') as input_file, open(target, 'w') as output_file:
+        with open(source, "r") as input_file, open(target, "w") as output_file:
             for line in input_file:
                 line = self.replace_variable(line, config_dict)
                 output_file.write(line)
@@ -205,8 +215,7 @@ class GPM():
         # Update profile
         demultiplex_path = path.join(output, raw_name)
         self.profile["Demultiplexing"]["demultiplex_path"] = demultiplex_path
-        multiqc_path = path.join(demultiplex_path,
-                                 "multiqc/multiqc_report.html")
+        multiqc_path = path.join(demultiplex_path, "multiqc/multiqc_report.html")
         self.profile["Demultiplexing"]["fastq_multiqc_path"] = multiqc_path
         self.profile["Demultiplexing"]["demultiplex_method"] = method
         config_path = path.join(output, raw_name, PROJECT_INI_FILE)
@@ -262,8 +271,7 @@ class GPM():
         :return: None
         """
         # Create processing folder
-        processing_path = path.join(self.profile["Project"]["project_path"],
-                                    method)
+        processing_path = path.join(self.profile["Project"]["project_path"], method)
         if path.exists(processing_path):
             click.echo("The folder exists already:")
             click.echo(processing_path)
@@ -280,16 +288,16 @@ class GPM():
                 self.copy_file(source=file_path, target=target_file)
         # insert nextflow.config
         if "nfcore" in method:
-            gpm_nextflow_config = path.join(get_gpmdata_path(),
-                                            "config", "nextflow.config")
-            process_nextflow_config = path.join(processing_path,
-                                                "nextflow.config")
+            gpm_nextflow_config = path.join(
+                get_gpmdata_path(), "config", "nextflow.config"
+            )
+            process_nextflow_config = path.join(processing_path, "nextflow.config")
             if path.exists(process_nextflow_config):
-                append_file_to_another(gpm_nextflow_config,
-                                       process_nextflow_config)
+                append_file_to_another(gpm_nextflow_config, process_nextflow_config)
             else:
-                self.copy_file(source=gpm_nextflow_config,
-                               target=process_nextflow_config)
+                self.copy_file(
+                    source=gpm_nextflow_config, target=process_nextflow_config
+                )
         # Update project.ini
         self.profile["Processing"]["processing_path"] = processing_path
         self.profile["Processing"]["processing_method"] = method
@@ -303,8 +311,7 @@ class GPM():
 
         :return: None
         """
-        analysis_dir = path.join(self.profile["Project"]["project_path"],
-                                 "analysis")
+        analysis_dir = path.join(self.profile["Project"]["project_path"], "analysis")
         if not path.exists(analysis_dir):
             os.mkdir(analysis_dir)
         self.profile["Analysis"]["analysis_path"] = analysis_dir
@@ -315,14 +322,16 @@ class GPM():
 
         :return: None
         """
-        files = ["Analysis_Report_"+application+".Rmd",
-                 "report_functions.R",
-                 "references.bib"]
+        files = [
+            "Analysis_Report_" + application + ".Rmd",
+            "report_functions.R",
+            "references.bib",
+        ]
         for copy_file in files:
-            source_file = path.join(get_gpmdata_path(), "analysis",
-                                    copy_file)
-            target_file = path.join(self.profile["Analysis"]["analysis_path"],
-                                    copy_file)
+            source_file = path.join(get_gpmdata_path(), "analysis", copy_file)
+            target_file = path.join(
+                self.profile["Analysis"]["analysis_path"], copy_file
+            )
             self.copy_file(source_file, target_file)
 
     def show_analysis_list(self):
@@ -333,16 +342,14 @@ class GPM():
         """
         analysis_dict = self.load_analysis_config()
         for group in analysis_dict.keys():
-            click.echo(click.style(group, fg='bright_green'))
+            click.echo(click.style(group, fg="bright_green"))
             for label in analysis_dict[group].keys():
                 # click.echo("  <<< " + label + " >>>")
                 for i, file in enumerate(analysis_dict[group][label]):
                     if i == 0:
-                        click.echo("{:<25} {:<}".format(label,
-                                                        file.split("/")[-1]))
+                        click.echo("{:<25} {:<}".format(label, file.split("/")[-1]))
                     else:
-                        click.echo("{:<25} {:<}".format("",
-                                                        file.split("/")[-1]))
+                        click.echo("{:<25} {:<}".format("", file.split("/")[-1]))
             click.echo("")
 
     def load_analysis_config(self):
@@ -351,8 +358,7 @@ class GPM():
 
         :return: A dictionary for analysis:file
         """
-        analysis_config = path.join(get_gpmdata_path(), "config",
-                                    "analysis.config")
+        analysis_config = path.join(get_gpmdata_path(), "config", "analysis.config")
         analysis_dict = OrderedDict()
         with open(analysis_config) as f:
             for line in f:
@@ -384,10 +390,9 @@ class GPM():
                     if not path.exists(group_dir):
                         os.makedirs(group_dir)
                     for template in analysis_dict[group][label]:
-                        click.echo("  "+template)
+                        click.echo("  " + template)
                         source_file = path.join(source_dir, template)
-                        target_file = path.join(group_dir,
-                                                path.basename(template))
+                        target_file = path.join(group_dir, path.basename(template))
                         if os.path.isfile(source_file):
                             self.copy_file(source_file, target_file)
                         elif os.path.isdir(source_file):
@@ -403,12 +408,11 @@ class GPM():
         :return: None
         """
         if analysis_name == "DGEA_RNAseq":
-            sheet = path.join(self.profile["Processing"]["processing_path"],
-                              "samplesheet.csv")
+            sheet = path.join(
+                self.profile["Processing"]["processing_path"], "samplesheet.csv"
+            )
             dir_analysis = self.profile["Analysis"]["analysis_path"]
-            copy_samplesheet(sheet,
-                             path.join(dir_analysis, "DGEA",
-                                       "samplesheet.csv"))
+            copy_samplesheet(sheet, path.join(dir_analysis, "DGEA", "samplesheet.csv"))
 
     def load_export_config(self):
         self.export_structure = []
@@ -422,9 +426,9 @@ class GPM():
                     ll = [le.strip() for le in line.split(";")]
                     if len(ll) == 4:
                         if (
-                            ll[0] == "all" or
-                            ll[0].lower() ==
-                            self.profile["Project"]["application"].lower()
+                            ll[0] == "all"
+                            or ll[0].lower()
+                            == self.profile["Project"]["application"].lower()
                         ):
                             ll[1] = self.replace_variable(ll[1], config_dict)
                             self.export_structure.append(ll)
@@ -435,8 +439,7 @@ class GPM():
             if entry[3]:
                 target = os.path.join(export_dir, entry[2], entry[3])
             else:
-                target = os.path.join(export_dir, entry[2],
-                                      os.path.basename(entry[1]))
+                target = os.path.join(export_dir, entry[2], os.path.basename(entry[1]))
             return target
 
         export_dir = os.path.abspath(export_dir)
@@ -454,59 +457,71 @@ class GPM():
                     os.makedirs(target)
             else:
                 origin_f = os.path.join(
-                    self.profile["Project"]["project_path"],
-                    entry[1]
+                    self.profile["Project"]["project_path"], entry[1]
                 )
                 # A directory
                 if os.path.isdir(origin_f):
                     target = handle_rename(export_dir, entry)
-                    os.symlink(self.prefix+origin_f, target,
-                               target_is_directory=True)
+                    os.symlink(self.prefix + origin_f, target, target_is_directory=True)
                 # A file
                 elif os.path.isfile(origin_f):
                     target = handle_rename(export_dir, entry)
-                    os.symlink(self.prefix+origin_f, target,
-                               target_is_directory=False)
+                    os.symlink(
+                        self.prefix + origin_f, target, target_is_directory=False
+                    )
                 # A pattern for many files
                 else:
                     target_dir = os.path.join(export_dir, entry[2])
                     if not os.path.exists(target_dir):
                         os.makedirs(target_dir)
                     for matching_file in glob.glob(origin_f):
-                        target = os.path.join(target_dir,
-                                              os.path.basename(matching_file))
-                        os.symlink(matching_file, target,
-                                   target_is_directory=False)
+                        target = os.path.join(
+                            target_dir, os.path.basename(matching_file)
+                        )
+                        os.symlink(matching_file, target, target_is_directory=False)
 
     def add_htaccess(self, export_dir):
         htaccess_path = get_htaccess_path()
-        self.copy_file(htaccess_path,
-                       os.path.join(export_dir, ".htaccess"))
+        self.copy_file(htaccess_path, os.path.join(export_dir, ".htaccess"))
         # shutil.chown(os.path.join(export_dir, ".htaccess"), group=GROUPNAME)
 
     def create_user(self, export_dir, raw_export=False):
-        export_URL = os.path.join(get_gpm_config("EXPORT", "EXPORT_URL"),
-                                  self.profile["Project"]["project_name"])
+        export_URL = os.path.join(
+            get_gpm_config("EXPORT", "EXPORT_URL"),
+            self.profile["Project"]["project_name"],
+        )
         export_user, export_password = htpasswd_create_user(
-                                                            export_dir,
-                                                            export_URL,
-                                                            self.profile["Project"]["name1"].lower(),
-                                                            self.profile["Project"]["application"]
-                                                            )
+            export_dir,
+            export_URL,
+            self.profile["Project"]["name1"].lower(),
+            self.profile["Project"]["application"],
+        )
         self.profile["Export"]["export_URL"] = export_URL
         self.profile["Export"]["export_user"] = export_user
         self.profile["Export"]["export_password"] = export_password
 
-    
     def create_cloud_export(self, export_folder):
         oc = owncloud_login()
-        cloud_url = owncloud_export(oc, export_folder, self.profile["Export"]["export_password"])
-        click.echo("Downlowd URL:\t"+cloud_url)
+        cloud_url = owncloud_export(
+            oc, export_folder, self.profile["Export"]["export_password"]
+        )
+        # click.echo("Downlowd URL:\t"+cloud_url)
         self.profile["Export"]["download_url"] = cloud_url
-
 
     def update_username(self, username):
         self.profile["Export"]["export_user"] = username
 
     def update_fastq_path(self, fastq_path):
         self.profile["Demultiplexing"]["fastq_path"] = fastq_path
+
+    def echo_export_info(self) -> None:
+        echo_fields = [
+            ("Export", "export_user", "Username"),
+            ("Export", "export_password", "Password"),
+            ("Export", "export_URL", "URL"),
+            ("Export", "download_url", "Download URL"),
+        ]
+        # use tubles in echofields to get values from self.profile
+        for entry in echo_fields:
+            section, field, label = entry
+            click.echo(f"{label}:\t{self.profile[section][field]}")
