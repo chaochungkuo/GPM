@@ -1,6 +1,6 @@
 #!/bin/bash
 
-nfcore_version=3.12.0
+nfcore_version=3.17.0
 
 # Check if the --test option is provided
 if [ "$#" -gt 0 ] && [ "$1" = "--test" ]; then
