@@ -525,3 +525,19 @@ class GPM:
         for entry in echo_fields:
             section, field, label = entry
             click.echo(f"{label}:\t{self.profile[section][field]}")
+
+    def echo_wget_msg(self, export_folder) -> None:
+        click.echo("\n")
+        click.echo(
+            click.style(
+                "Please use the following command to download the data:",
+                fg="bright_green",
+            )
+        )
+        click.echo(
+            f"""wget -r -nH --cut-dirs=3 -np -P {os.path.basename(export_folder)} \\
+            --user={self.profile["Export"]["export_user"]} --password={self.profile["Export"]["export_password"]} \\
+            --reject "index.html.tmp*,robots.txt*" \\
+            {self.profile['Export']['export_URL']}"""
+        )
+        click.echo("")
