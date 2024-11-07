@@ -65,6 +65,7 @@ Please make sure that you store these data in a lab-wise level. Please refer to 
 
 In 'Group2 vs Group1' analysis, we compare gene expression between Group2 and Group1. 'Up' genes are expressed more in Group2 than Group1, indicating potential biological changes. 'Down' genes show lower expression in Group2, suggesting differences in gene activity.
 
+### [All samples](DGEA/DGEA_All_samples.html)
 <!-- INSERTING POINT -->
 
 # Sample Overview
