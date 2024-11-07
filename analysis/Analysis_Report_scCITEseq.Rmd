@@ -71,15 +71,11 @@ Please click the hyperlinked list below:
 3. [Reports](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/3_Reports):
     * [MultiQC reports](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/3_Reports/Multiqc/Genomics-Facility-IZKF-Aachen-sequencing-quality-report_multiqc_report.html) for the quality check
     * Basic analysis of the Genomics Facility (This report)
-4. [Compressed files for download](https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/compressed_tar):
-    * Two tar files are available for download for the Raw and processed data folders.
 
 In the command line environment, you can also download everything by the commands below with the given username and password from us:
 
 ```
-wget -r --user PROJECT_EXPORT_USER --password PROJECT_EXPORT_PASSWORD https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/compressed_tar/_1_Raw_data.tar.gz
-
-wget -r --user PROJECT_EXPORT_USER --password PROJECT_EXPORT_PASSWORD https://genomics.rwth-aachen.de/data/220311_Brandt_Berres_MiedIII_scCITEseq/compressed_tar/_2_Processed_data.tar.gz
+wget -r -nH -np -P PROJECT_PROJECT_NAME --user=PROJECT_EXPORT_USER --password=PROJECT_EXPORT_PASSWORD --reject "index.html?*,index.html.tmp*,robots.txt*,robots.txt.tmp" https://genomics.rwth-aachen.de/data/PROJECT_PROJECT_NAME/
 ```
 
 Please make sure that you store these data in a lab-wise level. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
