@@ -88,7 +88,7 @@ setup(
     url='https://github.com/chaochungkuo/GPM',
     packages=find_packages(),
     install_requires=[
-        'Click', "pandas", "pyyaml", "xtarfile", "tqdm"
+        'Click', "pandas", "pyyaml", "xtarfile", "tqdm", "pyocclient"
     ],
     entry_points={
         'console_scripts': [
