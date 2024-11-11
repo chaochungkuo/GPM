@@ -59,7 +59,7 @@ if ("PROJECT_PROCESSING_METHOD" == "nfcore_RNAseq") {
 
 save(
   samplesheet, salmon_dir, tx2gene_file, counts_from_abundance, 
-  length_correction, organism, cutoff_adj_p, cutoff_quant, authors, highlighted_genes,
+  length_correction, organism, cutoff_adj_p, cutoff_log2fc, authors, highlighted_genes,
   file = "DGEA_params.RData"
 )
 # Render DGEA for all samples
