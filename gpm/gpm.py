@@ -524,7 +524,10 @@ class GPM:
         # use tubles in echofields to get values from self.profile
         for entry in echo_fields:
             section, field, label = entry
-            click.echo(f"{label}:\t{self.profile[section][field]}")
+            try:
+                click.echo(f"{label}:\t{self.profile[section][field]}")
+            except KeyError:
+                continue
 
     def echo_wget_msg(self, export_folder) -> None:
         click.echo("\n")
