@@ -459,6 +459,7 @@ pheatmap(
   color = colorRampPalette(brewer.pal(9, "YlGnBu"))(100),  # Color scheme
   cluster_rows = TRUE,  # Cluster rows (genes)
   cluster_cols = TRUE,  # Cluster columns (samples)
+  border_color = NA,
   scale = "row",  # Standardize each gene's expression across samples
   show_rownames = FALSE,  # Hide row names if they are too many
   show_colnames = TRUE,  # Show column names
