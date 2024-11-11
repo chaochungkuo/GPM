@@ -533,9 +533,13 @@ addWorksheet(wb, "Norm. counts")
 writeData(wb, "Norm. counts", out_norm, row.names = TRUE)
 # Save the workbook
 saveWorkbook(wb, export_filename, overwrite = TRUE)
+export_csv <- paste0("DGEA_", params$filetag, "_stat.csv")
+write.csv(res, export_csv, row.names = FALSE)
 ```
 
-Please download the export excel file: [`r export_filename`](`r export_filename`)
+- Please download the export excel file: [`r export_filename`](`r export_filename`)
+- Or download the CSV file: [`r export_filename`](`r export_filename`)
+- If you desire to annotate the volcano plot and annotate the genes you prefer, please try out our web app [AnnoFig](https://genomics.rwth-aachen.de/annofig/) with the CSV file above.
 
 # References
 
