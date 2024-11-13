@@ -2,7 +2,8 @@
 params:
   authors:
   paired:
-  filetag:
+  base_group:
+  target_group:
   samplesheet:
 title: "Differential Gene Expression Analysis for `r gsub('_', ' ', params$filetag)`"
 author:
@@ -38,11 +39,12 @@ library(ggrepel)
 library(tibble)
 library(RColorBrewer)
 library(pheatmap)
+library(stringr)
 
 load("DGEA_params.RData")
 
-description_parts <- strsplit(gsub('_', ' ', params$filetag), " ")[[1]]
-samplesheet$group <- factor(samplesheet$group, levels = c(description_parts[3], description_parts[1]))
+samplesheet$group <- factor(samplesheet$group,
+                           levels = c(params$base_group, params$target_group))
 samplesheet <- samplesheet[complete.cases(samplesheet$group),]
 ```
 

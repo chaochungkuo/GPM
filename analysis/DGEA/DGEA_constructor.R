@@ -41,7 +41,7 @@ rownames(samplesheet) <- samplesheet$sample
 ####################################################################
 # unique(samplesheet$group)
 comparisons <- list(
-  list(filetag = "Treatment_vs_Control",
+  list(base_group = "Control", target_group = "Treatment",
        samplesheet = samplesheet, paired = FALSE)
 )
 
@@ -71,11 +71,14 @@ rmarkdown::render(
 
 # Function to render each report with the specified parameters
 render_report <- function(comparison) {
+  filetag <- paste0(comparison$target_group, "_vs_", comparison$base_group)
   rmarkdown::render(
     input = "DGEA_template.Rmd",
-    output_file = paste0("DGEA_", comparison$filetag, ".html"),
+    output_file = paste0("DGEA_", filetag, ".html"),
     params = list(authors = authors,
-                  filetag = comparison$filetag,
+                  filetag = filetag,
+                  base_group = comparison$base_group,
+                  target_group = comparison$target_group,
                   samplesheet = comparison$samplesheet,
                   paired = comparison$paired)
   )
@@ -87,5 +90,6 @@ for (comparison in comparisons) {
 }
 # Loop through comparisons and export the hyperlinks for inserting to main report
 for (comparison in comparisons) {
-  cat(paste0("### [",gsub('_', ' ', comparison$filetag),"]","(DGEA/DGEA_", comparison$filetag, ".html)\n"))
+  filetag <- paste0(comparison$target_group, "_vs_", comparison$base_group)
+  cat(paste0("### [",gsub('_', ' ', filetag),"]","(DGEA/DGEA_", filetag, ".html)\n"))
 }
