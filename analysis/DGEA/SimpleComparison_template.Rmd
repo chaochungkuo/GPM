@@ -1,7 +1,7 @@
 ---
-title: "Simple Comparison for TITLEDESCRIPTION"
+title: "Simple Comparison for and "
 author:
-RMD_AUTHORS
+  - Chao-Chung Kuo, Genomics Facility, ckuo@ukaachen.de
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
@@ -12,65 +12,192 @@ output:
     toc_depth: 3
     number_sections: false
     theme: lumen
+    code_download: true
+    code_folding: hide
 bibliography: ../references.bib
 ---
 
-```{r FILETAG-setup, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
-library(heatmaply)
-require(dplyr)
-require(DT)
+```{r setup, echo=TRUE, warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+# Load libraries
+library(DESeq2)
+library(dplyr)
 library(ggplot2)
-library(readr)
-library(stringr)
-library(tidyr)
+library(plotly)
+library(viridis) 
+library(DT)
+library(tximport)
 library(data.table)
 library(openxlsx)
-options(warn = -1)
+library(ggrepel)
+library(tibble)
+library(RColorBrewer)
+library(pheatmap)
 
-File_salmon_count <- "SALMON_COUNT_TABLE"
+# Define samples to compare
+sample1 <- "MTLC1"  # Define sample 1 name here
+sample2 <- "TM3"    # Define sample 2 name here
+organism <- "PROJECT_PROCESSING_ORGANISM"  # e.g., "hsapiens", "mmusculus" PROJECT_PROCESSING_ORGANISM
+######################## Below is optional #########################
+# Define the base project path
+project_base <- "PROJECT_PROJECT_PATH"
+analysis_dir <- file.path(project_base, "analysis")
+dgea_dir <- file.path(analysis_dir, "DGEA")
+salmon_dir <- file.path(project_base, "PROJECT_PROCESSING_METHOD/results/star_salmon")
+tx2gene_file <- file.path(salmon_dir, "tx2gene.tsv")
 
-source("DGEA_RNAseq_functions.R")
+# Dynamically load the appropriate annotation package based on organism
+if (organism == "mmusculus") {
+  library(org.Mm.eg.db)
+  annotation_db <- org.Mm.eg.db
+} else if (organism == "hsapiens") {
+  library(org.Hs.eg.db)
+  annotation_db <- org.Hs.eg.db
+} else {
+  stop("Unsupported organism. Please specify 'mmusculus' or 'hsapiens'.")
+}
 
-Tag_this_analysis <- "FILETAG"
+####################################################################
+#   Define run specifications
+####################################################################
+norm_spikein_ercc <- FALSE
+highlighted_genes <- NA # e.g., c("Sub1", "", "")
 
-File_xlsx_res <- paste0('SimpleComparison_',Tag_this_analysis,'_res.xlsx')
+cutoff_adj_p <- 0.05
+cutoff_log2fc <- 1
+
+# Loading samples (modify if necessary)
+samplesheet <- read.csv("../../PROJECT_PROCESSING_METHOD/samplesheet.csv")
+samplesheet <- samplesheet %>%
+  dplyr::select(-2, -3, -4)
+rownames(samplesheet) <- samplesheet$sample
 ```
 
 ### [Back to front page](../Analysis_Report_RNAseq.html)
 
-This report is a simple comparison without statistical differencial analysis, because there is no replicates in this experiment.
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+if ("PROJECT_PROCESSING_METHOD" == "nfcore_RNAseq") {
+  ct <- fread(paste0(salmon_dir, "salmon.merged.gene_counts_length_scaled.tsv"))
+  }
+if ("PROJECT_PROCESSING_METHOD" == "nfcore_3mRNAseq") {
+  ct <- fread(paste0(salmon_dir, "salmon.merged.gene_counts_scaled.tsv"))
+  }
 
-```{r FILETAG-ct, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-count_table <- simple_comparison(salmon_count_table=File_salmon_count,
-                                 group_base="GROUP_BASE",
-                                 group_comp="GROUP_COMP",
-                                 File_xlsx_res=File_xlsx_res)
+# Dynamically add columns for log10-transformed values
+ct[[paste0(sample1, "_log10")]] <- log10(ct[[sample1]] + 1)
+ct[[paste0(sample2, "_log10")]] <- log10(ct[[sample2]] + 1)
 ```
+
+## Scatter plot
+
+```{r plotly-3d-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+scatter_plot <- plot_ly(
+  data = ct,
+  x = ~get(paste0(sample1, "_log10")),
+  y = ~get(paste0(sample2, "_log10")),
+  text = ~paste("Gene:", gene_name),  # Add gene names as hover text
+  mode = "markers",
+  type = "scatter",
+  marker = list(size = 5, color = 'royalblue', opacity = 0.7)
+) %>%
+  layout(
+    title = paste("Scatter Plot of Gene Expression Between", sample1, "and", sample2),
+    xaxis = list(title = paste(sample1, "Expression")),
+    yaxis = list(title = paste(sample2, "Expression"))
+  )
+
+scatter_plot
+```
+
+## MA plot
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+# Avoid log of zero by adding a small constant
+ct[[paste0(sample1, "_adjusted")]] <- ct[[sample1]] + 1
+ct[[paste0(sample2, "_adjusted")]] <- ct[[sample2]] + 1
+
+# Calculate M and A values
+ct$M <- log2(ct[[paste0(sample2, "_adjusted")]] / ct[[paste0(sample1, "_adjusted")]])
+ct$A <- (log2(ct[[paste0(sample2, "_adjusted")]]) + log2(ct[[paste0(sample1, "_adjusted")]])) / 2
 
 # MA plot
+ma_plot <- plot_ly(
+  data = ct,
+  x = ~A,
+  y = ~M,
+  text = ~paste("Gene:", gene_name),  # Add gene names as hover text
+  mode = "markers",
+  type = "scatter",
+  marker = list(size = 5, color = 'royalblue', opacity = 0.7)
+) %>%
+  layout(
+    title = paste("MA Plot of Gene Expression Between", sample1, "and", sample2),
+    xaxis = list(title = "Mean Expression (A)"),
+    yaxis = list(title = "Log2 Fold Change (M)")
+  )
 
-```{r FILETAG-ma, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-simple_ma(count_table=count_table, group_base="GROUP_BASE", group_comp="GROUP_COMP")
+ma_plot
 ```
 
-# Normalized counts
+## Statistics
 
-```{r FILETAG-normalized, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-simple_sc(count_table=count_table, group_base="GROUP_BASE", group_comp="GROUP_COMP")
+```{r statistics, layout="l-body-outset", echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+datatable(
+  ct,
+  extensions = c("FixedColumns", "Buttons"),
+  filter = 'top',
+  options = list(
+    autoWidth = FALSE,
+    dom = 'Blftip',
+    pageLength = 10,
+    searchHighlight = FALSE,
+    buttons = c('copy', 'csv', 'excel', 'print'),
+    scrollX = TRUE,
+    fixedColumns = list(leftColumns = 3)
+  ),
+  class = c('compact cell-border stripe hover'),
+  rownames = FALSE
+) %>%
+  formatRound(columns = c(3:10), digits = 2)
 ```
 
+# Export
 
-# Download statistics
+```{r export, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
+ct <- ct %>%
+    mutate(
+        gene_full_name = mapIds(
+            annotation_db,
+            keys = sub("\\..*", "", gene_id),  # Remove version numbers if present
+            column = "GENENAME",
+            keytype = "ENSEMBL",
+            multiVals = "first"
+        )
+    ) %>%
+    relocate(gene_full_name, .after = gene_name)
 
-* Download xlsx file for the results: [`r File_xlsx_res`](`r File_xlsx_res`)
+export_filename <- paste0("SimpleComparison_export.xlsx")
+# Create a new workbook
+wb <- createWorkbook()
+# Add each data frame as a new sheet
+addWorksheet(wb, "Statistics")
+writeData(wb, "Statistics", ct, row.names = FALSE)
+# Save the workbook
+saveWorkbook(wb, export_filename, overwrite = TRUE)
+export_csv <- paste0("SimpleComparison_stat.csv")
+write.csv(ct, export_csv, row.names = FALSE)
+```
+
+- Please download the export excel file: [`r export_filename`](`r export_filename`)
+- Or download the CSV file: [`r export_csv`](`r export_csv`)
+- If you desire to annotate the volcano plot and annotate the genes you prefer, please try out our web app [AnnoFig](https://genomics.rwth-aachen.de/annofig/) with the CSV file above.
 
 # References
 
 <div id="refs"></div>
 
-
 # R session information
 
-```{r FILETAG-session, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+```{r DGEA_FILETAG-session, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
 sessionInfo()
 ```
