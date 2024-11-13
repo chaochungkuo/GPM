@@ -22,5 +22,6 @@ INTEGRATION_METHOD = "harmony" # can be also 'MNN', 'seurat' or 'scVI', Not impl
 
 [annotation]
 # str|List: values ('celltypist', 'scGPT', 'scTAB', 'markers'), use scGPT on GPU only for large datasets
+# Specific marker table can be specified or else PangaloDB will be used for marker-based annotations. 
 ANNOTATION_METHOD = ["scTAB"]
 ANNOTATION_COLUMN = ""        # str: Final column for annotation, Default: "" (unset)

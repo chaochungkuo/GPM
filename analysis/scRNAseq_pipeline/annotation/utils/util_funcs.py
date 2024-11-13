@@ -60,7 +60,7 @@ def get_marker_genes(marker_gene_path: Path, adata: AnnData) -> pd.DataFrame:
     """
     Get marker genes for each cluster
     """
-    df = pd.read_csv("./marker_genes.csv", header=None)
+    df = pd.read_csv(marker_gene_path, header=None)
     columns: list[str] = ["cell_type", "gene"]
     for i in range(2, df.shape[1]):
         columns.append(f"col{i}")
