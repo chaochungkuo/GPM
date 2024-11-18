@@ -8,4 +8,4 @@ PATH_CELLRANGER_BASE mkfastq --id=mkfastq --localcores=N_CORES \
                    --run=PROJECT_BCL_PATH \
                    --csv=./samplesheet_cellranger.csv
 
-bash run_merge_lanes.sh
+bash run_merge_lanes.sh mkfastq multiqc
