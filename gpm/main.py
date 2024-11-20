@@ -232,6 +232,7 @@ def export(export_folder, config, no_cloud, username, tar, gzip):
             pm.create_cloud_export(os.path.basename(export_folder))
         pm.echo_export_info()
         pm.echo_wget_msg(export_folder)
+        pm.echo_json_info()
         pm.update_log()
         pm.write_project_config_file()
         if tar:

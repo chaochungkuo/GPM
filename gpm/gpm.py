@@ -544,3 +544,17 @@ class GPM:
             {self.profile['Export']['export_URL']}"""
         )
         click.echo("")
+
+    def echo_json_info(self) -> None:
+        click.echo("Please use the following information for submitting in MS Planner:\n")
+        click.echo(
+            click.style(
+                f"""'Project ID': '{self.profile["Project"]["project_name"]}',\\
+                'Report URL': '{self.profile["Export"]["export_URL"]}',\\
+                'Username': '{self.profile["Export"]["export_user"]}',\\
+                'Password': '{self.profile["Export"]["export_password"]}',\\
+                'Download URL': '{self.profile["Export"]["download_url"]}',""",
+                fg="bright_blue",
+            )
+        )
+        
