@@ -6,6 +6,7 @@ import glob
 import shutil
 from collections import OrderedDict
 import configparser
+import textwrap
 from datetime import datetime
 from gpm.helper import (
     remove_end_slash,
@@ -538,22 +539,30 @@ class GPM:
             )
         )
         click.echo(
-            f"""wget -r -nH --cut-dirs=3 -np -P {os.path.basename(export_folder)} \\
-            --user={self.profile["Export"]["export_user"]} --password={self.profile["Export"]["export_password"]} \\
-            --reject "index.html.tmp*,robots.txt*" \\
-            {self.profile['Export']['export_URL']}"""
+            textwrap.dedent(
+                f"""
+                wget -r -nH --cut-dirs=3 -np -P {os.path.basename(export_folder)} \\
+                --user={self.profile["Export"]["export_user"]} --password={self.profile["Export"]["export_password"]} \\
+                --reject "index.html.tmp*,robots.txt*" \\
+                {self.profile['Export']['export_URL']}
+                """
+            ).strip()
         )
         click.echo("")
 
     def echo_json_info(self) -> None:
-        click.echo("Please use the following information for submitting in MS Planner:\n")
+        click.echo("Please use the following information for submitting in MS Planner:")
         click.echo(
             click.style(
-                f"""'Project ID': '{self.profile["Project"]["project_name"]}',
-                'Report URL': '{self.profile["Export"]["export_URL"]}',
-                'Username': '{self.profile["Export"]["export_user"]}',
-                'Password': '{self.profile["Export"]["export_password"]}',
-                'Download URL': '{self.profile["Export"]["download_url"]}',""",
+                textwrap.dedent(
+                    f"""
+                    'Project ID': '{self.profile["Project"]["project_name"]}',
+                    'Report URL': '{self.profile["Export"]["export_URL"]}',
+                    'Username': '{self.profile["Export"]["export_user"]}',
+                    'Password': '{self.profile["Export"]["export_password"]}',
+                    'Download URL': '{self.profile["Export"]["download_url"]}',
+                    """
+                ).strip(),
                 fg="bright_blue",
             )
         )
