@@ -28,6 +28,8 @@ highlighted_genes <- NA # e.g., c("Sub1", "", "")
 
 cutoff_adj_p <- 0.05
 cutoff_log2fc <- 1
+pvalueCutoff_GO <- 0.01
+pvalueCutoff_GSEA <- 0.01
 
 # Loading samples (modify if necessary)
 samplesheet <- read.csv("../../PROJECT_PROCESSING_METHOD/samplesheet.csv")
@@ -42,7 +44,8 @@ rownames(samplesheet) <- samplesheet$sample
 # unique(samplesheet$group)
 comparisons <- list(
   list(base_group = "Control", target_group = "Treatment",
-       samplesheet = samplesheet, paired = FALSE)
+       samplesheet = samplesheet, paired = FALSE,
+       go = FALSE, gsea = FALSE)
 )
 
 ####################################################################
@@ -59,7 +62,7 @@ if ("PROJECT_PROCESSING_METHOD" == "nfcore_RNAseq") {
 
 save(
   samplesheet, salmon_dir, tx2gene_file, counts_from_abundance, 
-  length_correction, organism, cutoff_adj_p, cutoff_log2fc, authors, highlighted_genes,
+  length_correction, organism, cutoff_adj_p, cutoff_log2fc, authors, highlighted_genes, pvalueCutoff_GO, pvalueCutoff_GSEA,
   file = "DGEA_params.RData"
 )
 # Render DGEA for all samples
@@ -80,7 +83,9 @@ render_report <- function(comparison) {
                   base_group = comparison$base_group,
                   target_group = comparison$target_group,
                   samplesheet = comparison$samplesheet,
-                  paired = comparison$paired)
+                  paired = comparison$paired,
+                  go = comparison$go,
+                  gsea = comparison$gsea)
   )
 }
 

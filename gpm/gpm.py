@@ -554,15 +554,18 @@ class GPM:
         click.echo("Please use the following information for submitting in MS Planner:")
         click.echo(
             click.style(
-                textwrap.dedent(
-                    f"""
-                    'Project ID': '{self.profile["Project"]["project_name"]}',
-                    'Report URL': '{self.profile["Export"]["export_URL"]}',
-                    'Username': '{self.profile["Export"]["export_user"]}',
-                    'Password': '{self.profile["Export"]["export_password"]}',
-                    'Download URL': '{self.profile["Export"]["download_url"]}',
-                    """
-                ).strip(),
+                textwrap.indent(
+                    textwrap.dedent(
+                        f"""
+                        'Project ID': '{self.profile["Project"]["project_name"]}',
+                        'Report URL': '{self.profile["Export"]["export_URL"]}',
+                        'Username': '{self.profile["Export"]["export_user"]}',
+                        'Password': '{self.profile["Export"]["export_password"]}',
+                        'Download URL': '{self.profile["Export"]["download_url"]}',
+                        """
+                    ).strip(),
+                    prefix="  "  # Two spaces
+                ),
                 fg="bright_blue",
             )
         )

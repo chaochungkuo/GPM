@@ -5,6 +5,8 @@ params:
   base_group:
   target_group:
   samplesheet:
+  go:
+  gsea:
 title: "Differential Gene Expression Analysis for `r gsub('_', ' ', params$filetag)`"
 author:
   - "`r params$authors`"
@@ -521,6 +523,97 @@ datatable(
 )
 ```
 
+`r if(params$go){"# GO Analysis"}`
+
+```{r, echo=FALSE, results="markup", warning=FALSE, message=FALSE, eval=params$go}
+
+library(clusterProfiler)
+library(enrichplot)
+
+if (organism == "hsapiens") {
+  library(org.Hs.eg.db)
+  OrgDb = org.Hs.eg.db
+} else if (organism == "mmusculus") {
+  library(org.Mm.eg.db)
+  OrgDb = org.Mm.eg.db
+} else if (organism == "rnorvegicus") {
+  library(org.Rn.eg.db)
+  OrgDb = org.Rn.eg.db
+}
+
+# Define up- and down-regulated genes
+upregulated_genes <- res$gene_symbol[res$log2FoldChange > 0 & res$padj < cutoff_adj_p]
+downregulated_genes <- res$gene_symbol[res$log2FoldChange < 0 & res$padj < cutoff_adj_p]
+
+# GO enrichment analysis (Biological Process - BP)
+go_up <- enrichGO(
+  gene          = upregulated_genes,
+  OrgDb         = OrgDb,
+  keyType       = "SYMBOL",
+  ont           = "BP",
+  pvalueCutoff  = pvalueCutoff_GO
+)
+
+go_down <- enrichGO(
+  gene          = downregulated_genes,
+  OrgDb         = OrgDb,
+  keyType       = "SYMBOL",
+  ont           = "BP",
+  pvalueCutoff  = pvalueCutoff_GO
+)
+
+# Visualize GO results (Dot plot for publication-quality visualization)
+dotplot(go_up, title = "GO Enrichment - Upregulated Genes") + theme_minimal()
+emapplot(pairwise_termsim(go_up), title = "Enrichment Map - Upregulated Genes")
+
+dotplot(go_down, title = "GO Enrichment - Downregulated Genes") + theme_minimal()
+emapplot(pairwise_termsim(go_down), title = "Enrichment Map - Downregulated Genes")
+```
+
+`r if(params$gsea){"# GSEA for Whole Expression Profile"}`
+
+```{r, echo=FALSE, results="markup", warning=FALSE, message=FALSE, eval=params$gsea}
+# Prepare ranked gene list
+gene_list <- res$log2FoldChange
+names(gene_list) <- res$gene_symbol
+gene_list <- sort(gene_list, decreasing = TRUE)
+
+# Perform GSEA with GO terms
+gsea_results <- gseGO(
+  geneList      = gene_list,
+  OrgDb         = OrgDb,
+  keyType       = "SYMBOL",
+  ont           = "BP",
+  pvalueCutoff  = pvalueCutoff_GSEA
+)
+
+# Visualize GSEA results
+ridgeplot(gsea_results, showCategory = 10) + ggtitle("GSEA Ridgeplot") + theme_minimal()
+# Heatmap for Leading-Edge Genes in Top Pathways
+heatplot(gsea_results, showCategory = 10, foldChange = gene_list) +
+  ggtitle("GSEA Heatmap - Leading Edge Genes") +
+  theme_minimal()
+# Cnetplot for Top Pathways
+cnetplot(gsea_results, showCategory = 5, foldChange = gene_list) +
+  ggtitle("GSEA Cnetplot - Gene-Pathway Relationships")
+```
+
+`r if(params$gsea){"## GSEA Plots {.tabset}"}`
+
+```{r, echo=FALSE, results="markup", warning=FALSE, message=FALSE, eval=params$gsea}
+for (i in 1:5) {
+  if (i <= nrow(gsea_results)) {
+    plot_title <- gsea_results$Description[i]
+    output <- paste0(
+      output,
+      "### ", plot_title, "\n\n",
+      "```{r echo=FALSE}\n",
+      "gseaplot2(gsea_results, geneSetID = ", i, ", title = \"", plot_title, "\")\n",
+      "```\n\n"
+    )
+  }
+```
+
 # Export
 
 ```{r export, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
@@ -534,6 +627,16 @@ addWorksheet(wb, "Statistics")
 writeData(wb, "Statistics", res, row.names = FALSE)
 addWorksheet(wb, "Norm. counts")
 writeData(wb, "Norm. counts", out_norm, row.names = TRUE)
+if (params$go) {
+  addWorksheet(wb, "GO_Upregulated")
+  writeData(wb, "GO_Upregulated", as.data.frame(go_up), row.names = FALSE)
+  addWorksheet(wb, "GO_Downregulated")
+  writeData(wb, "GO_Downregulated", as.data.frame(go_down), row.names = FALSE)
+}
+if (params$gsea) {
+  addWorksheet(wb, "GSEA_Results")
+  writeData(wb, "GSEA_Results", as.data.frame(gsea_results), row.names = FALSE)
+}
 # Save the workbook
 saveWorkbook(wb, export_filename, overwrite = TRUE)
 export_csv <- paste0("DGEA_", params$filetag, "_stat.csv")
