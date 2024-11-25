@@ -230,7 +230,8 @@ def export(export_folder, config, no_cloud, username, tar, gzip):
     pm.echo_wget_msg(export_folder)
     pm.echo_json_info()
     pm.update_log()
-    pm.write_project_config_file()
+    if config:
+        pm.write_project_config_file()
     if tar:
         tar_exports(
             export_folder=export_folder, gzip=gzip, dry_run=False, same_server=False
