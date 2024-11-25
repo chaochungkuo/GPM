@@ -213,32 +213,28 @@ def export(export_folder, config, no_cloud, username, tar, gzip):
     """
     Export the project to the target folder with symbolic links.
     """
-    if config == "":  # Just an empty folder
-        check_export_directory(export_folder)
-        export_URL = get_gpm_config("EXPORT", "EXPORT_URL")
-        export_empty_folder(
-            export_URL=export_URL, export_dir=export_folder, username=username
-        )
 
-    else:
-        pm = GPM()
+    pm = GPM()
+    if config:  
         pm.load_project_config_file(config)
         pm.export(export_folder)
-        if username:
-            pm.update_username(username)
-        pm.add_htaccess(export_folder)
-        pm.create_user(export_folder)  # Here the echo is happening
-        if not no_cloud:
-            pm.create_cloud_export(os.path.basename(export_folder))
-        pm.echo_export_info()
-        pm.echo_wget_msg(export_folder)
-        pm.echo_json_info()
-        pm.update_log()
-        pm.write_project_config_file()
-        if tar:
-            tar_exports(
-                export_folder=export_folder, gzip=gzip, dry_run=False, same_server=False
-            )
+    else:
+        pm.export(export_folder, symlink=False)
+    if username:
+        pm.update_username(username)
+    pm.add_htaccess(export_folder)
+    pm.create_user(export_folder)  # Here the echo is happening
+    if not no_cloud:
+        pm.create_cloud_export(os.path.basename(export_folder))
+    pm.echo_export_info()
+    pm.echo_wget_msg(export_folder)
+    pm.echo_json_info()
+    pm.update_log()
+    pm.write_project_config_file()
+    if tar:
+        tar_exports(
+            export_folder=export_folder, gzip=gzip, dry_run=False, same_server=False
+        )
 
 
 @main.command()

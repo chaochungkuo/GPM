@@ -434,7 +434,7 @@ class GPM:
                             ll[1] = self.replace_variable(ll[1], config_dict)
                             self.export_structure.append(ll)
 
-    def export(self, export_dir, tar=False):
+    def export(self, export_dir, tar=False, symlink=True):
         def handle_rename(export_dir, entry):
             # print(os.path.basename(entry[1]))
             if entry[3]:
@@ -448,38 +448,39 @@ class GPM:
         # Load export name to project.ini
         export_name = os.path.basename(export_dir)
         self.update_project_name(export_name)
-        # Creating soft links of the files
-        self.load_export_config()
-        for entry in self.export_structure:
-            # print(entry)
-            if not entry[1]:  # make the folder
-                target = os.path.join(export_dir, entry[2])
-                if not os.path.exists(target):
-                    os.makedirs(target)
-            else:
-                origin_f = os.path.join(
-                    self.profile["Project"]["project_path"], entry[1]
-                )
-                # A directory
-                if os.path.isdir(origin_f):
-                    target = handle_rename(export_dir, entry)
-                    os.symlink(self.prefix + origin_f, target, target_is_directory=True)
-                # A file
-                elif os.path.isfile(origin_f):
-                    target = handle_rename(export_dir, entry)
-                    os.symlink(
-                        self.prefix + origin_f, target, target_is_directory=False
-                    )
-                # A pattern for many files
+        if symlink:
+            # Creating soft links of the files
+            self.load_export_config()
+            for entry in self.export_structure:
+                # print(entry)
+                if not entry[1]:  # make the folder
+                    target = os.path.join(export_dir, entry[2])
+                    if not os.path.exists(target):
+                        os.makedirs(target)
                 else:
-                    target_dir = os.path.join(export_dir, entry[2])
-                    if not os.path.exists(target_dir):
-                        os.makedirs(target_dir)
-                    for matching_file in glob.glob(origin_f):
-                        target = os.path.join(
-                            target_dir, os.path.basename(matching_file)
+                    origin_f = os.path.join(
+                        self.profile["Project"]["project_path"], entry[1]
+                    )
+                    # A directory
+                    if os.path.isdir(origin_f):
+                        target = handle_rename(export_dir, entry)
+                        os.symlink(self.prefix + origin_f, target, target_is_directory=True)
+                    # A file
+                    elif os.path.isfile(origin_f):
+                        target = handle_rename(export_dir, entry)
+                        os.symlink(
+                            self.prefix + origin_f, target, target_is_directory=False
                         )
-                        os.symlink(matching_file, target, target_is_directory=False)
+                    # A pattern for many files
+                    else:
+                        target_dir = os.path.join(export_dir, entry[2])
+                        if not os.path.exists(target_dir):
+                            os.makedirs(target_dir)
+                        for matching_file in glob.glob(origin_f):
+                            target = os.path.join(
+                                target_dir, os.path.basename(matching_file)
+                            )
+                            os.symlink(matching_file, target, target_is_directory=False)
 
     def add_htaccess(self, export_dir):
         htaccess_path = get_htaccess_path()
