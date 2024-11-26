@@ -209,7 +209,15 @@ def analysis(project_config, report, show_list, add_template):
     is_flag=True,
     help="Generate tar.gz instead of tar.",
 )
-def export(export_folder, config, no_cloud, username, tar, gzip):
+@click.option(
+    "-b",
+    "--bcl",
+    "bcl",
+    required=False,
+    default="",
+    help="Define the path to BCL folder.",
+)
+def export(export_folder, config, no_cloud, username, bcl, tar, gzip):
     """
     Export the project to the target folder with symbolic links.
     """
@@ -232,6 +240,9 @@ def export(export_folder, config, no_cloud, username, tar, gzip):
     pm.update_log()
     if config:
         pm.write_project_config_file()
+    if bcl:
+        os.symlink(bcl, os.path.join(export_folder, "BCL"),
+                   target_is_directory=True)
     if tar:
         tar_exports(
             export_folder=export_folder, gzip=gzip, dry_run=False, same_server=False
