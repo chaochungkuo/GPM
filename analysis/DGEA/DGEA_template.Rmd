@@ -1,15 +1,7 @@
 ---
-params:
-  authors:
-  paired:
-  base_group:
-  target_group:
-  samplesheet:
-  go:
-  gsea:
-title: "Differential Gene Expression Analysis for `r gsub('_', ' ', params$filetag)`"
+title: "Differential Gene Expression Analysis for {{title}}"
 author:
-  - "`r params$authors`"
+  - {{authors}}
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
@@ -25,7 +17,7 @@ output:
 bibliography: ../references.bib
 ---
 
-```{r setup, echo=TRUE, warning=FALSE, message=FALSE}
+```{r setup_{{filetag}}, echo=TRUE, warning=FALSE, message=FALSE}
 source("/etc/rstudio/Rprofile.site")
 # Load libraries
 library(DESeq2)
@@ -42,11 +34,13 @@ library(tibble)
 library(RColorBrewer)
 library(pheatmap)
 library(stringr)
+library(ggridges)
 
 load("DGEA_params.RData")
+load("DGEA_params_{{filetag}}.RData")
 
 samplesheet$group <- factor(samplesheet$group,
-                           levels = c(params$base_group, params$target_group))
+                            levels = c("{{base_group}}", "{{target_group}}"))
 samplesheet <- samplesheet[complete.cases(samplesheet$group),]
 ```
 
@@ -56,7 +50,7 @@ samplesheet <- samplesheet[complete.cases(samplesheet$group),]
 
 Differential gene expression analysis is done with DESEQ2 package in R [@love2014moderated] and follows the instruction for Salmon quantification ([Analyzing RNA-seq data with DESeq2](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)).
 
-```{r DESeq2, echo=TRUE, warning=FALSE, message=FALSE}
+```{r DESeq2_{{filetag}}, echo=TRUE, warning=FALSE, message=FALSE}
 # Load transcript-to-gene mapping
 tx2gene <- fread(tx2gene_file, col.names = c("transcript_id", "gene_id", "gene_name"))
 # Run DESeq2 Analysis
@@ -67,10 +61,13 @@ txi <- tximport(files, type = "salmon", tx2gene = tx2gene[, c(1, 2)],
 
 # Set up DESeq2 design formula
 if (length_correction) {
-  design_formula <- if (params$paired) ~ batch + group else ~ group
-  dds <- DESeqDataSetFromTximport(txi, colData = samplesheet, design = design_formula)
+  design_formula <- if (paired) ~ batch + group else ~ group
+  # design_formula <- if (paired) ~ batch + group * treatment else ~ group * treatment
+  dds <- DESeqDataSetFromTximport(txi,
+    colData = samplesheet, design = design_formula)
 } else {
-  dds <- DESeqDataSetFromMatrix(round(txi$counts), samplesheet, ~ group)
+  dds <- DESeqDataSetFromMatrix(round(txi$counts),
+    colData = samplesheet, design = design_formula)
 }
 
 # Perform DESeq2 differential expression analysis
@@ -95,7 +92,7 @@ pca <- prcomp(t(normalized_counts))  # Transpose to have samples as rows
 
 ## 3D PCA
 
-```{r plotly-3d-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r plotly-3d-pca-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Calculate explained variance for PC1, PC2, and PC3
 explained_variance <- round(100 * (pca$sdev^2 / sum(pca$sdev^2)), 2)
 explained_variance_text <- paste0("PC", 1:3, " (", explained_variance[1:3], "%)")
@@ -132,7 +129,7 @@ fig
 
 ## 2D PCA
 
-```{r plotly-2d-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r plotly-2d-pca-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Calculate explained variance for PC1 and PC2
 explained_variance <- round(100 * (pca$sdev^2 / sum(pca$sdev^2)), 2)
 explained_variance_text <- paste0("PC", 1:2, " (", explained_variance[1:2], "%)")
@@ -167,7 +164,7 @@ fig
 
 ## Volcano Plot
 
-```{r plotly-volcano, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r plotly-volcano-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
 res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
                     ifelse(res$padj < cutoff_adj_p & abs(res$log2FoldChange) > cutoff_log2fc, "royalblue", "grey"))
@@ -212,7 +209,7 @@ volcano_plot
 
 ## MA plot
 
-```{r plotly-maplot, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r plotly-maplot-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
 res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
                     ifelse(res$padj < cutoff_adj_p & abs(res$log2FoldChange) > cutoff_log2fc, "royalblue", "grey"))
@@ -257,7 +254,7 @@ ma_plot
 
 ## Heatmap
 
-```{r plotly-heatmap, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r plotly-heatmap-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Select significant genes or top 20 by p-value if no significant genes
 significant_genes <- res %>%
   filter(padj < cutoff_adj_p) %>%
@@ -308,7 +305,7 @@ fig
 
 ## 2D PCA
 
-```{r ggplot-2d-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r ggplot-2d-pca-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Calculate explained variance for PC1 and PC2
 explained_variance <- round(100 * (pca$sdev^2 / sum(pca$sdev^2)), 2)
 explained_variance_text <- paste0("PC", 1:2, " (", explained_variance[1:2], "%)")
@@ -339,7 +336,7 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = group, label = sample)) +
 
 ## Volcano Plot
 
-```{r ggplot-volcano, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r ggplot-volcano-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
 res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
                     ifelse(res$padj < cutoff_adj_p & abs(res$log2FoldChange) > cutoff_log2fc, "royalblue", "grey"))
@@ -377,7 +374,7 @@ print(volcano_plot)
 
 ## MA plot
 
-```{r ggplot-maplot, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r ggplot-maplot-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
 res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
                     ifelse(res$padj < cutoff_adj_p & abs(res$log2FoldChange) > cutoff_log2fc, "royalblue", "grey"))
@@ -432,7 +429,7 @@ print(ma_plot)
 
 ## Heatmap
 
-```{r ggplot-heatmap, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r ggplot-heatmap-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Select significant genes or top 20 by p-value if no significant genes
 significant_genes <- res %>%
   filter(padj < cutoff_adj_p) %>%
@@ -478,7 +475,7 @@ pheatmap(
 
 ## Statistics
 
-```{r statistics, layout="l-body-outset", echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+```{r statistics-{{filetag}}, layout="l-body-outset", echo=TRUE, results='asis', warning=FALSE, message=FALSE}
 datatable(
   res,
   extensions = c("FixedColumns", "Buttons"),
@@ -502,7 +499,7 @@ datatable(
 
 ## Samplesheet
 
-```{r Samplesheet, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r Samplesheet-{{filetag}}, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 datatable(
   samplesheet,
   filter = 'top',
@@ -523,10 +520,9 @@ datatable(
 )
 ```
 
-`r if(params$go){"# GO Analysis"}`
+`r if(go){"# GO Analysis"}`
 
-```{r, echo=FALSE, results="markup", warning=FALSE, message=FALSE, eval=params$go}
-
+```{r go-{{filetag}}, echo=FALSE, results="markup", warning=FALSE, message=FALSE, eval=go}
 library(clusterProfiler)
 library(enrichplot)
 
@@ -551,7 +547,9 @@ go_up <- enrichGO(
   OrgDb         = OrgDb,
   keyType       = "SYMBOL",
   ont           = "BP",
-  pvalueCutoff  = pvalueCutoff_GO
+  pvalueCutoff  = pvalueCutoff_GO,
+  minGSSize = 50,
+  maxGSSize = 500
 )
 
 go_down <- enrichGO(
@@ -559,20 +557,42 @@ go_down <- enrichGO(
   OrgDb         = OrgDb,
   keyType       = "SYMBOL",
   ont           = "BP",
-  pvalueCutoff  = pvalueCutoff_GO
+  pvalueCutoff  = pvalueCutoff_GO,
+  minGSSize = 50,
+  maxGSSize = 500
 )
-
-# Visualize GO results (Dot plot for publication-quality visualization)
-dotplot(go_up, title = "GO Enrichment - Upregulated Genes") + theme_minimal()
-emapplot(pairwise_termsim(go_up), title = "Enrichment Map - Upregulated Genes")
-
-dotplot(go_down, title = "GO Enrichment - Downregulated Genes") + theme_minimal()
-emapplot(pairwise_termsim(go_down), title = "Enrichment Map - Downregulated Genes")
 ```
 
-`r if(params$gsea){"# GSEA for Whole Expression Profile"}`
+`r if(any(go_up@result$p.adjust < pvalueCutoff_GO)){"## GO on Up Genes"}`
 
-```{r, echo=FALSE, results="markup", warning=FALSE, message=FALSE, eval=params$gsea}
+```{r go-{{filetag}}-up, echo=FALSE, results="markup", warning=FALSE, message=TRUE, eval=go}
+if (any(go_up@result$p.adjust < pvalueCutoff_GO)) {
+  dotplot(go_up, title = "GO Enrichment - Upregulated Genes") + theme_minimal()
+  emapplot(pairwise_termsim(go_up), showCategory = 10,
+           title = "Enrichment Map - Upregulated Genes",
+           cex.params = list(category_label = 0.7))
+} else {
+  message("No significant GO terms found for Up-regulated genes.")
+}
+```
+
+`r if(any(go_down@result$p.adjust < pvalueCutoff_GO)){"## GO on Down Genes"}`
+
+```{r go-{{filetag}}-down, echo=FALSE, results="markup", warning=FALSE, message=TRUE, eval=go}
+if (any(go_down@result$p.adjust < pvalueCutoff_GO)) {
+  dotplot(go_down, title = "GO Enrichment - Downregulated Genes") + theme_minimal()
+  emapplot(pairwise_termsim(go_down), showCategory = 10,
+           title = "Enrichment Map - Downregulated Genes",
+           cex.params = list(category_label = 0.7))
+} else {
+  message("No significant GO terms found for Down-regulated genes.")
+}
+
+```
+
+`r if(gsea){"# GSEA for Whole Expression Profile"}`
+
+```{r gsea-{{filetag}}, echo=FALSE, results="markup", warning=FALSE, message=FALSE, eval=gsea}
 # Prepare ranked gene list
 gene_list <- res$log2FoldChange
 names(gene_list) <- res$gene_symbol
@@ -586,39 +606,47 @@ gsea_results <- gseGO(
   ont           = "BP",
   pvalueCutoff  = pvalueCutoff_GSEA
 )
-
-# Visualize GSEA results
-ridgeplot(gsea_results, showCategory = 10) + ggtitle("GSEA Ridgeplot") + theme_minimal()
-# Heatmap for Leading-Edge Genes in Top Pathways
-heatplot(gsea_results, showCategory = 10, foldChange = gene_list) +
-  ggtitle("GSEA Heatmap - Leading Edge Genes") +
-  theme_minimal()
-# Cnetplot for Top Pathways
-cnetplot(gsea_results, showCategory = 5, foldChange = gene_list) +
-  ggtitle("GSEA Cnetplot - Gene-Pathway Relationships")
 ```
 
-`r if(params$gsea){"## GSEA Plots {.tabset}"}`
+```{r gsea-{{filetag}}-res, echo=FALSE, results="markup", warning=FALSE, message=TRUE, eval=gsea}
+if (nrow(gsea_results@result) > 0) {
+  # Visualize GSEA results
+  ridgeplot(gsea_results, showCategory = 10) + ggtitle("GSEA Ridgeplot") + theme_minimal()
+  # Heatmap for Leading-Edge Genes in Top Pathways
+  heatplot(gsea_results, showCategory = 10, foldChange = gene_list) +
+    ggtitle("GSEA Heatmap - Leading Edge Genes") +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size=6)  # Rotate labels by 45 degrees
+    )
+  # Cnetplot for Top Pathways
+  cnetplot(gsea_results, showCategory = 5, foldChange = gene_list) +
+    ggtitle("GSEA Cnetplot - Gene-Pathway Relationships")
+} else {
+  message("No significant GO terms found")
+}
+```
 
-```{r, echo=FALSE, results="markup", warning=FALSE, message=FALSE, eval=params$gsea}
+`r if(gsea){"## GSEA Plots {.tabset}"}`
+
+```{r gseaplot-{{filetag}}, echo=FALSE, results="asis", warning=FALSE, message=FALSE, eval=gsea}
 for (i in 1:5) {
   if (i <= nrow(gsea_results)) {
     plot_title <- gsea_results$Description[i]
-    output <- paste0(
-      output,
-      "### ", plot_title, "\n\n",
-      "```{r echo=FALSE}\n",
-      "gseaplot2(gsea_results, geneSetID = ", i, ", title = \"", plot_title, "\")\n",
-      "```\n\n"
-    )
+    
+    cat("\n### ",  plot_title, " \n")
+    p <- gseaplot2(gsea_results, geneSetID = i, title = plot_title)
+    print(p)
+    cat("\n")
   }
 }
 ```
 
+
 # Export
 
-```{r export, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
-export_filename <- paste0("DGEA_", params$filetag, "_export.xlsx")
+```{r export-{{filetag}}, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
+export_filename <- paste0("DGEA_", filetag, "_export.xlsx")
 # Create a new workbook
 wb <- createWorkbook()
 # Add each data frame as a new sheet
@@ -628,19 +656,19 @@ addWorksheet(wb, "Statistics")
 writeData(wb, "Statistics", res, row.names = FALSE)
 addWorksheet(wb, "Norm. counts")
 writeData(wb, "Norm. counts", out_norm, row.names = TRUE)
-if (params$go) {
+if (go) {
   addWorksheet(wb, "GO_Upregulated")
   writeData(wb, "GO_Upregulated", as.data.frame(go_up), row.names = FALSE)
   addWorksheet(wb, "GO_Downregulated")
   writeData(wb, "GO_Downregulated", as.data.frame(go_down), row.names = FALSE)
 }
-if (params$gsea) {
+if (gsea) {
   addWorksheet(wb, "GSEA_Results")
   writeData(wb, "GSEA_Results", as.data.frame(gsea_results), row.names = FALSE)
 }
 # Save the workbook
 saveWorkbook(wb, export_filename, overwrite = TRUE)
-export_csv <- paste0("DGEA_", params$filetag, "_stat.csv")
+export_csv <- paste0("DGEA_", filetag, "_stat.csv")
 write.csv(res, export_csv, row.names = FALSE)
 ```
 
@@ -654,6 +682,6 @@ write.csv(res, export_csv, row.names = FALSE)
 
 # R session information
 
-```{r DGEA_FILETAG-session, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+```{r session-{{filetag}}, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
 sessionInfo()
 ```

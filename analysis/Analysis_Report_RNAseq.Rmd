@@ -68,15 +68,6 @@ In 'Group2 vs Group1' analysis, we compare gene expression between Group2 and Gr
 ### [All samples](DGEA/DGEA_All_samples.html)
 <!-- INSERTING POINT -->
 
-# Sample Overview
-
-```{r echo=FALSE, results='asis'}
-samples <- read.csv("samplesheet.csv")
-rownames(samples) <- samples$sample
-kable(samples) %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
-```
-
 # References
 
 <div id="refs"></div>
