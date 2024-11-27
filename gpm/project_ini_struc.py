@@ -18,6 +18,7 @@ tags_GPM = OrderedDict([("Project", ["date", "name1", "name2", "institute",
                         ("Analysis", ["analysis_path",
                                       "analysis_types"]),
                         ("Export", ["export_URL",
+                                    "report_URL",
                                     "export_user",
                                     "export_password"]),
                         ("History", ["logs"])])

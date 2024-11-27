@@ -234,7 +234,7 @@ def export(export_folder, config, no_cloud, username, bcl, tar, gzip):
     pm.create_user(export_folder)  # Here the echo is happening
     if not no_cloud:
         pm.create_cloud_export(os.path.basename(export_folder))
-    pm.update_export_report()
+    pm.update_export_report(export_folder)
     pm.echo_export_info()
     pm.echo_wget_msg(export_folder)
     pm.echo_json_info()

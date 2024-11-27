@@ -502,16 +502,25 @@ class GPM:
         self.profile["Export"]["export_user"] = export_user
         self.profile["Export"]["export_password"] = export_password
 
-    def update_export_report(self):
-        pattern = os.path.join(self.profile["Analysis"]["analysis_path"],
-                               "Analysis_Report_*.html")
+    def update_export_report(self, export_dir):
+        # Check first Analysis_Report under 3_Reports/analysis
+        pattern = os.path.join(export_dir,
+            "3_Reports/analysis/Analysis_Report_*.html")
         matching_files = glob.glob(pattern)
         export_base = self.profile["Export"]["export_URL"]
         if matching_files:
             report_file = os.path.basename(matching_files[0])
-            self.profile["Export"]["export_URL"] = (
-                f"{export_base}/analysis/{report_file}"
+            self.profile["Export"]["report_URL"] = (
+                f"{export_base}/3_Reports/analysis/{report_file}"
             )
+        # Check multiQC report
+        else:
+            multiqc = os.path.join(export_dir,
+                "FASTQ/multiqc/multiqc_report.html")
+            if os.path.exists(multiqc):
+                self.profile["Export"]["report_URL"] = (
+                    f"{export_base}/FASTQ/multiqc/multiqc_report.html"
+                )
 
     def create_cloud_export(self, export_folder):
         oc = owncloud_login()
@@ -531,7 +540,8 @@ class GPM:
         echo_fields = [
             ("Export", "export_user", "Username"),
             ("Export", "export_password", "Password"),
-            ("Export", "export_URL", "URL"),
+            ("Export", "export_URL", "Export URL"),
+            ("Export", "report_URL", "Report URL"),
             ("Export", "download_url", "Download URL"),
         ]
         # use tubles in echofields to get values from self.profile
@@ -570,7 +580,7 @@ class GPM:
                     textwrap.dedent(
                         f"""
                         'Project ID': '{self.profile["Project"]["project_name"]}',
-                        'Report URL': '{self.profile["Export"]["export_URL"]}',
+                        'Report URL': '{self.profile["Export"]["report_URL"]}',
                         'Username': '{self.profile["Export"]["export_user"]}',
                         'Password': '{self.profile["Export"]["export_password"]}',
                         'Download URL': '{self.profile["Export"]["download_url"]}',
