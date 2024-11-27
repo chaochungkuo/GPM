@@ -67,12 +67,15 @@ class GPM:
             else:
                 section_dict = config[section]
                 for tag in tags_GPM[section]:
-                    value = section_dict.get(tag)
-                    if "," in value:
-                        value = [x.strip() for x in value.split(",")]
-                    elif value == "":
-                        continue
-                    self.profile[section][tag] = value
+                    try:
+                        value = section_dict.get(tag)
+                        if "," in value:
+                            value = [x.strip() for x in value.split(",")]
+                        elif value == "":
+                            continue
+                        self.profile[section][tag] = value
+                    except:
+                        self.profile[section][tag] = ""
         # Check the project.ini path with symbolic link
         self.prefix = self.symbolic_profile_path(filepath)
         # print("Detected symbolic link:", self.prefix)
