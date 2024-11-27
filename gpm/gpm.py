@@ -502,6 +502,17 @@ class GPM:
         self.profile["Export"]["export_user"] = export_user
         self.profile["Export"]["export_password"] = export_password
 
+    def update_export_report(self):
+        pattern = os.path.join(self.profile["Analysis"]["analysis_path"],
+                               "Analysis_Report_*.html")
+        matching_files = glob.glob(pattern)
+        export_base = self.profile["Export"]["export_URL"]
+        if matching_files:
+            report_file = os.path.basename(matching_files[0])
+            self.profile["Export"]["export_URL"] = (
+                f"{export_base}/analysis/{report_file}"
+            )
+
     def create_cloud_export(self, export_folder):
         oc = owncloud_login()
         cloud_url = owncloud_export(
