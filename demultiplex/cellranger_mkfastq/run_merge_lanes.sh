@@ -26,13 +26,18 @@ for sample in $samples; do
   fi
 done
 
+############## Getting the number of jobs ##########################
+
+# Get the nummber of jobs as ncors - 10 or 1
+NJOBS=$(( $(nproc) - 10 > 0 ? $(nproc) - 10 : 1 ))
+
 ###### Running FASTQC ######################################
 mkdir -p ./fastqc
-find $MERGED_DIR -maxdepth 1 -name "*.fastq.gz" | parallel -j 10 "fastqc {} -o ./fastqc"
+find $MERGED_DIR -maxdepth 1 -name "*.fastq.gz" | parallel -j $NJOBS "fastqc {} -o ./fastqc"
 
 ###### Running fastq_screen ######################################
 mkdir -p ./fastq_screen
-fastq_screen --outdir ./fastq_screen --threads 10 ${MERGED_DIR}/*.fastq.gz
+find $MERGED_DIR -maxdepth 1 -name "*.fastq.gz" | parallel -j $NJOBS "fastq_screen --outdir ./fastq_screen {}"
 
 ###### Running MultiQC #####################################
 mkdir -p ${MQC_DIR}
