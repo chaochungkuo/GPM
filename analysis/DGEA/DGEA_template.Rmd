@@ -35,16 +35,47 @@ library(RColorBrewer)
 library(pheatmap)
 library(stringr)
 library(ggridges)
+library(clusterProfiler)
+library(enrichplot)
 
 load("DGEA_params.RData")
 load("DGEA_params_{{filetag}}.RData")
-
+samplesheet <- config$samplesheet
 samplesheet$group <- factor(samplesheet$group,
-                            levels = c("{{base_group}}", "{{target_group}}"))
+                            levels = c(config$base_group, config$target_group))
 samplesheet <- samplesheet[complete.cases(samplesheet$group),]
+go <- config$go
+gsea <- config$gsea
+
+organism <- config$organism
+
+if (organism == "hsapiens") {
+  library(org.Hs.eg.db)
+  OrgDb = org.Hs.eg.db
+} else if (organism == "mmusculus") {
+  library(org.Mm.eg.db)
+  OrgDb = org.Mm.eg.db
+} else if (organism == "rnorvegicus") {
+  library(org.Rn.eg.db)
+  OrgDb = org.Rn.eg.db
+}
+
 ```
 
 ### [Back to front page](../Analysis_Report_RNAseq.html)
+
+| Parameter         | Value |
+| :---------------- | :------: |
+| organism          | `r organism` |
+| base_group        | `r config$base_group` |
+| target_group      | `r config$target_group` |
+| design_formula    | `r config$design_formula` |
+| gsea              | `r gsea` |
+| go                | `r go` |
+| cutoff_adj_p      | `r config$cutoff_adj_p` |
+| cutoff_log2fc     | `r config$cutoff_log2fc` |
+| pvalueCutoff_GO   | `r config$pvalueCutoff_GO` |
+| pvalueCutoff_GSEA | `r config$pvalueCutoff_GSEA` |
 
 # DESeq2
 
@@ -52,32 +83,30 @@ Differential gene expression analysis is done with DESEQ2 package in R [@love201
 
 ```{r DESeq2_{{filetag}}, echo=TRUE, warning=FALSE, message=FALSE}
 # Load transcript-to-gene mapping
-tx2gene <- fread(tx2gene_file, col.names = c("transcript_id", "gene_id", "gene_name"))
+tx2gene <- fread(config$tx2gene_file, col.names = c("transcript_id", "gene_id", "gene_name"))
 # Run DESeq2 Analysis
-files <- file.path(salmon_dir, samplesheet$sample, "quant.sf")
+files <- file.path(config$salmon_dir, samplesheet$sample, "quant.sf")
 names(files) <- samplesheet$sample
 txi <- tximport(files, type = "salmon", tx2gene = tx2gene[, c(1, 2)],
-                countsFromAbundance = counts_from_abundance)
+                countsFromAbundance = config$counts_from_abundance)
 
 # Set up DESeq2 design formula
-if (length_correction) {
-  design_formula <- if (paired) ~ batch + group else ~ group
-  # design_formula <- if (paired) ~ batch + group * treatment else ~ group * treatment
+if (config$length_correction) {
   dds <- DESeqDataSetFromTximport(txi,
-    colData = samplesheet, design = design_formula)
+    colData = samplesheet, design = config$design_formula)
 } else {
   dds <- DESeqDataSetFromMatrix(round(txi$counts),
-    colData = samplesheet, design = design_formula)
+    colData = samplesheet, design = config$design_formula)
 }
 
 # Perform DESeq2 differential expression analysis
 dds <- DESeq(dds)
-res <- results(dds, alpha = cutoff_adj_p)
+res <- results(dds, alpha = config$cutoff_adj_p)
 res <- as.data.frame(res)
 res <- res[complete.cases(res), ]
 res$gene_symbol <- tx2gene$gene_name[match(rownames(res), tx2gene$gene_id)]
 res$gene_id <- rownames(res)
-res$Significant <- ifelse(res$padj < cutoff_adj_p, "Yes", "No")
+res$Significant <- ifelse(res$padj < config$cutoff_adj_p, "Yes", "No")
 res <- res[, c("gene_id", "gene_symbol", "baseMean", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj", "Significant")]
 # Get normalized read counts
 normalized_counts <- counts(dds, normalized=TRUE)
@@ -167,7 +196,7 @@ fig
 ```{r plotly-volcano-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
 res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
-                    ifelse(res$padj < cutoff_adj_p & abs(res$log2FoldChange) > cutoff_log2fc, "royalblue", "grey"))
+                    ifelse(res$padj < config$cutoff_adj_p & abs(res$log2FoldChange) > config$cutoff_log2fc, "royalblue", "grey"))
 
 # Create a column for label to display the gene symbol only for highlighted genes
 res$label <- ifelse(res$gene_symbol %in% highlighted_genes, res$gene_symbol, NA)
@@ -212,7 +241,7 @@ volcano_plot
 ```{r plotly-maplot-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
 res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
-                    ifelse(res$padj < cutoff_adj_p & abs(res$log2FoldChange) > cutoff_log2fc, "royalblue", "grey"))
+                    ifelse(res$padj < config$cutoff_adj_p & abs(res$log2FoldChange) > config$cutoff_log2fc, "royalblue", "grey"))
 
 # Create a column for label to display the gene symbol only for highlighted genes
 res$label <- ifelse(res$gene_symbol %in% highlighted_genes, res$gene_symbol, NA)
@@ -257,7 +286,7 @@ ma_plot
 ```{r plotly-heatmap-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Select significant genes or top 20 by p-value if no significant genes
 significant_genes <- res %>%
-  filter(padj < cutoff_adj_p) %>%
+  filter(padj < config$cutoff_adj_p) %>%
   arrange(padj)
 
 if (nrow(significant_genes) == 0) {
@@ -339,7 +368,7 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = group, label = sample)) +
 ```{r ggplot-volcano-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
 res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
-                    ifelse(res$padj < cutoff_adj_p & abs(res$log2FoldChange) > cutoff_log2fc, "royalblue", "grey"))
+                    ifelse(res$padj < config$cutoff_adj_p & abs(res$log2FoldChange) > config$cutoff_log2fc, "royalblue", "grey"))
 # Create a column for label to display the gene symbol only for highlighted genes
 res$label <- ifelse(res$gene_symbol %in% highlighted_genes, res$gene_symbol, NA)
 # Generate the ggplot volcano plot
@@ -377,7 +406,7 @@ print(volcano_plot)
 ```{r ggplot-maplot-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
 res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
-                    ifelse(res$padj < cutoff_adj_p & abs(res$log2FoldChange) > cutoff_log2fc, "royalblue", "grey"))
+                    ifelse(res$padj < config$cutoff_adj_p & abs(res$log2FoldChange) > config$cutoff_log2fc, "royalblue", "grey"))
 
 # Create a column for label to display the gene symbol only for highlighted genes
 res$label <- ifelse(res$gene_symbol %in% highlighted_genes, res$gene_symbol, NA)
@@ -432,7 +461,7 @@ print(ma_plot)
 ```{r ggplot-heatmap-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Select significant genes or top 20 by p-value if no significant genes
 significant_genes <- res %>%
-  filter(padj < cutoff_adj_p) %>%
+  filter(padj < config$cutoff_adj_p) %>%
   arrange(padj)
 
 if (nrow(significant_genes) == 0) {
@@ -523,23 +552,9 @@ datatable(
 `r if(go){"# GO Analysis"}`
 
 ```{r go-{{filetag}}, echo=FALSE, results="markup", warning=FALSE, message=FALSE, eval=go}
-library(clusterProfiler)
-library(enrichplot)
-
-if (organism == "hsapiens") {
-  library(org.Hs.eg.db)
-  OrgDb = org.Hs.eg.db
-} else if (organism == "mmusculus") {
-  library(org.Mm.eg.db)
-  OrgDb = org.Mm.eg.db
-} else if (organism == "rnorvegicus") {
-  library(org.Rn.eg.db)
-  OrgDb = org.Rn.eg.db
-}
-
 # Define up- and down-regulated genes
-upregulated_genes <- res$gene_symbol[res$log2FoldChange > 0 & res$padj < cutoff_adj_p]
-downregulated_genes <- res$gene_symbol[res$log2FoldChange < 0 & res$padj < cutoff_adj_p]
+upregulated_genes <- res$gene_symbol[res$log2FoldChange > 0 & res$padj < config$cutoff_adj_p]
+downregulated_genes <- res$gene_symbol[res$log2FoldChange < 0 & res$padj < config$cutoff_adj_p]
 
 # GO enrichment analysis (Biological Process - BP)
 go_up <- enrichGO(
@@ -547,7 +562,7 @@ go_up <- enrichGO(
   OrgDb         = OrgDb,
   keyType       = "SYMBOL",
   ont           = "BP",
-  pvalueCutoff  = pvalueCutoff_GO,
+  pvalueCutoff  = config$pvalueCutoff_GO,
   minGSSize = 50,
   maxGSSize = 500
 )
@@ -557,16 +572,16 @@ go_down <- enrichGO(
   OrgDb         = OrgDb,
   keyType       = "SYMBOL",
   ont           = "BP",
-  pvalueCutoff  = pvalueCutoff_GO,
+  pvalueCutoff  = config$pvalueCutoff_GO,
   minGSSize = 50,
   maxGSSize = 500
 )
 ```
 
-`r if(any(go_up@result$p.adjust < pvalueCutoff_GO)){"## GO on Up Genes"}`
+`r if(any(go_up@result$p.adjust < config$pvalueCutoff_GO)){"## GO on Up Genes"}`
 
 ```{r go-{{filetag}}-up, echo=FALSE, results="markup", warning=FALSE, message=TRUE, eval=go}
-if (any(go_up@result$p.adjust < pvalueCutoff_GO)) {
+if (any(go_up@result$p.adjust < config$pvalueCutoff_GO)) {
   dotplot(go_up, title = "GO Enrichment - Upregulated Genes") + theme_minimal()
   emapplot(pairwise_termsim(go_up), showCategory = 10,
            title = "Enrichment Map - Upregulated Genes",
@@ -576,10 +591,10 @@ if (any(go_up@result$p.adjust < pvalueCutoff_GO)) {
 }
 ```
 
-`r if(any(go_down@result$p.adjust < pvalueCutoff_GO)){"## GO on Down Genes"}`
+`r if(any(go_down@result$p.adjust < config$pvalueCutoff_GO)){"## GO on Down Genes"}`
 
 ```{r go-{{filetag}}-down, echo=FALSE, results="markup", warning=FALSE, message=TRUE, eval=go}
-if (any(go_down@result$p.adjust < pvalueCutoff_GO)) {
+if (any(go_down@result$p.adjust < config$pvalueCutoff_GO)) {
   dotplot(go_down, title = "GO Enrichment - Downregulated Genes") + theme_minimal()
   emapplot(pairwise_termsim(go_down), showCategory = 10,
            title = "Enrichment Map - Downregulated Genes",
@@ -587,7 +602,6 @@ if (any(go_down@result$p.adjust < pvalueCutoff_GO)) {
 } else {
   message("No significant GO terms found for Down-regulated genes.")
 }
-
 ```
 
 `r if(gsea){"# GSEA for Whole Expression Profile"}`
@@ -604,7 +618,7 @@ gsea_results <- gseGO(
   OrgDb         = OrgDb,
   keyType       = "SYMBOL",
   ont           = "BP",
-  pvalueCutoff  = pvalueCutoff_GSEA
+  pvalueCutoff  = config$pvalueCutoff_GSEA
 )
 ```
 

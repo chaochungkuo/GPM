@@ -180,3 +180,5 @@ analysis/scRNAseq_pipeline/shared/converted.cloupe
 analysis/scRNAseq_pipeline/shared/test.ipynb
 analysis/scRNAseq_pipeline/preprocessing/test.ipynb
 test.ipynb
+
+tests/data

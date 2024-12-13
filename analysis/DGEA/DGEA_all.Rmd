@@ -2,6 +2,11 @@
 params:
   authors:
   paired:
+  tx2gene_file:
+  salmon_dir:
+  samplesheet:
+  cutoff_adj_p:
+  cutoff_log2fc:
 title: "Differential Gene Expression Analysis for All Samples"
 author:
   - "`r params$authors`"
@@ -35,9 +40,11 @@ library(openxlsx)
 library(ggrepel)
 library(tibble)
 
-load("DGEA_params.RData")
-
 filetag <- "all"
+
+samplesheet <- params$samplesheet
+cutoff_adj_p <- params$cutoff_adj_p
+cutoff_log2fc <- params$cutoff_log2fc
 ```
 
 ### [Back to front page](../Analysis_Report_RNAseq.html)
@@ -48,9 +55,9 @@ Differential gene expression analysis is done with DESEQ2 package in R [@love201
 
 ```{r all DESeq2, echo=TRUE, warning=FALSE, message=FALSE}
 # Load transcript-to-gene mapping
-tx2gene <- fread(tx2gene_file, col.names = c("transcript_id", "gene_id", "gene_name"))
+tx2gene <- fread(params$tx2gene_file, col.names = c("transcript_id", "gene_id", "gene_name"))
 # Run DESeq2 Analysis
-files <- file.path(salmon_dir, samplesheet$sample, "quant.sf")
+files <- file.path(params$salmon_dir, samplesheet$sample, "quant.sf")
 names(files) <- samplesheet$sample
 txi <- tximport(files, type = "salmon", tx2gene = tx2gene[, c(1, 2)],
                 countsFromAbundance = counts_from_abundance)
@@ -60,7 +67,7 @@ if (length_correction) {
   design_formula <- if (params$paired) ~ batch + group else ~ group
   dds <- DESeqDataSetFromTximport(txi, colData = samplesheet, design = design_formula)
 } else {
-  dds <- DESeqDataSetFromMatrix(round(txi$counts), samplesheet, ~ group)
+  dds <- DESeqDataSetFromMatrix(round(txi$counts), samplesheet, design_formula)
 }
 
 # Perform DESeq2 differential expression analysis
@@ -310,6 +317,6 @@ datatable(
 
 # R session information
 
-```{r DGEA_FILETAG-session, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+```{r DGEA_all-session, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
 sessionInfo()
 ```

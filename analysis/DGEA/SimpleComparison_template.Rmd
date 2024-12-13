@@ -1,7 +1,7 @@
 ---
-title: "Simple Comparison for and "
+title: "Simple Comparison for {{sample1}} and {{sample2}}"
 author:
-  - Chao-Chung Kuo, Genomics Facility, ckuo@ukaachen.de
+  - {{authors}}
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
@@ -35,9 +35,9 @@ library(RColorBrewer)
 library(pheatmap)
 
 # Define samples to compare
-sample1 <- "MTLC1"  # Define sample 1 name here
-sample2 <- "TM3"    # Define sample 2 name here
-organism <- "PROJECT_PROCESSING_ORGANISM"  # e.g., "hsapiens", "mmusculus" PROJECT_PROCESSING_ORGANISM
+sample1 <- {{sample1}}  # Define sample 1 name here
+sample2 <- {{sample2}}    # Define sample 2 name here
+organism <- "{{organism}}"  # e.g., "hsapiens", "mmusculus" PROJECT_PROCESSING_ORGANISM
 ######################## Below is optional #########################
 # Define the base project path
 project_base <- "PROJECT_PROJECT_PATH"
