@@ -2,7 +2,7 @@
 #   Function to Render DGEA Reports
 ####################################################################
 
-render_report <- function(config) {
+render_DGEA_report <- function(config) {
   # Define the file tag based on base_group, target_group, and additional_tag
   config$filetag <- if (!is.null(config$additional_tag)) {
     paste0(config$target_group, "_vs_", config$base_group, "_", config$additional_tag)
@@ -23,14 +23,15 @@ render_report <- function(config) {
   
   # Generate the R Markdown file using the `generate_Rmd` function
   # The purpose is to make the generated Rmd as self-explanatory as possible.
-  generate_Rmd(config)
+  generate_DGEA_Rmd(config)
 }
 
-generate_Rmd <- function(config) {
+generate_DGEA_Rmd <- function(config) {
   # Read the R Markdown template
   template <- readLines("DGEA_template.Rmd", warn = FALSE)
   
   # Create a list of replacements based on config
+  # The purpose of this replacement is to make the generated Rmd easy to follow.
   replacements <- list(
     "{{title}}" = gsub("_", " ", config$filetag),
     "{{filetag}}" = config$filetag,
@@ -38,9 +39,6 @@ generate_Rmd <- function(config) {
     "{{base_group}}" = config$base_group,
     "{{target_group}}" = config$target_group,
     "{{additional_tag}}" = ifelse(is.null(config$additional_tag), "", config$additional_tag),
-    "{{design_formula}}" = config$design_formula,
-    "{{go}}" = config$go,
-    "{{gsea}}" = config$gsea,
     "{{organism}}" = config$organism
   )
   
@@ -126,12 +124,9 @@ generate_markdown_links <- function(folder_path, pattern = "\\.html$") {
     file_name <- basename(file)
     display_name <- gsub("_", " ", file_name)
     # Create a Markdown link
-    paste0("- [", display_name, "](", file, ")")
+    paste0("### [", display_name, "](", file, ")")
   })
   
   # Return the list of Markdown links as a character vector
   return(links)
 }
-
-# Example usage
-

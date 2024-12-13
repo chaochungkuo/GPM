@@ -69,7 +69,7 @@ if (organism == "hsapiens") {
 | organism          | `r organism` |
 | base_group        | `r config$base_group` |
 | target_group      | `r config$target_group` |
-| design_formula    | `r config$design_formula` |
+| design_formula    | `r as.character(config$design_formula)` |
 | gsea              | `r gsea` |
 | go                | `r go` |
 | cutoff_adj_p      | `r config$cutoff_adj_p` |

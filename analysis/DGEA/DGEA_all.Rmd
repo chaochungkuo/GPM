@@ -7,6 +7,7 @@ params:
   samplesheet:
   cutoff_adj_p:
   cutoff_log2fc:
+  filetag:
 title: "Differential Gene Expression Analysis for All Samples"
 author:
   - "`r params$authors`"
@@ -40,8 +41,7 @@ library(openxlsx)
 library(ggrepel)
 library(tibble)
 
-filetag <- "all"
-
+filetag <- params$filetag
 samplesheet <- params$samplesheet
 cutoff_adj_p <- params$cutoff_adj_p
 cutoff_log2fc <- params$cutoff_log2fc
@@ -274,6 +274,7 @@ ggplot(heatmap_data, aes(x = Sample, y = Gene, fill = Expression)) +
     legend.text = element_text(size = 8)
   )
 ```
+
 # Export
 
 ```{r all export, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
@@ -285,8 +286,15 @@ writeData(wb, "Samplesheets", samplesheet)
 addWorksheet(wb, "Norm. counts")
 writeData(wb, "Norm. counts", out_norm)
 # Save the workbook
-saveWorkbook(wb, "DGEA_All_samples_export.xlsx", overwrite = TRUE)
+file_xlsx <- paste0("DGEA_", filetag, "_export.xlsx")
+saveWorkbook(wb, file_xlsx, overwrite = TRUE)
+
+file_csv <- paste0("DGEA_", filetag, "_norm_counts.csv")
+write.csv(out_norm, file_csv, row.names = TRUE)
 ```
+
+- [`r file_xlsx`](`r file_xlsx`): This excel table contains two tabs: *Samplesheets* and *Norm. counts*.
+- [`r file_csv`](`r file_csv`): This CSV file contains the normalized read counts of all samples in this report.
 
 # Samplesheet
 
