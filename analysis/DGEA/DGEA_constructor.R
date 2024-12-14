@@ -93,11 +93,11 @@ rmarkdown::render(
 report_config <- global_config
 report_config$base_group <- "WT"
 report_config$target_group <- "KO"
-report_config$paired <- TRUE
-report_config$additional_tag <- "Treated"
-# You can customize and overwrite any items
+######## You can further customize and overwrite any items ########
+# report_config$paired <- FALSE
+# report_config$additional_tag <- "Treated"
 # report_config$samplesheet <- samplesheet %>%
-#   filter(treatment %in% c("Treated", "Control"))
+#   filter(cell %in% c("human"))
 # report_config$design_formula <- ~ batch + group * treatment
 # report_config$organism <- "hsapiens"
 # report_config$go <- FALSE

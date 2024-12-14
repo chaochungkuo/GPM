@@ -76,6 +76,7 @@ if (organism == "hsapiens") {
 | cutoff_log2fc     | `r config$cutoff_log2fc` |
 | pvalueCutoff_GO   | `r config$pvalueCutoff_GO` |
 | pvalueCutoff_GSEA | `r config$pvalueCutoff_GSEA` |
+| highlighted_genes | `r as.character(config$highlighted_genes)` |
 
 # DESeq2
 
@@ -195,11 +196,11 @@ fig
 
 ```{r plotly-volcano-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
-res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
+res$color <- ifelse(res$gene_symbol %in% config$highlighted_genes, "orange", 
                     ifelse(res$padj < config$cutoff_adj_p & abs(res$log2FoldChange) > config$cutoff_log2fc, "royalblue", "grey"))
 
 # Create a column for label to display the gene symbol only for highlighted genes
-res$label <- ifelse(res$gene_symbol %in% highlighted_genes, res$gene_symbol, NA)
+res$label <- ifelse(res$gene_symbol %in% config$highlighted_genes, res$gene_symbol, NA)
 
 # Generate the plotly volcano plot
 volcano_plot <- plot_ly(
@@ -240,11 +241,11 @@ volcano_plot
 
 ```{r plotly-maplot-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
-res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
+res$color <- ifelse(res$gene_symbol %in% config$highlighted_genes, "orange", 
                     ifelse(res$padj < config$cutoff_adj_p & abs(res$log2FoldChange) > config$cutoff_log2fc, "royalblue", "grey"))
 
 # Create a column for label to display the gene symbol only for highlighted genes
-res$label <- ifelse(res$gene_symbol %in% highlighted_genes, res$gene_symbol, NA)
+res$label <- ifelse(res$gene_symbol %in% config$highlighted_genes, res$gene_symbol, NA)
 
 # Generate the plotly MA plot
 ma_plot <- plot_ly(
@@ -367,10 +368,10 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = group, label = sample)) +
 
 ```{r ggplot-volcano-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
-res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
+res$color <- ifelse(res$gene_symbol %in% config$highlighted_genes, "orange", 
                     ifelse(res$padj < config$cutoff_adj_p & abs(res$log2FoldChange) > config$cutoff_log2fc, "royalblue", "grey"))
 # Create a column for label to display the gene symbol only for highlighted genes
-res$label <- ifelse(res$gene_symbol %in% highlighted_genes, res$gene_symbol, NA)
+res$label <- ifelse(res$gene_symbol %in% config$highlighted_genes, res$gene_symbol, NA)
 # Generate the ggplot volcano plot
 volcano_plot <- ggplot(res, aes(x = log2FoldChange, y = -log10(padj))) +
   geom_point(aes(color = color), size = 2, alpha = 0.7) +
@@ -405,11 +406,11 @@ print(volcano_plot)
 
 ```{r ggplot-maplot-{{filetag}}, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Create a new column for color highlighting based on conditions
-res$color <- ifelse(res$gene_symbol %in% highlighted_genes, "orange", 
+res$color <- ifelse(res$gene_symbol %in% config$highlighted_genes, "orange", 
                     ifelse(res$padj < config$cutoff_adj_p & abs(res$log2FoldChange) > config$cutoff_log2fc, "royalblue", "grey"))
 
 # Create a column for label to display the gene symbol only for highlighted genes
-res$label <- ifelse(res$gene_symbol %in% highlighted_genes, res$gene_symbol, NA)
+res$label <- ifelse(res$gene_symbol %in% config$highlighted_genes, res$gene_symbol, NA)
 
 # Generate the ggplot MA plot with layers in the specified order
 ma_plot <- ggplot() +
