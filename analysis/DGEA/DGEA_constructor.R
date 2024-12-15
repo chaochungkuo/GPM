@@ -8,7 +8,10 @@ source("DGEA_functions.R")  # Load custom functions
 ####################################################################
 #   Define Global Configuration as a List
 ####################################################################
-
+project_base = "PROJECT_PROJECT_PATH/"
+analysis_dir = file.path(project_base, "analysis")
+dgea_dir = file.path(analysis_dir, "DGEA")
+salmon_dir = file.path(project_base, "PROJECT_PROCESSING_METHOD/results/star_salmon/")
 # Global configuration list containing project paths and parameters
 global_config <- list(
   # Authors
@@ -19,15 +22,15 @@ global_config <- list(
   ),
   
   # Project Paths
-  project_base = "PROJECT_PROJECT_PATH/",
-  analysis_dir = file.path(project_base, "analysis"),
-  dgea_dir = file.path(analysis_dir, "DGEA"),
-  salmon_dir = file.path(project_base, "PROJECT_PROCESSING_METHOD/results/star_salmon/"),
+  project_base = project_base,
+  analysis_dir = analysis_dir,
+  dgea_dir = dgea_dir,
+  salmon_dir = salmon_dir,
   tx2gene_file = file.path(salmon_dir, "tx2gene.tsv"),
   
   # Run Specifications
   norm_spikein_ercc = FALSE,
-  organism = "PROJECT_PROCESSING_ORGANISM",  # e.g., "hsapiens", "mmusculus"
+  organism = "PROJECT_PROCESSING_ORGANISM",  # e.g., "hsapiens", "mmusculus", "rnorvegicus"
   highlighted_genes = NA,                    # e.g., c("Gene1", "Gene2")
   go = TRUE,
   gsea = TRUE,
@@ -46,8 +49,9 @@ global_config <- list(
 # Process samplesheet CSV
 samplesheet <- read.csv("../../PROJECT_PROCESSING_METHOD/samplesheet.csv") %>%
   dplyr::select(-2, -3, -4) %>%
-  separate(sample, into = c("cell", "group", "batch"), sep = "_", remove = FALSE) %>%
-  tibble::column_to_rownames(var = "sample")
+  separate(sample, into = c("group", "id"), sep = "_", remove = FALSE) %>%
+  dplyr::mutate(sample_copy = sample) %>%    # Create a copy of the sample column
+  tibble::column_to_rownames(var = "sample_copy")
 
 # Add samplesheet to the global configuration
 global_config$samplesheet <- samplesheet
@@ -83,6 +87,8 @@ rmarkdown::render(
                 samplesheet = samplesheet,
                 cutoff_adj_p = global_config$cutoff_adj_p,
                 cutoff_log2fc = global_config$cutoff_log2fc,
+                counts_from_abundance = global_config$counts_from_abundance,
+                length_correction = global_config$length_correction,
                 paired = FALSE)
 )
 

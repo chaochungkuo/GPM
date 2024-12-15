@@ -55,7 +55,7 @@ generate_DGEA_Rmd <- function(config) {
   # Render the R Markdown file to HTML
   rmarkdown::render(
     input = rmd_filename,
-    output_file = paste0("DGEA_", filetag, ".html")
+    output_file = paste0("DGEA_", config$filetag, ".html")
   )
 }
 
@@ -124,7 +124,7 @@ generate_markdown_links <- function(folder_path, pattern = "\\.html$") {
     file_name <- basename(file)
     display_name <- gsub("_", " ", file_name)
     # Create a Markdown link
-    paste0("### [", display_name, "](", file, ")")
+    paste0("### [", display_name, "](", paste0("./DGEA/", file), ")")
   })
   
   # Return the list of Markdown links as a character vector
