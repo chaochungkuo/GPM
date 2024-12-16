@@ -9,14 +9,6 @@ render_DGEA_report <- function(config) {
   } else {
     paste0(config$target_group, "_vs_", config$base_group)
   }
-  # Define design_formula if not customized
-  if (!is.null(config$design_formula)) {
-    if (config$paired == TRUE) {
-      config$design_formula <- ~ batch + group 
-    } else {
-      config$design_formula <- ~ group
-    }
-  }
   # Save the report-specific configuration
   config$rdata_filename <- paste0("DGEA_params_", config$filetag, ".RData")
   save(config, file = config$rdata_filename)
