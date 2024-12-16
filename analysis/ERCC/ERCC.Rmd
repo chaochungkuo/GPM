@@ -78,7 +78,7 @@ ERCC_ct$gene_id <- gsub("_gene","",as.character(ERCC_ct$gene_id))
 colnames(ERCC_ct) <- unlist(lapply(colnames(ERCC_ct), function(x) gsub("^X0","",x)))
 ```
 
-### [Back to front page](../Analysis_Report_RNAseq.html)
+### [Back to the main page](../Analysis_Report_RNAseq.html)
 
 Variation in RNA expression data can be attributed to a variety of factors. In the Genomics Facility we committed to minimizing unwanted biases in quantitative RNA expression analysis. At the same time, we engaged a common set of external RNA controls  ERCC to control and evaluate the variability in RNA sequencing. The controls consist of a set of unlabeled, polyadenylated transcripts (92 transcripts, 250 to 2,000 nt in length) designed to be added to an RNA analysis experiment after sample isolation, in order to measure against defined performance criteria. For more details about the ERCC controls applied, please refer to [the documentation from the manufacture](https://www.thermofisher.com/order/catalog/product/4456739).
 

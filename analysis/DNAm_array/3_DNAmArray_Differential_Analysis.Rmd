@@ -35,7 +35,7 @@ load("2_DNAmArray_Processing.RData")
 alpha <- 0.001
 ```
 
-### [Back to front page](../Analysis_Report_DNAmArray.html)
+### [Back to the main page](../Analysis_Report_DNAmArray.html)
 
 The steps done in this analysis are done according to [A cross-package Bioconductor workflow for analysing methylation array data](https://www.bioconductor.org/packages/release/workflows/vignettes/methylationArrayAnalysis/inst/doc/methylationArrayAnalysis.html)[@maksimovic2016cross].
 

@@ -68,7 +68,7 @@ go_heatmap <- function(exp, go_id) {
 }
 ```
 
-### [Back to front page](../Analysis_Report_RNAseq.html)
+### [Back to the main page](../Analysis_Report_RNAseq.html)
 
 
 # Heatmap with clustering for DE genes

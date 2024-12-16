@@ -73,7 +73,7 @@ samplesheet <- samplesheet %>%
 rownames(samplesheet) <- samplesheet$sample
 ```
 
-### [Back to front page](../Analysis_Report_RNAseq.html)
+### [Back to the main page](../Analysis_Report_RNAseq.html)
 
 ```{r, echo=TRUE, warning=FALSE, message=FALSE}
 if ("PROJECT_PROCESSING_METHOD" == "nfcore_RNAseq") {

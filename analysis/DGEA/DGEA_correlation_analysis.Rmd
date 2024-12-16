@@ -53,7 +53,7 @@ corr_figure <- function(title, xlab, ylab) {
 }
 ```
 
-### [Back to front page](../Analysis_Report_RNAseq.html)
+### [Back to the main page](../Analysis_Report_RNAseq.html)
 
 If there is a need to modify the figures to fit your particular need (style or color), additional service for customized visualization is needed. The main focus of this report is to present the analysis result to the clients. Any requests beyond this purpose is regarded another service. 
 

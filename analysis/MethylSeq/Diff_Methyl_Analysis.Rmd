@@ -15,7 +15,7 @@ output:
 bibliography: ../references.bib
 ---
 
-### [Back to front page](../Analysis_Report_MethylSeq.html)
+### [Back to the main page](../Analysis_Report_MethylSeq.html)
 
 This analysis is done according to [@wu2015detection].
 

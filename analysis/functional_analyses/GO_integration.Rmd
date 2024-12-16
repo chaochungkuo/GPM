@@ -28,7 +28,7 @@ library(openxlsx)
 library(DT)
 ```
 
-### [Back to front page](../Analysis_Report_RNAseq.html)
+### [Back to the main page](../Analysis_Report_RNAseq.html)
 
 # Integrated analysis
 

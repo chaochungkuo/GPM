@@ -50,7 +50,7 @@ p_value_threshold <- 0.001
 m_value_threshold <- 0.2
 ```
 
-### [Back to front page](../Analysis_Report_DNAmArray.html)
+### [Back to the main page](../Analysis_Report_DNAmArray.html)
 
 The threshold applied on the adjusted p-value is `r p_value_threshold` and the cutoff for M Values is `r m_value_threshold`.
 

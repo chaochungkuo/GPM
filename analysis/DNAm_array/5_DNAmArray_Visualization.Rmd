@@ -34,7 +34,7 @@ load("1_DNAmArray_QC.RData")
 alpha <- 0.01
 ```
 
-### [Back to front page](../Analysis_Report_DNAmArray.html)
+### [Back to the main page](../Analysis_Report_DNAmArray.html)
 
 
 ```{r, echo=TRUE, results='asis', warning=FALSE, message=FALSE}

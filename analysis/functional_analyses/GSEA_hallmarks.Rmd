@@ -35,7 +35,7 @@ pathways = split(x = msig$gene_symbol, f = msig$gs_name)
 # pathways = split(x = msig$gene_symbol, f = msig$gs_name)
 ```
 
-### [Back to front page](../Analysis_Report_RNAseq.html)
+### [Back to the main page](../Analysis_Report_RNAseq.html)
 
 GSEA[@subramanian2005gene] is a computational method used in genomics to reveal the biological significance of gene expression data. Unlike traditional methods that analyze single genes, GSEA assesses groups of genes, often organized by biological function or pathway. Instead of browsing all available GO terms in the databases, this analysis focuses only the 50 Hallmark Gene Sets from [MSigDB](https://www.gsea-msigdb.org/gsea/msigdb/index.jsp)[@liberzon2011molecular] with the R package fgsea[@korotkevich2016fast].
 

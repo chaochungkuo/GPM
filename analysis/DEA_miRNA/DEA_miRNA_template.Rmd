@@ -47,7 +47,7 @@ File_xlsx_res <- paste0('DEA_miRNA_',Tag_this_analysis,'_res.xlsx')
 
 ```
 
-### [Back to front page](../Analysis_Report_miRNAseq.html)
+### [Back to the main page](../Analysis_Report_miRNAseq.html)
 
 If there is a need to modify the figures to fit your particular need (style or color), additional service for customized visualization is needed. The main focus of this report is to present the analysis result to the clients. Any requests beyond this purpose is regarded another service. 
 

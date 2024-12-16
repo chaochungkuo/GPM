@@ -51,7 +51,7 @@ counts_from_abundance <- params$counts_from_abundance
 length_correction <- params$length_correction
 ```
 
-### [Back to front page](../Analysis_Report_RNAseq.html)
+### [Back to the main page](../Analysis_Report_RNAseq.html)
 
 # DESeq2
 

@@ -70,7 +70,7 @@ table_gostres <- function(gostres_table) {
 
 ```
 
-### [Back to front page](../Analysis_Report_RNAseq.html)
+### [Back to the main page](../Analysis_Report_RNAseq.html)
 
 Interpretation of gene lists is a key step in numerous biological data analysis workflows, such as differential gene expression analysis and co-expression clustering of RNA-seq data. Usually this involves associating these gene lists with previous knowledge from well curated data sources of biological processes and pathways.
 
