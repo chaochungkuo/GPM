@@ -123,4 +123,5 @@ render_DGEA_report(report_config)
 markdown_links <- generate_markdown_links(".")
 if (!is.null(markdown_links)) {
   cat(paste(markdown_links, collapse = "\n"))
+  cat("\n")
 }

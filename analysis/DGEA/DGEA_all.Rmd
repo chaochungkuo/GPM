@@ -305,7 +305,7 @@ write.csv(out_norm, file_csv, row.names = TRUE)
 ```{r all Samplesheet, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 datatable(
   samplesheet,
-  filter = 'top',
+  filter = 'none',
   extensions = c("Buttons"),
   options = list(
     autoWidth = FALSE,
