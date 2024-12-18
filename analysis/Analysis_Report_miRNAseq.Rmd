@@ -93,7 +93,7 @@ Please make sure that you store these data in a lab-wise level. Please refer to 
 
 # Differential Expression Analysis
 
-## [Tumor vs Healthy](DEA_miRNA_Tumor_vs_Healthy.html)
+## [Tumor vs Healthy](DEAmiRNA_Tumor_vs_Healthy.html)
 
 # Sample Overview
 
