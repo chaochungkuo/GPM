@@ -10,7 +10,7 @@ render_DEAmiRNAseq_report <- function(config) {
     paste0(config$target_group, "_vs_", config$base_group)
   }
   # Save the report-specific configuration
-  config$rdata_filename <- paste0("DEAmiRNA_params_", config$filetag, ".RData")
+  config$rdata_filename <- paste0("DEAmiRNA_", config$filetag, ".RData")
   save(config, file = config$rdata_filename)
   
   # Generate the R Markdown file using the `generate_Rmd` function

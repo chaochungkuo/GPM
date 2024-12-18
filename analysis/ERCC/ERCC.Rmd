@@ -28,8 +28,6 @@ library(heatmaply)
 library(plotly)
 options(warn = -1)
 
-load("../DGEA/DGEA_settings.RData")
-
 Tag_this_analysis <- "ERCC_QC"
 
 corr_figure <- function(ct, xlab, ylab) {
@@ -47,7 +45,7 @@ corr_figure <- function(ct, xlab, ylab) {
 }
 
 corr_figure_btw2samples <- function(title, sample1, sample2) {
-  exptable <- fread("DGEA_All_samples_norm_exp_quant.csv")
+  exptable <- fread("DGEA_All_samples_norm_counts.csv")
   columnsx <- c("gene_id", "gene_name", sample1)
   columnsy <- c("gene_id", "gene_name", sample2)
   xdata <- exptable[, ..columnsx]

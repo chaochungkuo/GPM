@@ -34,7 +34,7 @@ library(RColorBrewer)
 library(pheatmap)
 library(stringr)
 
-load("DEAmiRNA_params_{{filetag}}.RData")
+load("DEAmiRNA_{{filetag}}.RData")
 samplesheet <- config$samplesheet
 samplesheet$group <- factor(samplesheet$group,
                             levels = c(config$base_group, config$target_group))

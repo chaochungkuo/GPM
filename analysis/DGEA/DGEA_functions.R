@@ -10,7 +10,7 @@ render_DGEA_report <- function(config) {
     paste0(config$target_group, "_vs_", config$base_group)
   }
   # Save the report-specific configuration
-  config$rdata_filename <- paste0("DGEA_params_", config$filetag, ".RData")
+  config$rdata_filename <- paste0("DGEA_", config$filetag, ".RData")
   save(config, file = config$rdata_filename)
   
   # Generate the R Markdown file using the `generate_Rmd` function
@@ -60,7 +60,7 @@ render_simple_report <- function(config) {
   # Define the file tag based on base_group, target_group, and additional_tag
   config$filetag <- paste0(config$sample2, "_vs_", config$sample1)
   # Save the report-specific configuration
-  config$rdata_filename <- paste0("SimpleComparison_params_", config$filetag, ".RData")
+  config$rdata_filename <- paste0("SimpleComparison_", config$filetag, ".RData")
   save(config, file = config$rdata_filename)
   
   # Generate the R Markdown file using the `generate_Rmd` function

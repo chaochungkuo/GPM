@@ -38,7 +38,7 @@ library(ggridges)
 library(clusterProfiler)
 library(enrichplot)
 
-load("DGEA_params_{{filetag}}.RData")
+load("DGEA_{{filetag}}.RData")
 samplesheet <- config$samplesheet
 samplesheet$group <- factor(samplesheet$group,
                             levels = c(config$base_group, config$target_group))
