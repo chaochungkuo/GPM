@@ -29,6 +29,8 @@ global_config <- list(
   tx2gene_file = file.path(salmon_dir, "tx2gene.tsv"),
   
   # Run Specifications
+  paired = FALSE,
+  design_formula = ~ group,
   norm_spikein_ercc = FALSE,
   organism = "PROJECT_PROCESSING_ORGANISM",  # e.g., "hsapiens", "mmusculus", "rnorvegicus"
   highlighted_genes = NA,                    # e.g., c("Gene1", "Gene2")

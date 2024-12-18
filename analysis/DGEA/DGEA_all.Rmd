@@ -67,8 +67,8 @@ txi <- tximport(files, type = "salmon", tx2gene = tx2gene[, c(1, 2)],
                 countsFromAbundance = counts_from_abundance)
 
 # Set up DESeq2 design formula
+design_formula <- if (params$paired) {~ batch + group} else {~ group}
 if (length_correction) {
-  design_formula <- if (params$paired) ~ batch + group else ~ group
   dds <- DESeqDataSetFromTximport(txi, colData = samplesheet, design = design_formula)
 } else {
   dds <- DESeqDataSetFromMatrix(round(txi$counts), samplesheet, design_formula)
