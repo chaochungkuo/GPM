@@ -117,7 +117,7 @@ generate_markdown_links <- function(folder_path, pattern = "\\.html$") {
     display_name <- gsub("_", " ", file_name)
     display_name <- gsub(".html", "", display_name)
     # Create a Markdown link
-    paste0("### [", display_name, "](", paste0("./DGEA/", file), ")")
+    paste0("### [", display_name, "](", paste0("./DGEA/", file_name), ")")
   })
   
   # Return the list of Markdown links as a character vector

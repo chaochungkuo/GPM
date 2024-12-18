@@ -2,21 +2,6 @@
 ## DEAmiRNA
 ###########################################################
 
-add_DGEA <- function(description, tag, filtered_samples, volcano=TRUE, maplot=TRUE, sigtable=TRUE, paired=FALSE) {
-  scripts  <- readLines("DEAmiRNA_template.Rmd")
-  scripts  <- gsub(pattern = "TITLEDESCRIPTION", replace = description, x = scripts)
-  scripts  <- gsub(pattern = "DGEA_FILETAG", replace = tag, x = scripts)
-  if (paired) {scripts  <- gsub(pattern = "DGEA_PAIRED", replace = "paired", x = scripts)} 
-  else {scripts  <- gsub(pattern = "DGEA_PAIRED", replace = "unpaired", x = scripts)}
-  
-  rdata <- paste0("DEAmiRNA_", tag, "_data.RData")
-  filtered_samples <- filtered_samples[complete.cases(filtered_samples$group),]
-  save(filtered_samples, volcano, maplot, sigtable, paired, file = rdata)
-  scripts  <- gsub(pattern = "SAMPLE_RData", replace = rdata, x = scripts)
-  filename <- paste0("DEAmiRNA_",tag)
-  writeLines(scripts, con=paste0(filename,".Rmd"))
-}
-
 render_DEAmiRNAseq_report <- function(config) {
   # Define the file tag based on base_group, target_group, and additional_tag
   config$filetag <- if (!is.null(config$additional_tag)) {
@@ -64,4 +49,32 @@ generate_DEAmiRNA_Rmd <- function(config) {
     input = rmd_filename,
     output_file = paste0("DEAmiRNA_", config$filetag, ".html")
   )
+}
+
+####################################################################
+#   Function to generate list of html reports for Rmd
+####################################################################
+
+generate_markdown_links <- function(folder_path, pattern = "\\.html$") {
+  # List all files in the folder matching the pattern
+  files <- list.files(path = folder_path, pattern = pattern, full.names = TRUE)
+  
+  # Check if any files are found
+  if (length(files) == 0) {
+    message("No files found matching the pattern.")
+    return(NULL)
+  }
+  
+  # Generate Markdown links
+  links <- sapply(files, function(file) {
+    # Extract the file name (without path)
+    file_name <- basename(file)
+    display_name <- gsub("_", " ", file_name)
+    display_name <- gsub(".html", "", display_name)
+    # Create a Markdown link
+    paste0("### [", display_name, "](", paste0("./DGEA/", file_name), ")")
+  })
+  
+  # Return the list of Markdown links as a character vector
+  return(links)
 }

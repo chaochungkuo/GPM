@@ -21,9 +21,9 @@ counts_hairpin = paste0(project_base,
 global_config <- list(
   # Authors
   authors = c(
-    "Chao-Chung Kuo, Genomics Facility, ckuo@ukaachen.de",
-    "Lin Gan, Genomics Facility, lgan@ukaachen.de",
-    "Mohamed Hamdy Elsafi Mabrouk, Genomics Facility, mmabrouk@ukaachen.de"
+    "Chao-Chung Kuo, Genomics Facility, ckuo@ukaachen.de"
+    # "Lin Gan, Genomics Facility, lgan@ukaachen.de",
+    # "Mohamed Hamdy Elsafi Mabrouk, Genomics Facility, mmabrouk@ukaachen.de"
   ),
   
   # Project Paths
@@ -39,8 +39,6 @@ global_config <- list(
   norm_spikein_ercc = FALSE,
   organism = "PROJECT_PROCESSING_ORGANISM",  # e.g., "hsapiens", "mmusculus", "rnorvegicus"
   highlighted_genes = NA,                    # e.g., c("Gene1", "Gene2")
-  go = TRUE,
-  gsea = TRUE,
 
   # Cutoffs
   cutoff_adj_p = 0.05,
@@ -55,7 +53,7 @@ global_config <- list(
 
 # Process samplesheet CSV
 samplesheet <- read.csv("../../nfcore_miRNAseq/samplesheet.csv") %>%
-  dplyr::select(-2, -3, -4) %>%
+  dplyr::select(-2) %>%
   separate(sample, into = c("group", "id"), sep = "_", remove = FALSE) %>%
   dplyr::mutate(sample_copy = sample) %>%    # Create a copy of the sample column
   tibble::column_to_rownames(var = "sample_copy")
@@ -74,16 +72,7 @@ global_config$samplesheet <- samplesheet
 report_config <- global_config
 report_config$base_group <- "WT"
 report_config$target_group <- "KO"
-######## You can further customize and overwrite any items ########
-# report_config$paired <- FALSE
-# report_config$additional_tag <- "Treated"
-# report_config$samplesheet <- samplesheet %>%
-#   filter(cell %in% c("human"))
-# report_config$design_formula <- ~ batch + group * treatment
-# report_config$organism <- "hsapiens"
-# report_config$go <- FALSE
-# report_config$gsea <- FALSE
-render_DGEA_report(report_config)
+render_DEAmiRNAseq_report(report_config)
 
 # Generate the list of html reports
 markdown_links <- generate_markdown_links(".")

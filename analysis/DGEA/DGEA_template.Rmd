@@ -545,6 +545,8 @@ datatable(
 ) %>%
   formatRound(columns = c(3, 4, 5, 6), digits = 2) %>%  # Round columns 3, 4, 5, and 6 to 2 digits
   formatSignif(columns = c(7, 8), digits = 2)           # Round columns 7 and 8 to 5 digits
+
+cat("In DESeq2, some genes may lack statistical results (such as log fold changes or p-values) due to low or zero counts across the samples. See [the manual of DESeq2](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#pvaluesNA).")
 ```
 
 ### Samplesheet
