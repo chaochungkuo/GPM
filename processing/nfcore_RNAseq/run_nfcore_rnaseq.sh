@@ -17,6 +17,7 @@ else
           --input samplesheet.csv --outdir results \
           --genome GENCODE_GRCh38_v46  \
           --gencode --featurecounts_group_type gene_type
+          # --with_umi --umitools_extract_method "regex" --umitools_bc_pattern2 "^(?P<umi_1>.{8})(?P<discard_1>.{6}).*" # Takara Bio SMARTer® Stranded Total RNA-Seq Kit v3	
 fi
 
 ###### For rerun the pipeline #################################
