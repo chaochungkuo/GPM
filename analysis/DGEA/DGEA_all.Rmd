@@ -28,7 +28,7 @@ output:
 bibliography: ../references.bib
 ---
 
-```{r all setup, echo=TRUE, warning=FALSE, message=TRUE}
+```{r all setup, echo=TRUE, warning=FALSE, message=FALSE}
 source("/etc/rstudio/Rprofile.site")
 # Load libraries
 library(DESeq2)

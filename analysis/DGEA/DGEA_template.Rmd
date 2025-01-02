@@ -574,7 +574,7 @@ datatable(
 
 `r if(go){"# GO Analysis\n\nGO Enrichment Analysis in clusterProfiler [@wu2021clusterprofiler] identifies overrepresented Gene Ontology (GO) terms within a predefined list of differentially expressed genes. This method uses overrepresentation analysis (ORA) with statistical tests such as hypergeometric testing to determine if specific biological processes, cellular components, or molecular functions occur more frequently in the gene set compared to a background set (Here we only use BP). The results depend on the threshold used to define significant genes, making it sensitive to the cutoff criteria applied during differential expression analysis.\n"}`
 
-```{r go-{{filetag}}, echo=TRUE, results="markup", warning=FALSE, message=FALSE, eval=go}
+```{r go-{{filetag}}, echo=go, results="markup", warning=FALSE, message=FALSE, eval=go}
 # Define up- and down-regulated genes
 upregulated_genes <- res$gene_symbol[res$log2FoldChange > 0 & res$padj < config$cutoff_adj_p]
 downregulated_genes <- res$gene_symbol[res$log2FoldChange < 0 & res$padj < config$cutoff_adj_p]
@@ -610,13 +610,13 @@ if (!is.null(go_down) && any(go_down@result$p.adjust < config$pvalueCutoff_GO)) 
 
 `r if(show_go_up){"## GO on Up Genes"} else {"## No significant GO terms found for Up-regulated genes."}`
 
-```{r go-{{filetag}}-up-dotplot, echo=TRUE, results="markup", warning=FALSE, message=FALSE, eval=show_go_up}
+```{r go-{{filetag}}-up-dotplot, echo=go, results="markup", warning=FALSE, message=FALSE, eval=show_go_up}
 dotplot(go_up, title = "GO Enrichment - Upregulated Genes") + theme_minimal()
 ```
 
 `r if(show_go_up){"A dotplot for Gene Ontology (GO) analysis is a visualization that displays enriched GO terms along with their significance and gene ratio. In this plot, each dot represents a GO term, with the x-axis showing the gene ratio (the proportion of genes associated with the term) and the y-axis listing the GO terms. The size of the dot indicates the number of genes in each category, while the color represents the statistical significance (e.g., p-value). This visualization helps quickly identify the most enriched GO terms and compare their significance and gene involvement."}`
 
-```{r go-{{filetag}}-up-emapplot, echo=TRUE, results="markup", warning=FALSE, message=FALSE, eval=show_go_up}
+```{r go-{{filetag}}-up-emapplot, echo=go, results="markup", warning=FALSE, message=FALSE, eval=show_go_up}
 emapplot(pairwise_termsim(go_up), showCategory = 5,
          title = "Enrichment Map - Upregulated Genes",
          cex.params = list(category_label = 0.7))
@@ -626,13 +626,13 @@ emapplot(pairwise_termsim(go_up), showCategory = 5,
 
 `r if(show_go_down){"## GO on Down Genes"} else {"## No significant GO terms found for Down-regulated genes."}`
 
-```{r go-{{filetag}}-down-dotplot, echo=TRUE, results="markup", warning=FALSE, message=FALSE, eval=show_go_down}
+```{r go-{{filetag}}-down-dotplot, echo=go, results="markup", warning=FALSE, message=FALSE, eval=show_go_down}
  dotplot(go_down, title = "GO Enrichment - Downregulated Genes") + theme_minimal()
 ```
 
 `r if(show_go_down){"A dotplot for Gene Ontology (GO) analysis is a visualization that displays enriched GO terms along with their significance and gene ratio. In this plot, each dot represents a GO term, with the x-axis showing the gene ratio (the proportion of genes associated with the term) and the y-axis listing the GO terms. The size of the dot indicates the number of genes in each category, while the color represents the statistical significance (e.g., p-value). This visualization helps quickly identify the most enriched GO terms and compare their significance and gene involvement."}`
 
-```{r go-{{filetag}}-down-emapplot, echo=TRUE, results="markup", warning=FALSE, message=FALSE, eval=show_go_down}
+```{r go-{{filetag}}-down-emapplot, echo=go, results="markup", warning=FALSE, message=FALSE, eval=show_go_down}
 emapplot(pairwise_termsim(go_down), showCategory = 5,
          title = "Enrichment Map - Downregulated Genes",
          cex.params = list(category_label = 0.7))
@@ -642,7 +642,7 @@ emapplot(pairwise_termsim(go_down), showCategory = 5,
 
 `r if(gsea){"# GSEA for Whole Expression Profile\n\nGene Set Enrichment Analysis (GSEA) in clusterProfiler [@wu2021clusterprofiler] evaluates enrichment across a ranked list of all genes, avoiding the need for an arbitrary cutoff. GSEA calculates enrichment scores to determine whether predefined gene sets are overrepresented at the top or bottom of the ranking. Statistical significance is assessed via permutation testing. This approach is more sensitive to detecting subtle, coordinated changes in gene expression, which might be missed by traditional GO enrichment analysis. Consequently, results from GSEA and GO enrichment may differ due to their distinct input requirements and statistical methodologies."}`
 
-```{r gsea-{{filetag}}, echo=TRUE, results="markup", warning=FALSE, message=FALSE, eval=gsea}
+```{r gsea-{{filetag}}, echo=gsea, results="markup", warning=FALSE, message=FALSE, eval=gsea}
 # Prepare ranked gene list
 gene_list <- res$log2FoldChange
 names(gene_list) <- res$gene_symbol
@@ -662,13 +662,13 @@ if (nrow(gsea_results@result) == 0) {
 }
 ```
 
-```{r gsea-{{filetag}}-ridgeplot, echo=TRUE, results="asis", warning=FALSE, message=FALSE, eval=gsea}
+```{r gsea-{{filetag}}-ridgeplot, echo=gsea, results="asis", warning=FALSE, message=FALSE, eval=gsea}
 ridgeplot(gsea_results, showCategory = min(5, nrow(gsea_results@result))) + ggtitle("GSEA Ridgeplot") + theme_minimal() + xlab("Gene Rank by log2FoldChange")
 ```
 
 `r if(gsea){"A ridgeplot in GSEA, as implemented in clusterProfiler [@wu2021clusterprofiler], visualizes the distribution of genes within enriched gene sets across a ranked gene list. Each ridge (density curve) represents a gene set, with the x-axis showing the gene ranks (e.g., ranked by fold change) and the y-axis showing different gene sets. Peaks in the density curves indicate where genes in each set are concentrated, helping identify whether they are enriched at the top (upregulated) or bottom (downregulated) of the ranked list. Ridgeplots facilitate the comparison of multiple gene sets and highlight subtle enrichment patterns that might not be apparent in other visualizations."}`
 
-```{r gsea-{{filetag}}-heatplot, echo=TRUE, results="asis", warning=FALSE, message=FALSE, eval=gsea}
+```{r gsea-{{filetag}}-heatplot, echo=gsea, results="asis", warning=FALSE, message=FALSE, eval=gsea}
 sort_gene_list <- sort(gene_list, decreasing = TRUE)
 heatplot(gsea_results, showCategory = min(5, nrow(gsea_results@result)), foldChange = sort_gene_list) +
     ggtitle("GSEA Heatmap - Leading Edge Genes") +
@@ -681,7 +681,7 @@ heatplot(gsea_results, showCategory = min(5, nrow(gsea_results@result)), foldCha
 
 `r if(gsea){"A GSEA heatmap in clusterProfiler [@wu2021clusterprofiler] visualizes the expression levels of genes within enriched gene sets across different conditions or samples. Rows represent genes, while columns represent conditions, with color gradients indicating expression levels. This allows for the identification of expression patterns and clusters of co-regulated genes driving the enrichment. The order of the genes is not according to the FoldChange, but based on clustering."}`
 
-```{r gsea-{{filetag}}-cnetplot, echo=TRUE, results="asis", warning=FALSE, message=FALSE, eval=gsea}
+```{r gsea-{{filetag}}-cnetplot, echo=gsea, results="asis", warning=FALSE, message=FALSE, eval=gsea}
 cnetplot(gsea_results, showCategory = 5, foldChange = gene_list, node_label="category", label_format = 30,
            cex.params = list(category_node = 1, gene_node = 1, category_label = 1, gene_label = 0.5)) +
     ggtitle("GSEA Cnetplot - Gene-Pathway Relationships")
@@ -693,7 +693,7 @@ cnetplot(gsea_results, showCategory = 5, foldChange = gene_list, node_label="cat
 
 `r if(gsea){"The gseaplot2 function in clusterProfiler [@wu2021clusterprofiler] provides a detailed visualization of the enrichment results for a specific gene set in Gene Set Enrichment Analysis (GSEA). This plot illustrates the enrichment score (ES) curve, which indicates the running sum of the ranked gene list as the genes in the gene set are encountered. The peak of the curve represents the maximum enrichment score, and the location of this peak suggests whether the gene set is enriched at the top (upregulated) or bottom (downregulated) of the ranked list. Additionally, the gseaplot2 displays a ranked list of genes with markings to show where the genes in the set are located. This helps visualize the distribution of genes within the ranked list and the strength of the enrichment signal."}`
 
-```{r gseaplot-{{filetag}}, echo=TRUE, results="asis", warning=FALSE, message=FALSE, eval=gsea}
+```{r gseaplot-{{filetag}}, echo=gsea, results="asis", warning=FALSE, message=FALSE, eval=gsea}
 for (i in 1:5) {
   if (i <= nrow(gsea_results)) {
     plot_title <- gsea_results$Description[i]
