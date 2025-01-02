@@ -608,7 +608,7 @@ if (!is.null(go_down) && any(go_down@result$p.adjust < config$pvalueCutoff_GO)) 
 }
 ```
 
-`r if(show_go_up){"## GO on Up Genes"} else {"## No significant GO terms found for Up-regulated genes."}`
+`r if(go & show_go_up){"## GO on Up Genes"} else if (go) {"## No significant GO terms found for Up-regulated genes."}`
 
 ```{r go-{{filetag}}-up-dotplot, echo=go, results="markup", warning=FALSE, message=FALSE, eval=show_go_up}
 dotplot(go_up, title = "GO Enrichment - Upregulated Genes") + theme_minimal()
@@ -624,7 +624,7 @@ emapplot(pairwise_termsim(go_up), showCategory = 5,
 
 `r if(show_go_up){"An emapplot visualizes the relationships between enriched pathways or gene sets by displaying them as a network graph. In this plot, nodes represent the enriched pathways, while edges (connections) between nodes indicate the degree of gene overlap between the pathways. The size of the nodes reflects the number of genes in each pathway, and the color can represent statistical significance (e.g., p-value). The emapplot helps identify clusters of related pathways, providing insight into how different biological functions or processes are interconnected, making it easier to interpret the overall biological context of the enrichment results."}`
 
-`r if(show_go_down){"## GO on Down Genes"} else {"## No significant GO terms found for Down-regulated genes."}`
+`r if(go & show_go_down){"## GO on Down Genes"} else if(go) {"## No significant GO terms found for Down-regulated genes."}`
 
 ```{r go-{{filetag}}-down-dotplot, echo=go, results="markup", warning=FALSE, message=FALSE, eval=show_go_down}
  dotplot(go_down, title = "GO Enrichment - Downregulated Genes") + theme_minimal()
