@@ -6,7 +6,23 @@ library(tidyr)
 source("DGEA_functions.R")  # Load custom functions
 
 ####################################################################
-#   Define Global Configuration as a List
+#   Load and Prepare Samplesheet (Adjustable)
+####################################################################
+
+# The sample names are expected to be de in the pattern of Group1_rep1, such as
+# WT_rep1
+# KO_rep1
+
+# Process samplesheet CSV
+samplesheet <- read.csv("../../PROJECT_PROCESSING_METHOD/samplesheet.csv") %>%
+  dplyr::select(-2, -3, -4) %>% # dropping unneeded columns
+  separate(sample, into = c("group", "id"), sep = "_", remove = FALSE) %>% # split sample names into 2 columns
+  dplyr::mutate(sample_copy = sample) %>%    # Create a copy of the sample column
+  tibble::column_to_rownames(var = "sample_copy") # Make sample_copy as rownames
+
+
+####################################################################
+#   Define Global Configuration as a List (Adjustable)
 ####################################################################
 project_base = "PROJECT_PROJECT_PATH/"
 analysis_dir = file.path(project_base, "analysis")
@@ -14,6 +30,8 @@ dgea_dir = file.path(analysis_dir, "DGEA")
 salmon_dir = file.path(project_base, "PROJECT_PROCESSING_METHOD/results/star_salmon/")
 # Global configuration list containing project paths and parameters
 global_config <- list(
+  # Add samplesheet to the global configuration
+  samplesheet = samplesheet,
   # Authors
   authors = c(
     "Chao-Chung Kuo, Genomics Facility, ckuo@ukaachen.de",
@@ -29,11 +47,13 @@ global_config <- list(
   tx2gene_file = file.path(salmon_dir, "tx2gene.tsv"),
   
   # Run Specifications
-  paired = FALSE,
-  design_formula = ~ group,
-  norm_spikein_ercc = FALSE,
-  organism = "PROJECT_PROCESSING_ORGANISM",  # e.g., "hsapiens", "mmusculus", "rnorvegicus"
-  highlighted_genes = NA,                    # e.g., c("Gene1", "Gene2")
+  paired = FALSE, # Pairwise comparison or not
+  design_formula = ~ group, # simple comparison by group column
+  # design_formula = ~ id + group # pairwise by id and compare by group column
+  # design_formula = ~ id + group * treatment # Captures whether the effect of treatment depends on the group
+  norm_spikein_ercc = FALSE, 
+  organism = "PROJECT_PROCESSING_ORGANISM",  # Define organism for GO/GSEA e.g., "hsapiens", "mmusculus", "rnorvegicus"
+  highlighted_genes = NA,                    # e.g., c("Gene1", "Gene2") for highlighting genes in all figures
   go = TRUE,
   gsea = TRUE,
 
@@ -45,21 +65,7 @@ global_config <- list(
 )
 
 ####################################################################
-#   Load and Prepare Samplesheet
-####################################################################
-
-# Process samplesheet CSV
-samplesheet <- read.csv("../../PROJECT_PROCESSING_METHOD/samplesheet.csv") %>%
-  dplyr::select(-2, -3, -4) %>%
-  separate(sample, into = c("group", "id"), sep = "_", remove = FALSE) %>%
-  dplyr::mutate(sample_copy = sample) %>%    # Create a copy of the sample column
-  tibble::column_to_rownames(var = "sample_copy")
-
-# Add samplesheet to the global configuration
-global_config$samplesheet <- samplesheet
-
-####################################################################
-#   Define Analysis Settings Based on Processing Method
+#   Define Analysis Settings Based on Processing Method (no need to be changed)
 ####################################################################
 
 if ("PROJECT_PROCESSING_METHOD" == "nfcore_RNAseq") {

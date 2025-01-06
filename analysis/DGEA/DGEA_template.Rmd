@@ -350,7 +350,7 @@ A heatmap is a graphical representation of data where individual values are show
 
 ### 2D PCA
 
-```{r ggplot-2d-pca-{{filetag}}, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+```{r ggplot-2d-pca-{{filetag}}, echo=TRUE, results='asis', warning=FALSE, message=FALSE, dpi=300}
 # Calculate explained variance for PC1 and PC2
 explained_variance <- round(100 * (pca$sdev^2 / sum(pca$sdev^2)), 2)
 explained_variance_text <- paste0("PC", 1:2, " (", explained_variance[1:2], "%)")
@@ -381,7 +381,7 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = group, label = sample)) +
 
 ### Volcano Plot
 
-```{r ggplot-volcano-{{filetag}}, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+```{r ggplot-volcano-{{filetag}}, echo=TRUE, results='asis', warning=FALSE, message=FALSE, dpi=300}
 vp_res <- res
 # Create a new column for color highlighting based on conditions
 vp_res$color <- ifelse(vp_res$gene_symbol %in% config$highlighted_genes, "orange", 
@@ -420,7 +420,7 @@ print(volcano_plot)
 
 ### MA plot
 
-```{r ggplot-maplot-{{filetag}}, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+```{r ggplot-maplot-{{filetag}}, echo=TRUE, results='asis', warning=FALSE, message=FALSE, dpi=300}
 ma_res <- res
 # Create a new column for color highlighting based on conditions
 ma_res$color <- ifelse(ma_res$gene_symbol %in% config$highlighted_genes, "orange", 
@@ -476,7 +476,7 @@ print(ma_plot)
 
 ### Heatmap
 
-```{r ggplot-heatmap-{{filetag}}, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+```{r ggplot-heatmap-{{filetag}}, echo=TRUE, results='asis', warning=FALSE, message=FALSE, dpi=300}
 # Select significant genes or top 20 by p-value if no significant genes
 significant_genes <- res %>%
   filter(padj < config$cutoff_adj_p) %>%
