@@ -59,7 +59,7 @@ def clean_folders(target_folders, show_each_file, keep_files, before="", dry=Fal
                     click.echo(click.style("[{}/{}] {} {}".format(
                         total_size.rjust(10),
                         folder_size.rjust(10),
-                        f"{percentage:.1f}%"rjust(6),
+                        f"{percentage:.1f}%".rjust(6),
                         folder), fg='bright_green'))
                     if show_each_file:
                         for matching_file in matching_files:
