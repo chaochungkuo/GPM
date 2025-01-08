@@ -31,7 +31,7 @@ def clean_folders(target_folders, show_each_file, keep_files, before="", dry=Fal
             if os.path.exists(os.path.join(folder, ".keep")):
                 # Skip folders with .keep file
                 continue
-            elif before!="" and folder_before_date(folder, before):
+            elif before!="" and not folder_before_date(folder, before):
                 # Skip folders which is not before the target date
                 continue
             else:
