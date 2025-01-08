@@ -20,6 +20,7 @@ def folder_before_date(file_path, target_date_str):
         # Compare the dates
         return date_obj < target_date_obj
     except (ValueError, IndexError):
+        print([target_date_str, file_path])
         # Return False if the format is invalid or extraction fails
         return False
 
@@ -55,12 +56,12 @@ def clean_folders(target_folders, show_each_file, keep_files, before="", dry=Fal
                         total_size += size_bytes
                         each_size[matching_file] = size_bytes
                     total_size_str = get_human_readable_size(total_size)
-                    percentage = total_size/folder_size
-                    click.echo(click.style("[{}/{}] {} {}".format(
-                        total_size_str.rjust(10),
-                        folder_size_str.rjust(10),
-                        f"{percentage:.1f}%".rjust(6),
-                        folder), fg='bright_green'))
+                    percentage = total_size/folder_size * 100
+                    click.echo(click.style("[{}/{}] {} ".format(
+                                           total_size_str.rjust(10),
+                                           folder_size_str.rjust(10),
+                                           f"{percentage:.1f}%".rjust(6)), 
+                                           fg='bright_green')+folder)
                     if show_each_file:
                         for matching_file in matching_files:
                             readable_size = get_human_readable_size(
