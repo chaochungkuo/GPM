@@ -39,7 +39,7 @@ def clean_folders(target_folders, show_each_file, keep_files, before="", dry=Fal
                 folder_size = get_file_or_folder_size(folder, show_each_file)
                 if not folder_size:
                     continue
-                folder_size = get_human_readable_size(folder_size)
+                folder_size_str = get_human_readable_size(folder_size)
                 # Find matching files
                 matching_files = search_files_by_patterns(folder,
                                                         regex_patterns)
@@ -54,11 +54,11 @@ def clean_folders(target_folders, show_each_file, keep_files, before="", dry=Fal
                                                             show_each_file)
                         total_size += size_bytes
                         each_size[matching_file] = size_bytes
-                    total_size = get_human_readable_size(total_size)
+                    total_size_str = get_human_readable_size(total_size)
                     percentage = total_size/folder_size
                     click.echo(click.style("[{}/{}] {} {}".format(
-                        total_size.rjust(10),
-                        folder_size.rjust(10),
+                        total_size_str.rjust(10),
+                        folder_size_str.rjust(10),
                         f"{percentage:.1f}%".rjust(6),
                         folder), fg='bright_green'))
                     if show_each_file:
