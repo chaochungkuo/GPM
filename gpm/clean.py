@@ -20,13 +20,13 @@ def folder_before_date(file_path, target_date_str):
         # Compare the dates
         return date_obj < target_date_obj
     except (ValueError, IndexError):
-        print([target_date_str, file_path])
         # Return False if the format is invalid or extraction fails
         return False
 
 def clean_folders(target_folders, show_each_file, keep_files, before="", dry=False):
     regex_patterns = get_gpm_config("CLEAN", "PATTERNS")
     paths_to_be_cleaned = []
+    total_size_to_be_cleaned = 0
     for folder in target_folders:  # Iterate folders
         if os.path.isdir(folder):
             if os.path.exists(os.path.join(folder, ".keep")):
@@ -55,6 +55,7 @@ def clean_folders(target_folders, show_each_file, keep_files, before="", dry=Fal
                                                             show_each_file)
                         total_size += size_bytes
                         each_size[matching_file] = size_bytes
+                    total_size_to_be_cleaned += total_size
                     total_size_str = get_human_readable_size(total_size)
                     percentage = total_size/folder_size * 100
                     click.echo(click.style("[{}/{}] {} ".format(
@@ -69,6 +70,10 @@ def clean_folders(target_folders, show_each_file, keep_files, before="", dry=Fal
                                 )
                             click.echo("[{}] {}".format(readable_size.rjust(10),
                                                         matching_file))
+                    total = get_human_readable_size(total_size_to_be_cleaned)
+                    click.echo(click.style("[{}] can be cleaned. ".format(
+                                           total, 
+                                           fg='blue'))
     if not paths_to_be_cleaned:
         click.echo("No files/folders match the defined patterns.")
         click.echo(get_gpm_config("CLEAN", "PATTERNS"))
