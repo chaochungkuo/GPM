@@ -290,8 +290,8 @@ def tar_export(export_folder, dry_run, gzip):
     is_flag=True,
     help="Dry run without actual execution.",
 )
-# @click.option("-b", "--before-date", "before", default="",
-#               help="Filter the folders by the date in its name.")
+@click.option("-b", "--before-date", "before", default="",
+              help="Filter the folders by the date (YYMMDD) in its name. Any folders after this date will be skipped.")
 # @click.option("-a", "--after-date", "after", default="",
 #               help="Filter the folders by the date in its name.")
 @click.option(
@@ -312,7 +312,7 @@ def tar_export(export_folder, dry_run, gzip):
     is_flag=True,
     help="Keep the folders which contain an empty .keep file in the directory.",
 )
-def clean(target_folders, dry_run, show_each_file, keep_files):
+def clean(target_folders, dry_run, show_each_file, keep_files,before):
     """Clean the given folders by deleting the patterns defined in gpm.ini."""
     if len(target_folders) == 1 and not os.path.isdir(target_folders[0]):
         click.echo("No folders is provided.")
@@ -320,7 +320,8 @@ def clean(target_folders, dry_run, show_each_file, keep_files):
         click.echo("Following files/folders could be cleaned:")
         clean_folders(target_folders, dry=dry_run,
                       show_each_file=show_each_file,
-                      keep_files=keep_files)
+                      keep_files=keep_files,
+                      before=before)
 
 
 @main.command()

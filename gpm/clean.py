@@ -6,13 +6,32 @@ import shutil
 import click
 from gpm.helper import get_gpm_config
 
+# Function to clean the path, extract date, and compare
+def folder_before_date(file_path, target_date_str):
+    try:
+        # Extract the base name from the path
+        base_name = os.path.basename(file_path)
+        # Split the base name by underscores and extract the first part
+        date_str = base_name.split('_')[0]
+        # Parse the date string to a datetime object
+        date_obj = datetime.strptime(date_str, "%y%m%d")
+        target_date_obj = datetime.strptime(target_date_str, "%y%m%d")
+        # Compare the dates
+        return date_obj < target_date_obj
+    except (ValueError, IndexError):
+        # Return False if the format is invalid or extraction fails
+        return False
 
-def clean_folders(target_folders, show_each_file, keep_files, dry=False):
+def clean_folders(target_folders, show_each_file, keep_files, before="", dry=False):
     regex_patterns = get_gpm_config("CLEAN", "PATTERNS")
     paths_to_be_cleaned = []
     for folder in target_folders:  # Iterate folders
         if os.path.isdir(folder):
             if os.path.exists(os.path.join(folder, ".keep")):
+                # Skip folders with .keep file
+                continue
+            elif before!="" and folder_before_date(folder, before):
+                # Skip folders which is not before the target date
                 continue
             else:
                 # Get total size
