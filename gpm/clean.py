@@ -7,42 +7,45 @@ import click
 from gpm.helper import get_gpm_config
 
 
-def clean_folders(target_folders, show_each_file, dry=False):
+def clean_folders(target_folders, show_each_file, keep_files, dry=False):
     regex_patterns = get_gpm_config("CLEAN", "PATTERNS")
     paths_to_be_cleaned = []
     for folder in target_folders:  # Iterate folders
         if os.path.isdir(folder):
-            # Get total size
-            folder_size = get_file_or_folder_size(folder, show_each_file)
-            if not folder_size:
+            if os.path.exists(os.path.join(folder, ".keep")):
                 continue
-            folder_size = get_human_readable_size(folder_size)
-            # Find matching files
-            matching_files = search_files_by_patterns(folder,
-                                                      regex_patterns)
-            matching_files = list(set(matching_files))
-            if matching_files:
-                paths_to_be_cleaned += matching_files
-                total_size = 0
-                each_size = {}
+            else:
+                # Get total size
+                folder_size = get_file_or_folder_size(folder, show_each_file)
+                if not folder_size:
+                    continue
+                folder_size = get_human_readable_size(folder_size)
+                # Find matching files
+                matching_files = search_files_by_patterns(folder,
+                                                        regex_patterns)
+                matching_files = list(set(matching_files))
+                if matching_files:
+                    paths_to_be_cleaned += matching_files
+                    total_size = 0
+                    each_size = {}
 
-                for matching_file in matching_files:
-                    size_bytes = get_file_or_folder_size(matching_file,
-                                                         show_each_file)
-                    total_size += size_bytes
-                    each_size[matching_file] = size_bytes
-                total_size = get_human_readable_size(total_size)
-                click.echo(click.style("[{}/{}] {}".format(
-                    total_size.rjust(10),
-                    folder_size.rjust(10),
-                    folder), fg='bright_green'))
-                if show_each_file:
                     for matching_file in matching_files:
-                        readable_size = get_human_readable_size(
-                            each_size[matching_file]
-                            )
-                        click.echo("[{}] {}".format(readable_size.rjust(10),
-                                                    matching_file))
+                        size_bytes = get_file_or_folder_size(matching_file,
+                                                            show_each_file)
+                        total_size += size_bytes
+                        each_size[matching_file] = size_bytes
+                    total_size = get_human_readable_size(total_size)
+                    click.echo(click.style("[{}/{}] {}".format(
+                        total_size.rjust(10),
+                        folder_size.rjust(10),
+                        folder), fg='bright_green'))
+                    if show_each_file:
+                        for matching_file in matching_files:
+                            readable_size = get_human_readable_size(
+                                each_size[matching_file]
+                                )
+                            click.echo("[{}] {}".format(readable_size.rjust(10),
+                                                        matching_file))
     if not paths_to_be_cleaned:
         click.echo("No files/folders match the defined patterns.")
         click.echo(get_gpm_config("CLEAN", "PATTERNS"))

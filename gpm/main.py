@@ -303,13 +303,24 @@ def tar_export(export_folder, dry_run, gzip):
     is_flag=True,
     help="Show the size of each file.",
 )
-def clean(target_folders, dry_run, show_each_file):
+@click.option(
+    "-k",
+    "--keep",
+    "keep_files",
+    default=True,
+    show_default=True,
+    is_flag=True,
+    help="Keep the folders which contain an empty .keep file in the directory.",
+)
+def clean(target_folders, dry_run, show_each_file, keep_files):
     """Clean the given folders by deleting the patterns defined in gpm.ini."""
     if len(target_folders) == 1 and not os.path.isdir(target_folders[0]):
         click.echo("No folders is provided.")
     else:
         click.echo("Following files/folders could be cleaned:")
-        clean_folders(target_folders, dry=dry_run, show_each_file=show_each_file)
+        clean_folders(target_folders, dry=dry_run,
+                      show_each_file=show_each_file,
+                      keep_files=keep_files)
 
 
 @main.command()
