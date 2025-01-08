@@ -70,10 +70,9 @@ def clean_folders(target_folders, show_each_file, keep_files, before="", dry=Fal
                                 )
                             click.echo("[{}] {}".format(readable_size.rjust(10),
                                                         matching_file))
-                    total = get_human_readable_size(total_size_to_be_cleaned)
-                    click.echo(click.style("[{}] can be cleaned. ".format(
-                                           total, 
-                                           fg='blue')))
+    total = get_human_readable_size(total_size_to_be_cleaned)
+    click.echo(click.style("[{}] can be cleaned. ".format(total),
+                           bold=True, fg='bright_green'))
     if not paths_to_be_cleaned:
         click.echo("No files/folders match the defined patterns.")
         click.echo(get_gpm_config("CLEAN", "PATTERNS"))
