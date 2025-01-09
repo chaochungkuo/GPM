@@ -44,7 +44,6 @@ def clean_folders(target_folders, show_each_file, keep_files, before="", dry=Fal
                 # Find matching files
                 matching_files = search_files_by_patterns(folder,
                                                         regex_patterns)
-                matching_files = list(set(matching_files))
                 if matching_files:
                     paths_to_be_cleaned += matching_files
                     total_size = 0
@@ -99,13 +98,27 @@ def search_files_by_patterns(root_path, patterns):
                 root_base = os.path.basename(root)
                 if fnmatch.fnmatch(root_base, p1):
                     print([p1,p2,root,root_base])
+                    print(dirs)
+                    print(files)
                     for folder in fnmatch.filter(dirs, p2):
                         matching_files.append(os.path.join(root, folder))
                 
-    matching_files = list(set(matching_files))
-    matching_files = remove_subpaths(matching_files)
+    matching_files = merge_paths(matching_files)
+    # matching_files = remove_subpaths(matching_files)
     return matching_files
 
+def merge_paths(paths):
+    # Sort paths to ensure parent directories come before their subdirectories
+    paths = sorted(paths)
+    merged_paths = []
+
+    for path in paths:
+        # Check if the current path is a subpath of the last added path
+        if not merged_paths or not path.startswith(merged_paths[-1]):
+            normalized_path = os.path.join(path, '')
+            merged_paths.append(normalized_path)
+
+    return merged_paths
 
 def get_total_size(files):
     total_size = sum(os.path.getsize(file) for file in files)
