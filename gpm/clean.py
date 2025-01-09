@@ -102,10 +102,12 @@ def search_files_by_patterns(root_path, patterns):
                     print(files)
                     for folder in fnmatch.filter(dirs, p2):
                         print(folder)
+                        print(os.path.join(root, folder))
                         matching_files.append(os.path.join(root, folder))
                 
     matching_files = merge_paths(matching_files)
     matching_files = remove_subpaths(matching_files)
+    print(matching_files)
     return matching_files
 
 def merge_paths(paths):
