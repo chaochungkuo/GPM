@@ -89,8 +89,18 @@ def search_files_by_patterns(root_path, patterns):
     matching_files = []
     for root, dirs, files in os.walk(root_path):
         for p in patterns:
+            # matching pattern for basename
             for file_or_folder in fnmatch.filter(files + dirs, p):
                 matching_files.append(os.path.join(root, file_or_folder))
+            # matching pattern for the absolute path, e.g. nfcore*/results*
+            if "/" in p:
+                p1 = p.split("/")[0]
+                p2 = p.split("/")[1]
+                root_base = os.path.basename(root)
+                if fnmatch.fnmatch(root_base, p1):
+                    for folder in fnmatch.filter(dirs, p2):
+                        matching_files.append(os.path.join(root, folder))
+                
     matching_files = list(set(matching_files))
     matching_files = remove_subpaths(matching_files)
     return matching_files
