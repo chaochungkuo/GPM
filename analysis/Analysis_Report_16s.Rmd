@@ -1,0 +1,222 @@
+---
+title: "PROJECT_PROJECT_STRING"
+author:
+RMD_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+bibliography: references.bib
+---
+
+```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+library(knitr)
+library(kableExtra)
+library(stringr)
+library("readr")
+library(tidyr)
+library(dplyr)
+library(openxlsx)
+library(data.table)
+library(yaml)
+library(plotly)
+library(reader)
+options(warn = -1)
+options(knitr.duplicate.label = "allow")
+# File paths
+DIR_base <- "PROJECT_PROJECT_PATH/"
+DIR_analysis <- paste0(DIR_base, "analysis/")
+DIR_result <- paste0(DIR_base, "nfcore_16S/results_16s")
+
+source(paste0(DIR_analysis, "functions_16s.R"))
+
+################# Parameters #####################################################
+Fig_width <- 600
+Fig_height <- 400
+
+
+
+```
+![](RMD_INSTITUTE_LOGO)
+
+This document is the summary of the bioinformatic analysis done by Genomic Facility in IZKF, RWTH Aachen Uniklinik. Please contact us for any further discussion or collaboration. If these results are used in any poster or publications, please acknowledge our core facility with the text below:
+
+> This work was supported by the Genomics Facility, a core facility of the Interdisciplinary Center for Clinical Research (IZKF) Aachen within the Faculty of Medicine at RWTH Aachen University.
+
+Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/services/publication-policy/).
+
+***
+# Download/Browse the files
+
+1. [Raw Data](EXPORT_URL/PROJECT_PROJECT_NAME/1_Raw_data): 
+    * FASTQ files after demultiplexing
+2. [Processed Data](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data): 
+    * results generated during the analsis process
+3. [Reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports):
+    * [MultiQC reports](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/multiqc/multiqc_report.html) for the quality check
+    * Basic analysis of the Genomics Facility (This report)
+
+You can also download everything by the commands below with the given username and password from us:
+
+```
+wget -r -nH -np -P PROJECT_PROJECT_NAME --user=PROJECT_EXPORT_USER --password=PROJECT_EXPORT_PASSWORD --reject "index.html?*,index.html.tmp*,robots.txt*,robots.txt.tmp" https://genomics.rwth-aachen.de/data/PROJECT_PROJECT_NAME/
+```
+
+Please make sure that you store these data in a lab-wise level. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).
+
+\textcolor{red}{Your data will be deleted according to this policy automatically. Please download everything.}
+
+# Method description
+
+FASTQ files were generated using bcl2fastq (Illumina). To facilitate reproducible analysis, samples were processed using the publicly available nf-core/ampliseq pipeline version 2.6.1 [@Straub_Blackwell_Langarica-Fuentes_Peltzer_Nahnsen_Kleindienst_2020]. The pipeline was executed with Nextflow v23.04.1 [@di2017nextflow] using Docker 20.10.12 [@merkel2014docker] with the minimal command. In breif, the sequencing reads are quality controlled with FastQC and then trimmed with Cutadapt. Amplicon sequence variants were inferred with DADA2. Taxonomic classification were achieved with DADA2 and QIIME2. Absolute and relative feature/taxa count tables and plots, plots alpha rarefaction curves, computes alpha and beta diversity indices and plots were produced with QIIME2. SILVA was applied as reference taxomomy.
+
+# Sample information
+The table bellow gives information of the samples involved in this project. 
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+samplesheet_file <- read.table(paste0(DIR_base, "nfcore_16S/samplesheet.tsv"), header = T, sep = "\t")
+meta_file <- read.delim(paste0(DIR_base, "nfcore_16S/metadata.tsv"), header = T, sep = "\t",)
+kable(meta_file) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
+
+```
+
+# Overall Summary of Analysis
+The table bellow gives overall summary of this analysis.
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+sum_file <- read.delim(paste0(DIR_result, "/overall_summary.tsv"), header = T, sep = "\t",)
+
+
+kable(sum_file) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE)
+```
+
+# QC 
+
+Both negative and positive quality control samples were included for this project. Negative controls are included to assess the level of bioburden carried by the wet-lab process. Positive controls utilize a mock microbial community of well-defined composition to ensure that the data generated is representative of the analyzed microbial samples. 
+
+# ASV 
+
+The amplicon sequence variant (ASV) abundance heatmap is built directly from the abundance of unique amplicon sequences inferred from raw sequencing data. Bellow is a heatmap for the ASVs with top 5% variance between the samples.
+
+## Heatmap of ASV with top variance
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+
+asv.tab <- read.delim(paste0(DIR_result, "/dada2/ASV_table.tsv"))
+asv.tax <- read.delim(paste0(DIR_result, "/dada2/ASV_tax_species.silva_138.tsv"))
+asv_heatmap(asv.tab)
+```
+
+## Download complete ASV table
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+asv.tab <- read.delim(paste0(DIR_result, "/dada2/ASV_table.tsv"))
+asv.tax <- read.delim(paste0(DIR_result, "/dada2/ASV_tax_species.silva_138.tsv"))
+asv.export <- merge(asv.tax, asv.tab, by="ASV_ID")
+
+wb <- createWorkbook()
+addWorksheet(wb, "ASV_table_ALL")
+writeData(wb, "ASV_table_ALL", asv.export, rowNames = FALSE)
+
+## Save workbook to working directory
+saveWorkbook(wb, file = "ASV_ALL_samples.xlsx", overwrite = TRUE)
+
+```
+
+* Download complete ASV table for all samples (xlsx): [ASV_ALL_samples.xlsx](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/analysis/ASV_ALL_samples.xlsx) 
+* Download complete ASV table for all samples (tsv): [ASV_table.tsv](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/dada2/ASV_table.tsv) 
+
+# Composition of samples
+
+The interactive plots illustrate the microbial composition at different taxonomy levels from kindom to species. The compeplte table for the relative abundacne can be downloaded with the link as well.
+
+## [Interactive Barplots](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/barplot/index.html)
+
+## Download relative abundance table for all samples
+
+```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+
+rel_abund.tab <- read.delim(paste0(DIR_result, "/qiime2/rel_abundance_tables/rel-table-ASV_with-DADA2-tax.tsv"))
+
+
+wb <- createWorkbook()
+addWorksheet(wb, "rel_abundance_ALL")
+writeData(wb, "rel_abundance_ALL", rel_abund.tab, rowNames = FALSE)
+
+## Save workbook to working directory
+saveWorkbook(wb, file = "relative_abundance_ALL_samples.xlsx", overwrite = TRUE)
+
+
+```
+* Download complete relative abundance table for all samples (xlsx): [relative_abundance_ALL_samples.xlsx](EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/analysis/relative_abundance_ALL_samples.xlsx) 
+
+* Download complete relative abundance table for all samples (tsv): [rel-table-ASV_with-DADA2-tax.tsv](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/rel_abundance_tables/rel-table-ASV_with-DADA2-tax.tsv) 
+
+# Composition bar plots for groups (optional)
+
+# Alpha diversity
+
+## Shannon
+
+* [shannon](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/diversity/alpha_diversity/shannon_vector/index.html)
+
+## Faith_pd
+
+* [faith_pd](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/diversity/alpha_diversity/faith_pd_vector/index.html)
+
+## Evenness
+
+* [evenness](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/diversity/alpha_diversity/evenness_vector/index.html)
+
+
+## Observed features
+
+* [observed features](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/diversity/alpha_diversity/observed_features_vector/index.html)
+
+
+# Alpha rarefaction
+
+## [alpha rarefaction](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/alpha-rarefaction/index.html)
+
+
+
+# Beta diversity
+
+## Bray Curtis
+
+* [bray_curtis_pcoa_results-PCoA](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/diversity/beta_diversity/bray_curtis_pcoa_results-PCoA/index.html)
+
+## Jaccard	 
+* [jaccard_pcoa_results-PCoA](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/diversity/beta_diversity/jaccard_pcoa_results-PCoA/index.html)
+	 
+## Unweighted unifrac
+* [unweighted_unifrac_pcoa_results-PCoA](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/diversity/beta_diversity/unweighted_unifrac_pcoa_results-PCoA/index.html)
+
+## Weighted unifrac	 
+* [weighted_unifrac_pcoa_results-PCoA](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/diversity/beta_diversity/weighted_unifrac_pcoa_results-PCoA/index.html)
+
+## Phylogenetic tree
+The tree files for the phylogenetic tree of all ASVs. The tree files can be downloaded and explored using tools like [iTOL](https://itol.embl.de/).
+
+* Phylogenetic tree of all ASVs: [tree.nwk](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/results_16s/qiime2/phylogenetic_tree/tree.nwk")`) 
+
+
+# References
+
+<div id="refs"></div>
+
+
+# R session information
+
+```{r info, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```
