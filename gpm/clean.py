@@ -97,31 +97,11 @@ def search_files_by_patterns(root_path, patterns):
                 p2 = p.split("/")[1]
                 root_base = os.path.basename(root)
                 if fnmatch.fnmatch(root_base, p1):
-                    print([p1,p2,root,root_base])
-                    print(dirs)
-                    print(files)
                     for folder in fnmatch.filter(dirs, p2):
-                        print(folder)
-                        print(os.path.join(root, folder))
                         matching_files.append(os.path.join(root, folder))
                 
-    matching_files = merge_paths(matching_files)
     matching_files = remove_subpaths(matching_files)
-    print(matching_files)
     return matching_files
-
-def merge_paths(paths):
-    # Sort paths to ensure parent directories come before their subdirectories
-    paths = sorted(paths)
-    merged_paths = []
-
-    for path in paths:
-        # Check if the current path is a subpath of the last added path
-        if not merged_paths or not path.startswith(merged_paths[-1]):
-            normalized_path = os.path.join(path, '')
-            merged_paths.append(normalized_path)
-
-    return merged_paths
 
 def get_total_size(files):
     total_size = sum(os.path.getsize(file) for file in files)
@@ -188,13 +168,20 @@ def delete_files_and_folders(path):
 
 
 def remove_subpaths(paths):
+    # Normalize and sort paths to ensure parent paths come before subpaths
+    paths = sorted(paths, key=lambda p: os.path.abspath(p))
     result = []
+
     for path1 in paths:
         is_subpath = False
-        for path2 in paths:
-            if path1 != path2 and path1 in path2:
+        for path2 in result:
+            # Check if path1 is a subpath (or file) under path2
+            if os.path.commonpath(
+                [os.path.abspath(path1),
+                 os.path.abspath(path2)]) == os.path.abspath(path2):
                 is_subpath = True
                 break
         if not is_subpath:
             result.append(path1)
+    
     return result
