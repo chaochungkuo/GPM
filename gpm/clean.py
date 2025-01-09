@@ -97,6 +97,7 @@ def search_files_by_patterns(root_path, patterns):
                 p1 = p.split("/")[0]
                 p2 = p.split("/")[1]
                 root_base = os.path.basename(root)
+                print([p1,p2,root,root_base])
                 if fnmatch.fnmatch(root_base, p1):
                     for folder in fnmatch.filter(dirs, p2):
                         matching_files.append(os.path.join(root, folder))
