@@ -31,7 +31,7 @@ gcc_linux-64 = { version = "*" }
 faiss-gpu = "1.8.0"
 aiobotocore = "==2.3.3"
 huggingface_hub = ">=0.24.5,<0.25"
-pytorch = "2.*"
+pytorch = ">=1.13.0,<2.2"
 
 
 [feature.sctab.dependencies]
