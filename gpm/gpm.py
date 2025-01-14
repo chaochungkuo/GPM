@@ -59,6 +59,9 @@ class GPM:
         :return: None
         """
         filepath = os.path.abspath(filepath)
+        if not os.path.exists(filepath):
+            click.echo(f"{filepath} is not found. Please double check the work directory.")
+            sys.exit()
         config = configparser.ConfigParser()
         config.read(filepath)
         # Retrieve values from the configuration file
