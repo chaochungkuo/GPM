@@ -12,11 +12,11 @@ You can edit ``gpm.ini`` or ``gpm.ini.user`` on the lines below:
 
 .. code-block:: shell
 
-    [RMD]
-    RMD_AUTHORS = "First name Last name, Institute, email@address"
-                  "First name Last name, Institute, email@address"
+    [AUTHORS]
+    shortname1 = First name Last name, Institute, email1@address
+    shortname2 = First name Last name, Institute, email2@address"
 
-You can add multiple persons with proper indentation.
+You can add multiple persons with proper indentation. The shortnames can be called by ``gpm init --authors shortname1`` to define the author for the given project.
 
 Customize your own institute information
 ----------------

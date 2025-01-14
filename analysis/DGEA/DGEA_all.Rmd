@@ -1,6 +1,5 @@
 ---
 params:
-  authors:
   paired:
   tx2gene_file:
   salmon_dir:
@@ -12,7 +11,7 @@ params:
   length_correction:
 title: "Differential Gene Expression Analysis for All Samples"
 author:
-  - "`r params$authors`"
+PROJECT_AUTHORS
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:

@@ -27,7 +27,6 @@ generate_DGEA_Rmd <- function(config) {
   replacements <- list(
     "{{title}}" = gsub("_", " ", config$filetag),
     "{{filetag}}" = config$filetag,
-    "{{authors}}" = paste(config$authors, collapse = ", "),
     "{{base_group}}" = config$base_group,
     "{{target_group}}" = config$target_group,
     "{{additional_tag}}" = ifelse(is.null(config$additional_tag), "", config$additional_tag),
@@ -76,7 +75,6 @@ generate_simple_Rmd <- function(config) {
   replacements <- list(
     "{{title}}" = gsub("_", " ", config$filetag),
     "{{filetag}}" = config$filetag,
-    "{{authors}}" = paste(config$authors, collapse = ", ")
   )
   
   # Replace placeholders with actual values in the template

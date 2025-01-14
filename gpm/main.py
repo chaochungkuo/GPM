@@ -29,6 +29,7 @@ help_messages = {
     "--sanitise_name_delimiter all elements before this index "
     "(1-based) will be joined to create final sample name.",
     "from-config": "Define the project.ini to inherit from.",
+    "authors": "Define the authors of the new project according to gpm.ini."
 }
 
 
@@ -80,7 +81,9 @@ def demultiplex(method, raw, output):
     ),
     help="Define the pipeline for this project.",
 )
-def init(from_config, fastq, name, processing):
+@click.option("-a", "--authors", help=help_messages["authors"],
+              required=False, default=None)
+def init(from_config, fastq, name, processing, authors):
     """
     Initiate a project with GPM by inheriting project.ini for further
     processing and analysis.
@@ -88,7 +91,7 @@ def init(from_config, fastq, name, processing):
     pm = GPM()
     if from_config:
         pm.load_project_config_file(from_config)
-    pm.init_project(name)
+    pm.init_project(name, authors)
     if processing:
         pm.processing(processing, fastq)
     if fastq:
