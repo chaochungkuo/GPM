@@ -11,6 +11,7 @@ PATH_NEXTFLOW run nf-core/scrnaseq -r 2.5.1 -profile docker \
     --cellranger_index REFDATA_CELLRANGER/refdata-gex-GRCh38-2020-A \
     --aligner cellranger  \
     --protocol 10XV3 \
+    --skip_emptydrops \ # Skip CellBender due to long running time on CPU
     --multiqc_title PROJECT_PROJECT_NAME
 
 
