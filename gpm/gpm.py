@@ -18,6 +18,7 @@ from gpm.helper import (
     copy_samplesheet,
     get_gpm_config,
     append_file_to_another,
+    get_authors
 )
 from gpm.messages import show_tree, show_instructions
 from gpm import PROJECT_INI_FILE
@@ -239,7 +240,7 @@ class GPM:
         self.profile["Project"]["project_name"] = name
         self.profile["Project"]["project_string"] = " ".join(names)
 
-    def init_project(self, name):
+    def init_project(self, name, authors):
         """
         Initiate a project by creating a new folder, load the project.ini,
         and populate the files for further processing.
@@ -263,6 +264,7 @@ class GPM:
         self.profile["Project"]["project_path"] = project_path
         config_path = path.join(project_path, PROJECT_INI_FILE)
         self.profile["Project"]["project.ini"] = config_path
+        self.profile["Project"]["authors"] = get_authors(authors)
 
     def processing(self, method, fastq):
         """

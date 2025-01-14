@@ -80,6 +80,21 @@ def get_config_values(config_name):
     return combined_dict
 
 
+def get_config_section(config_name, section):
+    """
+    Return a dictionary of the key value pairs in a section of the defined config file.
+    User-defined config (*.ini.user) has a higher priority
+    than default one (*.ini).
+    """
+    config_path = path.join(get_gpmdata_path(), "config/"+config_name+".user")
+    if not path.exists(config_path):
+        config_path = path.join(get_gpmdata_path(), "config/"+config_name)
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    section_dict = dict(config.items(section))
+    return section_dict
+
+
 def get_config_value(config_name, section, item):
     """
     Return value of the defined item in the defined config file.
@@ -175,3 +190,19 @@ def append_file_to_another(file1, file2):
     # Append the content to the destination file
     with open(file2, 'a') as destination_file:
         destination_file.write(source_content)
+
+def get_authors(short_names):
+    gpm_authors = get_config_section("gpm.ini", "AUTHORS")
+    authors = list(gpm_authors.keys())
+    res = []
+    if short_names is not None: # authors are defined
+        list_short_names = short_names.split(",")
+        for name in list_short_names:
+            if name in authors:
+                res.append(gpm_authors[name])
+            else:
+                print(f"{name} is not defined in gpm.ini. Skipped.")
+    else: # Not defined and take all available authors
+        for name in authors:
+            res.append(gpm_authors[name])
+    return res
