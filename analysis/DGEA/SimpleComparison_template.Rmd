@@ -1,7 +1,7 @@
 ---
 title: "Simple Comparison for {{sample1}} and {{sample2}}"
 author:
-  - {{authors}}
+PROJECT_AUTHORS
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:

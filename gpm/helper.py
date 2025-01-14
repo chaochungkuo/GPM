@@ -146,18 +146,7 @@ def get_dict_from_configs():
 def replace_variables_by_dict(line, input_dict):
     for key, value in input_dict.items():
         if key.upper() in line:
-            if key == "rmd_authors":
-                authors = [author.strip() for author
-                           in value.split("\n")]
-                authors = ["  - "+author.strip('"') for author in authors]
-                line = "\n".join(authors)+"\n"
-            elif key == "rmd_institute_logo":
-                # print(line)
-                # print(value)
-                line = line.replace(key.upper(), value)
-                # print(line)
-            else:
-                line = line.replace(key.upper(), value)
+            line = line.replace(key.upper(), value)
     return line
 
 
@@ -206,3 +195,16 @@ def get_authors(short_names):
         for name in authors:
             res.append(gpm_authors[name])
     return res
+
+def author_list2string(authors_list, format):
+    if format=="RMD":
+        authors = ""
+        for au in authors_list:
+            authors += "  - "+au+"\n"
+    elif format=="ipynb":
+        authors = []
+        for au in authors_list:
+            authors.append("  - "+au)
+        authors = "\\n\",\n    \"".join(authors)
+    return authors
+        

@@ -3,6 +3,7 @@ from os import path
 import sys
 import click
 import glob
+import ast
 import shutil
 from collections import OrderedDict
 import configparser
@@ -18,7 +19,8 @@ from gpm.helper import (
     copy_samplesheet,
     get_gpm_config,
     append_file_to_another,
-    get_authors
+    get_authors,
+    author_list2string
 )
 from gpm.messages import show_tree, show_instructions
 from gpm import PROJECT_INI_FILE
@@ -68,15 +70,12 @@ class GPM:
             else:
                 section_dict = config[section]
                 for tag in tags_GPM[section]:
-                    try:
-                        value = section_dict.get(tag)
-                        if "," in value:
-                            value = [x.strip() for x in value.split(",")]
-                        elif value == "":
-                            continue
-                        self.profile[section][tag] = value
-                    except:
-                        self.profile[section][tag] = ""
+                    value = section_dict.get(tag)
+                    if "[" in value and "]" in value:
+                        value = ast.literal_eval(value)
+                    # print(value)
+                    self.profile[section][tag] = value
+                    
         # Check the project.ini path with symbolic link
         self.prefix = self.symbolic_profile_path(filepath)
         # print("Detected symbolic link:", self.prefix)
@@ -139,17 +138,19 @@ class GPM:
         new_entry = formatted_timestamp + " >>> " + full_command
         self.logs.append(new_entry)
 
-    def replace_variables_by_project_ini(self, line):
+    def replace_variables_by_project_ini(self, line, author_format):
         for section, options in self.profile.items():
             if section != "Logs":
                 for tag, value in options.items():
                     if "PROJECT_" + tag.upper() in line:
+                        if tag.upper() == "AUTHORS":
+                            value = author_list2string(value, author_format)
                         line = line.replace("PROJECT_" + tag.upper(), value)
         return line
 
-    def replace_variable(self, line, config_dict):
+    def replace_variable(self, line, config_dict, author_format):
         # project.ini
-        line = self.replace_variables_by_project_ini(line)
+        line = self.replace_variables_by_project_ini(line, author_format)
         # configs
         line = replace_variables_by_dict(line, config_dict)
         return line
@@ -165,9 +166,13 @@ class GPM:
         :return: None
         """
         config_dict = get_dict_from_configs()
+        if source.endswith(".ipynb"):
+            author_format = "ipynb"
+        else:
+            author_format = "RMD"
         with open(source, "r") as input_file, open(target, "w") as output_file:
             for line in input_file:
-                line = self.replace_variable(line, config_dict)
+                line = self.replace_variable(line, config_dict, author_format)
                 output_file.write(line)
 
     def demultiplex(self, method, raw, output):
@@ -256,8 +261,8 @@ class GPM:
         current_dir = os.getcwd()
         project_path = path.join(current_dir, name)
         if path.exists(project_path):
-            print("The given project path exists already:")
-            print(project_path)
+            print(f"The given project path exists already: {project_path}.")
+            sys.exit()
         else:
             os.mkdir(project_path)
         # Update project.ini
@@ -402,7 +407,17 @@ class GPM:
                         if os.path.isfile(source_file):
                             self.copy_file(source_file, target_file)
                         elif os.path.isdir(source_file):
-                            shutil.copytree(source_file, target_file)
+                            # Iterate through all files in the directory and copy each
+                            for root, _, files in os.walk(source_file):
+                                # Preserve relative directory structure
+                                relative_path = path.relpath(root, source_file)
+                                target_subdir = path.join(target_file, relative_path)
+                                if not path.exists(target_subdir):
+                                    os.makedirs(target_subdir)
+                                for file in files:
+                                    file_source = path.join(root, file)
+                                    file_target = path.join(target_subdir, file)
+                                    self.copy_file(file_source, file_target)
         # Show instructions
         show_tree(group_dir)
         show_instructions("analysis", analysis_name)

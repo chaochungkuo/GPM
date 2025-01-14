@@ -32,12 +32,6 @@ salmon_dir = file.path(project_base, "PROJECT_PROCESSING_METHOD/results/star_sal
 global_config <- list(
   # Add samplesheet to the global configuration
   samplesheet = samplesheet,
-  # Authors
-  authors = c(
-    "Chao-Chung Kuo, Genomics Facility, ckuo@ukaachen.de",
-    "Lin Gan, Genomics Facility, lgan@ukaachen.de",
-    "Mohamed Hamdy Elsafi Mabrouk, Genomics Facility, mmabrouk@ukaachen.de"
-  ),
   
   # Project Paths
   project_base = project_base,
@@ -87,8 +81,7 @@ if ("PROJECT_PROCESSING_METHOD" == "nfcore_RNAseq") {
 rmarkdown::render(
   input = "DGEA_all.Rmd",
   output_file = paste0("DGEA_All_samples.html"),
-  params = list(authors = global_config$authors,
-                filetag = "All_samples",
+  params = list(filetag = "All_samples",
                 paired = global_config$paired,
                 tx2gene_file = global_config$tx2gene_file,
                 salmon_dir = global_config$salmon_dir,

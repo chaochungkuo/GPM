@@ -1,7 +1,7 @@
 ---
 title: "DGEA Geneset Comparisons"
 author:
-RMD_AUTHORS
+PROJECT_AUTHORS
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
