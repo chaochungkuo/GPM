@@ -1,10 +1,25 @@
 [gene-expression]
-reference,/data/shared_env/10xGenomics/refdata-cellranger-arc-mm10-2020-A-2.0.0
+# reference,/data/shared_env/10xGenomics/refdata-gex-GRCh38-2024-A
+# reference,/data/shared_env/10xGenomics/refdata-gex-GRCm39-2024-A
+create-bam,true
 
 [vdj]
-reference,/data/shared_env/10xGenomics/refdata-cellranger-vdj-GRCm38-alts-ensembl-7.0.0
+# reference,/data/shared_env/10xGenomics/refdata-cellranger-vdj-GRCh38-alts-ensembl-7.1.0
+# reference,/data/shared_env/10xGenomics/refdata-cellranger-vdj-GRCm38-alts-ensembl-7.0.0
+
+
+[feature]
+reference,/data/projects/250114_Stange_Hornef_MedMicrobiology_scRNAseq/cellranger_scVDJseq/feature_ref.csv
 
 [libraries]
-fastq_id,fastqs,lanes,feature_types
-1_GEX,PROJECT_FASTQ_PATH,1|2|3|4,gene expression
-1_VDJ,PROJECT_FASTQ_PATH,1|2|3|4,VDJ
+fastq_id,fastqs,feature_types
+ID-FB,PROJECT_FASTQ_PATH,Antibody Capture
+ID-GEX,PROJECT_FASTQ_PATH,gene expression
+ID-VDJ,PROJECT_FASTQ_PATH,VDJ
+
+[samples]
+sample_id,hashtag_ids
+Mouse1,TotalSeqC_Hashtag_1
+Mouse2,TotalSeqC_Hashtag_2
+Mouse3,TotalSeqC_Hashtag_3
+Mouse4,TotalSeqC_Hashtag_4

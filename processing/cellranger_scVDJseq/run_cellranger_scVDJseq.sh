@@ -5,20 +5,10 @@
 # otherwise scource shared enviroment from /data/shared_env/shared_paths.sh
 # this script can be run directly from shell
 
-mkdir -p ./multi_output
-
-Local_Cores=30
-
-cd ./multi_output
-
-Sample_ID=`ls ../${multi_config}*.csv`
-for sample in ${Sample_ID}; do
-  sample_name=${sample#*config_}
-  sample_name=${sample_name%.csv*}
-  Config_File="../${sample}.csv"
-  cellranger multi --id=$sample_name --csv=$Config_File --localcores=$Local_Cores
-done
-cd ../
+# Each sample needs to have one multi_config.csv and one execution command.
+# For multiple samples, please duplicate the command below:
+cellranger multi --id=<ID-matching-mkfastq> \
+--csv multi_config.csv --localcores 20
 
 # Soft link multiQC
 # Because FASTQ path for scVDJseq targets to the directory of FASTQ files, we have to go upward to the parent directory
