@@ -116,7 +116,7 @@ class ParseBioAutoDiscover(AutoDiscover):
     def _get_sample_paths(self) -> list[str]:
         paths: list[str] = self._collect_paths()
         filtered_samples: list[str] = [
-            p for p in paths if not path.basename(p).endswith("DGE_filtered")
+            p for p in paths if path.basename(p).endswith("DGE_filtered")
         ]
         return [
             p
@@ -127,7 +127,7 @@ class ParseBioAutoDiscover(AutoDiscover):
     def _get_raw_sample_paths(self) -> list[str]:
         paths = self._collect_paths()
         unfiltered_samples: list[str] = [
-            p for p in paths if not path.basename(p).endswith("DGE_unfiltered")
+            p for p in paths if path.basename(p).endswith("DGE_unfiltered")
         ]
         return [
             p
