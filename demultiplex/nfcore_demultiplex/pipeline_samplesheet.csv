@@ -1,0 +1,2 @@
+id,samplesheet,lane,flowcell
+PROJECT_BCL_PATH,flowcell_samplesheet.csv,*,PROJECT_BCL_PATH
