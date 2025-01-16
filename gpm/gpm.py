@@ -102,11 +102,12 @@ class GPM:
         """
         for section in self.exports.keys():
             for tag in self.exports[section].keys():
-                if self.exports[section][tag].startswith("/"):
-                    # self.exports[section][tag] = os.path.join(
-                    #     prefix, self.exports[section][tag])
-                    self.exports[section][tag] = prefix + self.exports[section][tag]
-                    # print(self.exports[section][tag])
+                if isinstance(self.exports[section][tag], str):
+                    if self.exports[section][tag].startswith("/"):
+                        # self.exports[section][tag] = os.path.join(
+                        #     prefix, self.exports[section][tag])
+                        self.exports[section][tag] = prefix + self.exports[section][tag]
+                        # print(self.exports[section][tag])
 
     def write_project_config_file(self):
         """
