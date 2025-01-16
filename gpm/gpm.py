@@ -152,7 +152,7 @@ class GPM:
                         line = line.replace("PROJECT_" + tag.upper(), value)
         return line
 
-    def replace_variable(self, line, config_dict, author_format):
+    def replace_variable(self, line, config_dict, author_format=""):
         # project.ini
         line = self.replace_variables_by_project_ini(line, author_format)
         # configs
@@ -455,7 +455,7 @@ class GPM:
                             or ll[0].lower()
                             == self.profile["Project"]["application"].lower()
                         ):
-                            ll[1] = self.replace_variable(ll[1], config_dict)
+                            ll[1] = self.replace_variable(ll[1], config_dict, "")
                             self.export_structure.append(ll)
 
     def export(self, export_dir, tar=False, symlink=True):
