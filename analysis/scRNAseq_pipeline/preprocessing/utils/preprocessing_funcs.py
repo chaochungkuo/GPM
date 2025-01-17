@@ -7,15 +7,15 @@ from os import PathLike, path, system
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-import pandas as pd
+import numpy as np  # type: ignore
+import pandas as pd  # type: ignore
 import requests
-import scanpy as sc
-from anndata import AnnData
-from matplotlib import pyplot as plt
-from matplotlib.figure import Figure
-from scipy.sparse import issparse
-from scipy.stats import median_abs_deviation
+import scanpy as sc  # type: ignore
+from anndata import AnnData  # type: ignore
+from matplotlib import pyplot as plt  # type: ignore
+from matplotlib.figure import Figure  # type: ignore
+from scipy.sparse import issparse  # type: ignore
+from scipy.stats import median_abs_deviation  # type: ignore
 
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            Utility Functions                                                                               ###
@@ -117,14 +117,14 @@ def read_scalebio(data_path: PathLike) -> AnnData:
 
 
 ## Technology components
-qc_features_rules: dict[str, list[str]] = {
+qc_features_rules: dict[str, dict[str, list[str]]] = {
     "human": {"mito": ["MT-"], "ribo": ["RBS", "RPL"], "hb": ["^HB[^(P)]"]},
     "mouse": {
         "mito": ["mt"],
         "ribo": ["Rps", "Rpl"],
         "hb": ["^Hb[^(p)]"],  # Validate this later
     },
-}  # type: ignore
+}
 
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------###
 ###                                                            QC Functions                                                                                    ###
