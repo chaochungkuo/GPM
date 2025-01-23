@@ -3,6 +3,9 @@
 # screen -S bclconvert
 # bash run_bclconvert.sh
 
+# Illumina documentation: https://support-docs.illumina.com/SW/BCL_Convert/Content/SW/BCLConvert/SampleSheets_swBCL.htm
+# 10X documentation: https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/inputs/cr-direct-demultiplexing-bcl-convert
+
 # Define the boolean variable for running fastq_screen
 run_fastq_screen=true  # Set to true or false as needed
 
@@ -10,11 +13,10 @@ run_fastq_screen=true  # Set to true or false as needed
 NJOBS=$(( $(nproc) - 10 > 0 ? $(nproc) - 10 : 1 ))
 
 # Please execute this command in the directory OUTPUT_DIR
-bcl-convert -bcl-input-directory PROJECT_BCL_PATH \
-  --output-directory . \
-  --sample-sheet ./samplesheet_convert.csv \
+bcl-convert --bcl-input-directory PROJECT_BCL_PATH \
+  --output-directory output \
+  --sample-sheet ./samplesheet_bclconvert.csv \
   --bcl-sampleproject-subdirectories true \
-  --sample-name-column-enabled true \
   --no-lane-splitting true \
   --bcl-num-conversion-threads $NJOBS \
   --bcl-num-compression-threads $NJOBS \
