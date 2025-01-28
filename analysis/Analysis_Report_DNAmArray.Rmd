@@ -17,20 +17,12 @@ bibliography: references.bib
 
 ```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 source("/etc/rstudio/Rprofile.site")
-library("heatmaply")
-library("readr")
 options(warn = -1)
 
 DIR_base <- "PROJECT_PROJECT_PATH/"
 DIR_project <- paste0(DIR_base, "analysis/")
-DIR_nfcore <- paste0(DIR_base, "nfcore_ChIPseq/")
-DIR_nfcore_res <- paste0(DIR_base, "nfcore_ChIPseq/results/")
 
 source(paste0(DIR_project, "report_functions.R"))
-
-## Load sample sheets from nf-core configuration
-samples <- read.table(file.path(DIR_nfcore,"samplesheet.csv"), header=TRUE, sep = ",")
-rownames(samples) <- samples$sample
 ```
 
 
@@ -57,18 +49,6 @@ Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/service
 ### 6. [Quantification on Promoter Regions](DNAm_array/6_DNAmArray_GeneQuantification.html)
  -->
 
-<!-- 
-# Supervised learning
-
-### [01_Preprocessing.html](ClassifyAnything/reports/01_Preprocessing.html)
-### [02_Feature_selection.html](ClassifyAnything/reports/02_Feature_selection.html)
-### [03_Model_selection.html](ClassifyAnything/reports/03_Model_selection.html)
-### [03-01_Logistic_Regression.html](ClassifyAnything/reports/03-01_Logistic_Regression.html)
-### [03-02_Decision_Trees.html](ClassifyAnything/reports/03-02_Decision_Trees.html)
-### [03-03_Random_Forest.html](ClassifyAnything/reports/03-03_Random_Forest.html)
-### [03-04_SVM.html](ClassifyAnything/reports/03-04_SVM.html)
-### [04_Model_Evaluation.html](ClassifyAnything/reports/04_Model_Evaluation.html)
- -->
 
 # References
 
