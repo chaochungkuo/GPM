@@ -61,7 +61,7 @@ render_simple_report <- function(config) {
   # Save the report-specific configuration
   config$rdata_filename <- paste0("SimpleComparison_", config$filetag, ".RData")
   save(config, file = config$rdata_filename)
-  
+
   # Generate the R Markdown file using the `generate_Rmd` function
   # The purpose is to make the generated Rmd as self-explanatory as possible.
   generate_simple_Rmd(config)
@@ -70,27 +70,30 @@ render_simple_report <- function(config) {
 generate_simple_Rmd <- function(config) {
   # Read the R Markdown template
   template <- readLines("SimpleComparison_template.Rmd", warn = FALSE)
-  
+
   # Create a list of replacements based on config
   replacements <- list(
     "{{title}}" = gsub("_", " ", config$filetag),
     "{{filetag}}" = config$filetag,
+    "{{sample1}}" = config$sample1,
+    "{{sample2}}" = config$sample2,
+    "{{organism}}" = config$organism
   )
-  
+
   # Replace placeholders with actual values in the template
   for (placeholder in names(replacements)) {
     replacement <- replacements[[placeholder]]
     template <- gsub(placeholder, replacement, template, fixed = TRUE)
   }
-  
+
   # Write the modified content to a new Rmd file
   rmd_filename <- paste0("DGEA_", config$filetag, ".Rmd")
   writeLines(template, rmd_filename)
-  
+
   # Render the R Markdown file to HTML
   rmarkdown::render(
     input = rmd_filename,
-    output_file = paste0("SimpleComparison_", filetag, ".html")
+    output_file = paste0("SimpleComparison_", config$filetag, ".html")
   )
 }
 

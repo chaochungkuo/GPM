@@ -35,15 +35,15 @@ library(RColorBrewer)
 library(pheatmap)
 
 # Define samples to compare
-sample1 <- {{sample1}}  # Define sample 1 name here
-sample2 <- {{sample2}}    # Define sample 2 name here
+sample1 <- "{{sample1}}"  # Define sample 1 name here
+sample2 <- "{{sample2}}"    # Define sample 2 name here
 organism <- "{{organism}}"  # e.g., "hsapiens", "mmusculus" PROJECT_PROCESSING_ORGANISM
 ######################## Below is optional #########################
 # Define the base project path
 project_base <- "PROJECT_PROJECT_PATH"
 analysis_dir <- file.path(project_base, "analysis")
 dgea_dir <- file.path(analysis_dir, "DGEA")
-salmon_dir <- file.path(project_base, "PROJECT_PROCESSING_METHOD/results/star_salmon")
+salmon_dir <- file.path(project_base, "PROJECT_PROCESSING_METHOD/results/star_salmon/")
 tx2gene_file <- file.path(salmon_dir, "tx2gene.tsv")
 
 # Dynamically load the appropriate annotation package based on organism
@@ -84,8 +84,8 @@ if ("PROJECT_PROCESSING_METHOD" == "nfcore_3mRNAseq") {
   }
 
 # Dynamically add columns for log10-transformed values
-ct[[paste0(sample1, "_log10")]] <- log10(ct[[sample1]] + 1)
-ct[[paste0(sample2, "_log10")]] <- log10(ct[[sample2]] + 1)
+ct[["{{sample1}}_log10"]] <- log10(ct[["{{sample1}}"]] + 1)
+ct[["{{sample2}}_log10"]] <- log10(ct[["{{sample2}}"]] + 1)
 ```
 
 ## Scatter plot
@@ -93,15 +93,15 @@ ct[[paste0(sample2, "_log10")]] <- log10(ct[[sample2]] + 1)
 ```{r plotly-3d-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 scatter_plot <- plot_ly(
   data = ct,
-  x = ~get(paste0(sample1, "_log10")),
-  y = ~get(paste0(sample2, "_log10")),
+  x = ~get("{{sample1}}_log10"),
+  y = ~get("{{sample2}}_log10"),
   text = ~paste("Gene:", gene_name),  # Add gene names as hover text
   mode = "markers",
   type = "scatter",
   marker = list(size = 5, color = 'royalblue', opacity = 0.7)
 ) %>%
   layout(
-    title = paste("Scatter Plot of Gene Expression Between", sample1, "and", sample2),
+    title = "Scatter Plot of Gene Expression Between {{sample1}} and {{sample2}}",
     xaxis = list(title = paste(sample1, "Expression")),
     yaxis = list(title = paste(sample2, "Expression"))
   )
@@ -113,12 +113,12 @@ scatter_plot
 
 ```{r, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Avoid log of zero by adding a small constant
-ct[[paste0(sample1, "_adjusted")]] <- ct[[sample1]] + 1
-ct[[paste0(sample2, "_adjusted")]] <- ct[[sample2]] + 1
+sample1_adjusted <- ct[["{{sample1}}"]] + 1
+sample2_adjusted <- ct[["{{sample2}}"]] + 1
 
 # Calculate M and A values
-ct$M <- log2(ct[[paste0(sample2, "_adjusted")]] / ct[[paste0(sample1, "_adjusted")]])
-ct$A <- (log2(ct[[paste0(sample2, "_adjusted")]]) + log2(ct[[paste0(sample1, "_adjusted")]])) / 2
+ct$M <- log2(sample2_adjusted / sample1_adjusted)
+ct$A <- (log2(sample2_adjusted) + log2(sample1_adjusted)) / 2
 
 # MA plot
 ma_plot <- plot_ly(
@@ -131,7 +131,7 @@ ma_plot <- plot_ly(
   marker = list(size = 5, color = 'royalblue', opacity = 0.7)
 ) %>%
   layout(
-    title = paste("MA Plot of Gene Expression Between", sample1, "and", sample2),
+    title = "MA Plot of Gene Expression Between {{sample1}} and {{sample2}}",
     xaxis = list(title = "Mean Expression (A)"),
     yaxis = list(title = "Log2 Fold Change (M)")
   )
@@ -153,7 +153,7 @@ datatable(
     searchHighlight = FALSE,
     buttons = c('copy', 'csv', 'excel', 'print'),
     scrollX = TRUE,
-    fixedColumns = list(leftColumns = 3)
+    fixedColumns = list(leftColumns = 2)
   ),
   class = c('compact cell-border stripe hover'),
   rownames = FALSE
@@ -176,7 +176,7 @@ ct <- ct %>%
     ) %>%
     relocate(gene_full_name, .after = gene_name)
 
-export_filename <- paste0("SimpleComparison_export.xlsx")
+export_filename <- paste0("SimpleComparison_{{filetag}}_export.xlsx")
 # Create a new workbook
 wb <- createWorkbook()
 # Add each data frame as a new sheet
@@ -184,7 +184,7 @@ addWorksheet(wb, "Statistics")
 writeData(wb, "Statistics", ct, row.names = FALSE)
 # Save the workbook
 saveWorkbook(wb, export_filename, overwrite = TRUE)
-export_csv <- paste0("SimpleComparison_stat.csv")
+export_csv <- paste0("SimpleComparison_{{filetag}}_stat.csv")
 write.csv(ct, export_csv, row.names = FALSE)
 ```
 

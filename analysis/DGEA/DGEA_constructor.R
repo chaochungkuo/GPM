@@ -116,8 +116,8 @@ render_DGEA_report(report_config)
 # This report is used only for comparing two samples
 # report_config <- global_config
 # report_config$samplesheet <- samplesheet
-# report_config$sample1 <- "sample1"
-# report_config$sample2 <- "sample2"
+# report_config$sample1 <- "0h_NK"
+# report_config$sample2 <- "6h_NK"
 # render_simple_report(report_config)
 
 # Generate the list of html reports
