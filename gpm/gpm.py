@@ -577,6 +577,14 @@ class GPM:
                 continue
 
     def echo_wget_msg(self, export_folder) -> None:
+        self.wget = f"""
+                    wget -r -nH --cut-dirs=3 -np \\
+                    -P {os.path.basename(export_folder)} \\
+                    --user={self.profile["Export"]["export_user"]} \\
+                    --password={self.profile["Export"]["export_password"]} \\
+                    --reject "index.html.tmp*,robots.txt*" \\
+                    {self.profile['Export']['export_URL']}
+                    """
         click.echo("\n")
         click.echo(
             click.style(
@@ -586,17 +594,13 @@ class GPM:
         )
         click.echo(
             textwrap.dedent(
-                f"""
-                wget -r -nH --cut-dirs=3 -np -P {os.path.basename(export_folder)} \\
-                --user={self.profile["Export"]["export_user"]} --password={self.profile["Export"]["export_password"]} \\
-                --reject "index.html.tmp*,robots.txt*" \\
-                {self.profile['Export']['export_URL']}
-                """
+                self.wget
             ).strip()
         )
         click.echo("")
 
     def echo_json_info(self) -> None:
+        trimmed_wget = self.wget.replace("\n", "")
         click.echo("Please use the following information for submitting in MS Planner:")
         click.echo(
             click.style(
@@ -608,6 +612,7 @@ class GPM:
                         'Username': '{self.profile["Export"]["export_user"]}',
                         'Password': '{self.profile["Export"]["export_password"]}',
                         'Download URL': '{self.profile["Export"]["download_url"]}',
+                        'Download command': '{trimmed_wget}',
                         """
                     ).strip(),
                     prefix="  "  # Two spaces
@@ -615,4 +620,3 @@ class GPM:
                 fg="bright_blue",
             )
         )
-        
