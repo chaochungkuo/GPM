@@ -8,7 +8,9 @@ PATH_NEXTFLOW run nf-core/ampliseq  -profile docker \
     --FW_primer "YYYRYGRDDBVCWSCA" \
     --RV_primer "GAHTACNVRRGTNTCTAAKYY" \
     --min_frequency 10 \
-    --outdir ./results_16s 
+    --outdir ./results_16s \
+    --metadata_category "Grp1,Grp2" \
+    --metadata_category_barplot "Grp1,Grp2" 
 
 #    --FW_primer "CCTACGGGDGGCWGCAG", "CCTAYGGGGYGCWGCAG" \
 #    --RV_primer "GACTACNVGGGTMTCTAATCC" \
