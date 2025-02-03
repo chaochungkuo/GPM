@@ -601,6 +601,10 @@ class GPM:
 
     def echo_json_info(self) -> None:
         trimmed_wget = self.wget.replace("\n", "")
+        if "download_url" in self.profile["Export"]:
+            downloadurl = self.profile["Export"]["download_url"]
+        else:
+            downloadurl = ""
         click.echo("Please use the following information for submitting in MS Planner:")
         click.echo(
             click.style(
@@ -611,7 +615,7 @@ class GPM:
                         'Report URL': '{self.profile["Export"]["report_URL"]}',
                         'Username': '{self.profile["Export"]["export_user"]}',
                         'Password': '{self.profile["Export"]["export_password"]}',
-                        'Download URL': '{self.profile["Export"]["download_url"]}',
+                        'Download URL': '{downloadurl}',
                         'Download command': '{trimmed_wget}',
                         """
                     ).strip(),
