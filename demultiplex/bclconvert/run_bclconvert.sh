@@ -25,13 +25,13 @@ bcl-convert --bcl-input-directory PROJECT_BCL_PATH \
 
 ###### Running FASTQC ######################################
 mkdir -p ./fastqc
-find * -maxdepth 1 -name "*.fastq.gz" | parallel -j $NJOBS "fastqc {} -o ./fastqc"
+find * -maxdepth 2 -name "*.fastq.gz" | parallel -j $NJOBS "fastqc {} -o ./fastqc"
 
 ###### Running fastq_screen (Conditional Execution) ########
 if [ "$run_fastq_screen" = true ]; then
   echo "Running fastq_screen..."
   mkdir -p ./fastq_screen
-  find * -maxdepth 1 -name "*.fastq.gz" | parallel -j $NJOBS "fastq_screen --outdir ./fastq_screen {}"
+  find * -maxdepth 2 -name "*.fastq.gz" | parallel -j $NJOBS "fastq_screen --outdir ./fastq_screen {}"
 else
   echo "Skipping fastq_screen as run_fastq_screen is set to false."
 fi

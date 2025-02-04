@@ -1,3 +1,5 @@
+# PN-1000212 Single Index Kit N Set A
+# https://www.10xgenomics.com/support/epi-multiome/documentation/steps/sequencing/sample-index-sets-for-single-cell-multiome-atac-plus-gex-libraries
 SI-NA-A1,AAACGGCG,CCTACCAT,GGCGTTTC,TTGTAAGA
 SI-NA-B1,AGGCTACC,CTAGCTGT,GCCAACAA,TATTGGTG
 SI-NA-C1,AGACTTTC,CCGAGGCA,GATGCAGT,TTCTACAG
