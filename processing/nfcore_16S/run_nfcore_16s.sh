@@ -8,7 +8,7 @@ PATH_NEXTFLOW run nf-core/ampliseq  -profile docker \
     --FW_primer "YYYRYGRDDBVCWSCA" \
     --RV_primer "GAHTACNVRRGTNTCTAAKYY" \
     --min_frequency 10 \
-    --outdir ./results_16s 
+    --outdir ./results 
 
 # option for group comparison and group barplot    
 #    --metadata_category "Grp1,Grp2"  
