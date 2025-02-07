@@ -8,6 +8,7 @@ import shutil
 from collections import OrderedDict
 import configparser
 import textwrap
+import re
 from datetime import datetime
 from gpm.helper import (
     remove_end_slash,
