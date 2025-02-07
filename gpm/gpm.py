@@ -600,7 +600,8 @@ class GPM:
         click.echo("")
 
     def echo_json_info(self) -> None:
-        trimmed_wget = self.wget.replace("\n", "")
+        cleaned_command = re.sub(r"\\\s*\n", " ", self.wget)
+        cleaned_command = re.sub(r"\s+", " ", cleaned_command).strip()
         if "download_url" in self.profile["Export"]:
             downloadurl = self.profile["Export"]["download_url"]
         else:
@@ -616,7 +617,7 @@ class GPM:
                         'Username': '{self.profile["Export"]["export_user"]}',
                         'Password': '{self.profile["Export"]["export_password"]}',
                         'Download URL': '{downloadurl}',
-                        'Download command': '{trimmed_wget}',
+                        'Download command': '{cleaned_command}',
                         """
                     ).strip(),
                     prefix="  "  # Two spaces
