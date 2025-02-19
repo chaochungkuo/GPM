@@ -1,0 +1,17 @@
+[gene-expression]
+reference,/data/shared/10xGenomics/refdata-gex-mm10-2020-A
+create-bam,false
+
+[libraries]
+fastq_id,fastqs,feature_types
+Pool1_GEX,/mnt/nextgen/data/fastq/250120_A01742_0365_BH32TCDMX2/mkfastq/outs/fastq_path/H32TCDMX2/,Gene Expression
+Pool1_cell_surface_protein,/mnt/nextgen/data/fastq/250120_A01742_0365_BH32TCDMX2/mkfastq/outs/fastq_path/H32TCDMX2/,Antibody Capture
+
+[feature]
+reference,/data/projects/250120_Babler_Kramann_MedII_scRNAseq/cellranger_demultiplex/feature_TotalSeqB.csv
+
+[samples]
+sample_id,hashtag_ids
+young_healthy_243,hashtag_11
+young_healthy_244,hashtag_12
+young_healthy_245,hashtag_13

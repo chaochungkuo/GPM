@@ -1,0 +1,5 @@
+id,name,read,pattern,sequence,feature_type
+hashtag_10,BioLegend_TotalSeqB_hashtag_10,R2,^(BC),AGTCACAGTATTCCA,Antibody Capture
+hashtag_11,BioLegend_TotalSeqB_hashtag_11,R2,^(BC),TTGGCCTTTGTATCG,Antibody Capture
+hashtag_12,BioLegend_TotalSeqB_hashtag_12,R2,^(BC),AACGCCAGTATGAAC,Antibody Capture
+hashtag_13,BioLegend_TotalSeqB_hashtag_13,R2,^(BC),GCTTCCGTATATCTG,Antibody Capture
