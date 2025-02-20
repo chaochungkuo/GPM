@@ -1,0 +1,14 @@
+[Header]
+EMFileVersion,4
+Investigator Name,
+Date,
+Workflow,GenerateFASTQ
+Application,FASTQ Only
+Instrument Type,
+Description,sample sheet
+Chemistry,Default
+
+[Data]
+Sample_ID,Sample_Name,Sample_Plate,Sample_Well,I7_Index_ID,index,I5_Index_ID,index2,Sample_Project
+dummy,dummy,,,p7,TTTTTTTT,p5,TTTTTTTT,
+samplesheet_bcl2fastq.csv (END)
