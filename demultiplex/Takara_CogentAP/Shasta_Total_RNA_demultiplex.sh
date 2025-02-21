@@ -7,6 +7,10 @@
 ##Step2##
 #Demultiplex dry run with cogentAP
 
+# activate conda enviroment and run cogent 
+
+conda activate /data/shared/takara/CogentAP/CogentAP_tools
+
 cogent rna demux --dry_run -f PROJECT_FASTQ_PATH/Undetermined_S0_R1_001.fastq.gz \
     -p PROJECT_FASTQ_PATH/Undetermined_S0_R2_001.fastq.gz \
     -b /data/shared/takara/CogentAP/config/well_list_shasta_total_rna.csv \
