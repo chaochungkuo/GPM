@@ -67,7 +67,7 @@ Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/service
 You can also download everything by the commands below with the given username and password from us:
 
 ```
-wget -r -nH -np -P PROJECT_PROJECT_NAME --user=PROJECT_EXPORT_USER --password=PROJECT_EXPORT_PASSWORD --reject "index.html?*,index.html.tmp*,robots.txt*,robots.txt.tmp" https://genomics.rwth-aachen.de/data/PROJECT_PROJECT_NAME/
+wget -r -nH -np --cut-dirs=2 -l 8 -P PROJECT_PROJECT_NAME --user=PROJECT_EXPORT_USER --password=PROJECT_EXPORT_PASSWORD --reject "index.html?*,index.html.tmp*,robots.txt*,robots.txt.tmp" https://genomics.rwth-aachen.de/data/PROJECT_PROJECT_NAME/
 ```
 
 Please make sure that you store these data in a lab-wise level. Please refer to our [Data Management Policy](https://genomics.rwth-aachen.de/services/data-management-policy/).

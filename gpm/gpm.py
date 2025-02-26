@@ -579,11 +579,11 @@ class GPM:
 
     def echo_wget_msg(self, export_folder) -> None:
         self.wget = f"""
-                    wget -r -nH --cut-dirs=3 -np \\
+                    wget -r -nH --cut-dirs=2 -np -l 8 \\
                     -P {os.path.basename(export_folder)} \\
                     --user={self.profile["Export"]["export_user"]} \\
                     --password={self.profile["Export"]["export_password"]} \\
-                    --reject "index.html.tmp*,robots.txt*" \\
+                    --reject "index.html?*,index.html.tmp*,robots.txt*" \\
                     {self.profile['Export']['export_URL']}
                     """
         click.echo("\n")
