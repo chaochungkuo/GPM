@@ -1,0 +1,184 @@
+---
+title: "DGEA Integrated Heatmap"
+author:
+PROJECT_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+---
+
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+library(data.table)
+require(dplyr)
+library(gtools)
+library(stringr)
+library(readxl)
+require(DT)
+library(ggplot2)
+library(ggpubr)
+library(pheatmap)
+library(tidyr)
+library(tibble)
+options(warn = -1)
+
+Tag_this_analysis <- "DGEA_heatmap"
+# Define the significance threshold
+padj_threshold <- 0.05
+topN <- 10
+norm_count <- fread("DGEA_All_samples_norm_counts.csv")
+stat_files <- list.files(path = ".", pattern = "DGEA_.*_stat\\.csv$", full.names = TRUE)
+```
+
+### [Back to the main page](../Analysis_Report_RNAseq.html)
+
+# Top DE Genes
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+filtered_genes <- list()
+# Loop through each file
+for (stat_file in stat_files) {
+  # Read the CSV file
+  data <- fread(stat_file, stringsAsFactors = FALSE)
+  if (is.na(topN)) {
+    # Filter genes where padj < threshold
+    sel_data <- data$gene_symbol[data$padj < padj_threshold]
+  } else {
+    # Sort by padj in ascending order and select the top 10
+    sel_data <- data[order(data$padj, decreasing = FALSE), ][1:topN, ]
+  }
+  # Store results in the list
+  filtered_genes[[stat_file]] <- sel_data$gene_symbol
+}
+combined_genes <- unique(unlist(filtered_genes))
+```
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=8}
+data_matrix <- as.data.frame(norm_count[norm_count$gene_name %in% combined_genes,])
+rownames(data_matrix) <- data_matrix$gene_name
+data_matrix <- as.matrix(data_matrix[,c(-1,-2,-3)])
+data_matrix <- log10(data_matrix + 1)
+
+data_matrix <- data_matrix[, mixedsort(colnames(data_matrix))]
+
+# Define sample groups based on column names
+group <- ifelse(grepl("Control", colnames(data_matrix)), "Control", "NPC")
+# Extract time points (0h, 6h, 24h) using regex
+time <- str_extract(colnames(data_matrix), "\\d+h")
+
+# Create annotation data frame
+col_annotations <- data.frame(
+  Group = factor(group, levels = c("Control", "NPC")),  # Factor with levels
+  Time = factor(time, levels = c("0h", "6h", "24h")),  # Order time points
+  row.names = colnames(data_matrix)  # Assign row names to match columns
+)
+# Define colors for annotations
+annotation_colors <- list(
+  Group = c("Control" = "royalblue", "NPC" = "red4"),
+  Time = c("0h" = "lightgreen", "6h" = "green", "24h" = "darkgreen")
+)
+
+pheatmap(
+  mat = data_matrix,               # Data matrix
+  cluster_rows = TRUE,             # Cluster rows (genes)
+  cluster_cols = FALSE,             # Cluster columns (samples)
+  clustering_distance_rows = "euclidean",  # Distance metric for rows
+  clustering_distance_cols = "manhattan",  # Distance metric for columns
+  clustering_method = "complete",  # Clustering method (hierarchical clustering)
+  fontsize = 7,                # Font size for text
+  fontsize_row = 4,            # Font size for row labels
+  fontsize_col = 6,            # Font size for column labels
+  show_rownames = TRUE,         # Show gene names
+  show_colnames = TRUE,         # Show sample names
+  legend = TRUE,                # Show color legend
+  # legend_breaks = c(-2, 0, 2),  # Custom breakpoints in color scale
+  # legend_labels = c("Low", "Medium", "High"),  # Labels for legend
+  border_color = "NA",       # Border color for heatmap cells
+  # cellwidth = 30,               # Width of each cell
+  # cellheight = 20,              # Height of each cell
+  angle_col = 45,               # Rotate column labels
+  main = paste("Gene Expression of Top", topN, "DE Genes"),  # Title of the heatmap
+  # Add column annotations
+  annotation_col = col_annotations,  
+  annotation_colors = annotation_colors
+)
+```
+
+
+# GSEA
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+
+xlsx_files <- list.files(path = ".", pattern = "DGEA_.*vs.*_export\\.xlsx$", full.names = TRUE)
+# Initialize an empty list to store data from all files
+gsea_list <- list()
+
+# Iterate over each file
+for (file in xlsx_files) {
+  # Read the "GSEA_Results" sheet
+  df <- read_excel(file, sheet = "GSEA_Results")
+  
+  # Select relevant columns and transform p.adjust into -log10(p.adjust)
+  df <- df %>%
+    select(Description, p.adjust) %>%
+    mutate(p.adjust = -log10(p.adjust))  # Transform to -log10 scale
+  
+  # Store in list with filename as key
+  gsea_list[[file]] <- df
+}
+
+# Combine all data into a single dataframe
+gsea_combined <- bind_rows(gsea_list, .id = "File")
+
+# Extract just the filename (remove path and extension)
+gsea_combined$File <- gsub(".*/|\\.xlsx$", "", gsea_combined$File)
+gsea_combined$File <- gsub("_export", "", gsea_combined$File)
+gsea_combined$File <- gsub("DGEA_", "", gsea_combined$File)
+# Reshape into wide format: GO Description as rows, File names as columns
+gsea_matrix <- gsea_combined %>%
+  pivot_wider(names_from = File, values_from = p.adjust, values_fill = 1)  # Fill missing values with 0
+
+# Convert Description to row names and remove the column
+gsea_matrix <- gsea_matrix %>% column_to_rownames(var = "Description")
+colnames(gsea_matrix) <- gsub("_", " ", colnames(gsea_matrix))
+gsea_matrix <- gsea_matrix[, mixedsort(colnames(gsea_matrix))]
+```
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=8}
+gsea_matrix_filtered <- gsea_matrix %>% 
+  filter(if_any(everything(), ~ . > 7))
+pheatmap(
+  mat = gsea_matrix_filtered,               # Data matrix
+  cluster_rows = TRUE,             # Cluster rows (genes)
+  cluster_cols = FALSE,             # Cluster columns (samples)
+  # clustering_distance_rows = "euclidean",  # Distance metric for rows
+  # clustering_distance_cols = "manhattan",  # Distance metric for columns
+  clustering_method = "complete",  # Clustering method (hierarchical clustering)
+  fontsize = 7,                # Font size for text
+  fontsize_row = 3,            # Font size for row labels
+  fontsize_col = 5,            # Font size for column labels
+  show_rownames = TRUE,         # Show gene names
+  show_colnames = TRUE,         # Show sample names
+  legend = TRUE,                # Show color legend
+  border_color = "NA",       # Border color for heatmap cells
+  angle_col = 45,               # Rotate column labels
+  main = "Integrated GSEA p.adjust"  # Title of the heatmap
+  # Add column annotations
+  # annotation_col = col_annotations,  
+  # annotation_colors = annotation_colors
+)
+```
+
+
+# R session information
+
+```{r, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```
