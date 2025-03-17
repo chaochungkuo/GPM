@@ -643,9 +643,11 @@ emapplot(pairwise_termsim(go_down), showCategory = 5,
 `r if(gsea){"# GSEA for Whole Expression Profile\n\nGene Set Enrichment Analysis (GSEA) in clusterProfiler [@wu2021clusterprofiler] evaluates enrichment across a ranked list of all genes, avoiding the need for an arbitrary cutoff. GSEA calculates enrichment scores to determine whether predefined gene sets are overrepresented at the top or bottom of the ranking. Statistical significance is assessed via permutation testing. This approach is more sensitive to detecting subtle, coordinated changes in gene expression, which might be missed by traditional GO enrichment analysis. Consequently, results from GSEA and GO enrichment may differ due to their distinct input requirements and statistical methodologies."}`
 
 ```{r gsea-{{filetag}}, echo=gsea, results="markup", warning=FALSE, message=FALSE, eval=gsea}
-# Prepare ranked gene list
-gene_list <- res$log2FoldChange
-names(gene_list) <- res$gene_symbol
+# Aggregate mean log2FoldChange by gene_symbol
+res_agg <- aggregate(log2FoldChange ~ gene_symbol, data = res, FUN = mean)
+# Assign names and sort
+gene_list <- res_agg$log2FoldChange
+names(gene_list) <- res_agg$gene_symbol
 gene_list <- sort(gene_list, decreasing = TRUE)
 
 # Perform GSEA with GO terms
