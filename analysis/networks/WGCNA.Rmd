@@ -1,0 +1,417 @@
+---
+title: "WGCNA Analysis Demo: DE Genes in the Effect of WD"
+author:
+PROJECT_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+    code_download: true
+    code_folding: hide
+bibliography: ../references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, results = 'hide')
+source("/etc/rstudio/Rprofile.site")
+library(openxlsx)
+library(clusterProfiler)
+library(DT)
+library(org.Rn.eg.db)
+OrgDb <- org.Rn.eg.db
+library(pheatmap)
+library(WGCNA)
+allowWGCNAThreads(nThreads=64)
+library(igraph)
+library(networkD3)
+library(data.table)
+
+File_norm_counts <- "../DGEA/DGEA_All_samples_norm_counts.csv"
+File_export_xlsx <- "WGCNA_export_hub_genes.xlsx"
+File_export_GO_xlsx <- "WGCNA_export_GO_res.xlsx"
+
+percentage_low_counts <- 100
+```
+
+# Introduction
+
+This report demonstrates a full WGCNA (Weighted Gene Co-expression Network Analysis) pipeline. WGCNA is used to:
+- Identify modules (clusters) of co-expressed genes from high-dimensional gene expression data.
+- Relate these gene modules to external sample traits (e.g., treatment group, phenotype).
+- Identify hub genes (highly connected genes) within each module.
+- Explore the biological functions of these modules via Gene Ontology (GO) enrichment analysis.
+
+Each section below includes an explanation of the steps performed.
+
+```{r load-input-data, results='markup'}
+exprData <- fread(File_norm_counts)[,c(-1,-2)]
+exprData <- aggregate( .~ gene_name, FUN = mean, exprData)
+rownames(exprData) <- exprData$gene_name
+exprData <- exprData[,-1]
+exprData <- log10(exprData + 1)
+exprData <- t(exprData)
+
+traitData <- model.matrix(~ sub("_.*", "", rownames(exprData)))[, -1]
+rownames(traitData) <- rownames(exprData)
+# colnames(traitData) <- c("TAA", "TAAWD", "WD")
+
+head(exprData[,1:5])
+head(traitData)
+```
+
+# Data Preparation and Filtering
+
+Low count or low-expression genes can add noise to network construction. Here we filter out genes that are expressed (non-zero) in fewer than `r percentage_low_counts`% of samples.
+
+```{r data-preparation}
+minSamples <- ceiling((percentage_low_counts/100) * nrow(exprData))
+cat("Genes must be expressed in at least", minSamples, "samples.\n")
+exprData <- exprData[, colSums(exprData != 0) >= minSamples]
+datExpr <- exprData  
+```
+
+# Quality Control
+
+Before constructing the network, we check the quality of both samples and genes using WGCNA’s built-in functions. Any samples or genes flagged as problematic are removed.
+
+```{r good-samples-genes}
+gsg <- goodSamplesGenes(datExpr, verbose = 3)
+if (!gsg$allOK) {
+  if (sum(!gsg$goodGenes) > 0)
+    datExpr <- datExpr[, gsg$goodGenes]
+  if (sum(!gsg$goodSamples) > 0)
+    datExpr <- datExpr[gsg$goodSamples, ]
+}
+gsg$allOK
+```
+
+# Sample Clustering
+
+We cluster samples to identify outliers that might skew the network. Outlier samples are removed based on a user-defined threshold.
+
+```{r sample-clustering, fig.width=8, fig.height=5}
+sampleTree <- hclust(dist(datExpr), method = "average")
+par(cex = 0.6, mar = c(0, 4, 2, 0))
+plot(sampleTree, main = "Sample Clustering to Detect Outliers", sub = "", xlab = "")
+```
+
+```{r sample-clustering-cutoff, fig.width=8, fig.height=5}
+# cut_threshold <- 1.5 * median(sampleTree$height)
+cut_threshold <- 27
+sampleTree <- hclust(dist(datExpr), method = "average")
+par(cex = 0.6, mar = c(0, 4, 2, 0))
+plot(sampleTree, main = "Sample Clustering to Detect Outliers", sub = "", xlab = "")
+abline(h = cut_threshold, col = "red")
+clust <- cutreeStatic(sampleTree, cutHeight = cut_threshold, minSize = 10)
+# Removing the samples of outliers
+rm_samples <- rownames(datExpr)[clust == 0]
+datExpr <- datExpr[clust == 1, ]
+traitData <- traitData[!(rownames(traitData) %in% rm_samples),]
+```
+
+# Network Construction
+
+## Soft-thresholding
+
+Determining the appropriate soft-thresholding power is critical to constructing a scale-free network.
+
+```{r pick-soft-threshold, fig.width=10, fig.height=6}
+powers <- c(1:20)
+sft <- pickSoftThreshold(datExpr, powerVector = powers, verbose = 5)
+
+par(mfrow = c(1,2))
+cex1 <- 0.9
+plot(sft$fitIndices[,1], -sign(sft$fitIndices[,3]) * sft$fitIndices[,2],
+     xlab = "Soft Threshold (power)", ylab = "Scale Free Topology Model Fit, signed R^2",
+     type = "n", main = "Scale Independence")
+text(sft$fitIndices[,1], -sign(sft$fitIndices[,3]) * sft$fitIndices[,2], labels = powers, col = "red")
+abline(h = 0.90, col = "red")
+
+plot(sft$fitIndices[,1], sft$fitIndices[,5],
+     xlab = "Soft Threshold (power)", ylab = "Mean Connectivity", type = "n",
+     main = "Mean Connectivity")
+text(sft$fitIndices[,1], sft$fitIndices[,5], labels = powers, col = "red")
+```
+
+NOTE: the higher the value, the stronger the connection strength will be of highly correlated gene expression profiles and the more devalued low correlations will be.
+
+```{r select-power}
+softPower <- 5
+softPower
+```
+
+## Adjacency and TOM
+
+```{r adjacency-TOM}
+adjacencyMat <- adjacency(datExpr, power = softPower, type ="unsigned")
+TOM <- TOMsimilarity(adjacencyMat)
+dissTOM <- 1 - TOM
+```
+
+# Module Detection and Merging
+
+```{r module-detection, fig.width=10, fig.height=6, dpi=300}
+geneTree <- hclust(as.dist(dissTOM), method = "average")
+# plot(geneTree, main = "Gene Clustering", xlab = "", sub = "")
+
+minModuleSize <- 30
+dynamicMods <- cutreeDynamic(dendro = geneTree, distM = dissTOM,
+                             deepSplit = 2, pamRespectsDendro = FALSE,
+                             minClusterSize = minModuleSize)
+moduleColors <- labels2colors(dynamicMods)
+plotDendroAndColors(geneTree, moduleColors, "Dynamic Tree Cut",
+                    dendroLabels = FALSE, hang = 0.03)
+
+MEs0 <- moduleEigengenes(datExpr, colors = moduleColors)$eigengenes
+MEs <- orderMEs(MEs0)
+merge <- mergeCloseModules(datExpr, moduleColors, cutHeight = 0.25, verbose = 3)
+moduleColors <- merge$colors
+MEs <- merge$newMEs
+```
+
+# Module-Trait Relationships
+
+```{r trait-correlation, fig.width=7, fig.height=7, dpi=300}
+moduleTraitCor <- cor(MEs, traitData, use = "p")
+moduleTraitPvalue <- corPvalueStudent(moduleTraitCor, nSamples = nrow(datExpr))
+textMatrix <- paste(signif(moduleTraitCor, 2), "\n(",
+                    signif(moduleTraitPvalue, 1), ")", sep = "")
+labeledHeatmap(Matrix = moduleTraitCor,
+               xLabels = colnames(traitData),
+               yLabels = names(MEs),
+               ySymbols = names(MEs),
+               colorLabels = FALSE,
+               cex.text = 0.6,
+               cex.lab = 0.6,
+               colors = blueWhiteRed(50),
+               textMatrix = textMatrix,
+               main = "Module-Trait Relationships")
+```
+
+This figure shows the correlation between module eigengenes (rows) and sample traits (columns). Each cell displays the correlation value and its p-value, with a color scale ranging from blue (negative correlation) to red (positive correlation). A strong positive correlation (e.g., 0.85) with a low p-value indicates that genes in that module are upregulated in the corresponding trait group. This visualization helps identify biologically relevant modules associated with specific phenotypes.
+
+```{r topTraits, results='asis'}
+topTraits <- apply(abs(moduleTraitCor), 1, function(x) colnames(moduleTraitCor)[which.max(x)])
+DT::datatable(data.frame(topTraits), rownames = TRUE)
+```
+
+# Hub Gene Identification and Export
+
+```{r hub-genes}
+# Correlations
+geneModuleMembership <- cor(datExpr, MEs, use = "p")
+MMPvalue <- corPvalueStudent(geneModuleMembership, nSamples = nrow(datExpr))
+# Output structure
+fullHubStats <- list()
+modules <- setdiff(unique(moduleColors), "grey")  # skip unassigned
+
+for (mod in modules) {
+  inModule <- moduleColors == mod
+  modGenes <- rownames(geneModuleMembership)[inModule]
+  modCol <- paste0("ME", mod)
+  
+  if (!(modCol %in% colnames(geneModuleMembership))) next  # skip missing modules
+
+  df <- data.frame(
+    gene = modGenes,
+    module = mod,
+    kME = geneModuleMembership[inModule, modCol],
+    kME_pvalue = MMPvalue[inModule, modCol],
+    top_trait = topTraits[mod]
+  )
+  
+  df <- df[order(-df$kME), ]
+  fullHubStats[[mod]] <- df
+}
+
+write.xlsx(fullHubStats, file = File_export_xlsx)
+```
+
+### Excel Table Header Explanation
+
+[Download hub genes export](`r File_export_xlsx`)
+
+Column Name | Description
+------------- | -------------
+gene | The gene name or identifier (e.g., gene symbol or Ensembl ID). Each gene belongs to a module.
+module | The module color assigned to the gene (e.g., "blue", "brown"). Modules group co-expressed genes.
+kME | Module membership: the correlation between the gene’s expression and the module eigengene. High values (close to 1) indicate hub genes.
+kME_pvalue | P-value for the module membership correlation. A low value indicates the gene is significantly associated with the module.
+top_trait | The top correlated trait.
+
+# GO Enrichment and Heatmap of Top GO Term
+
+```{r go-enrichment}
+goResults <- list()
+topGOgenes <- list()
+for (mod in modules) {
+  modGenes <- rownames(geneModuleMembership)[moduleColors == mod]
+  ego <- enrichGO(gene = modGenes, OrgDb = OrgDb, keyType = "SYMBOL", ont = "BP")
+  goResults[[mod]] <- ego
+  if (nrow(ego@result) > 0) {
+    topGO <- ego@result[1, ]
+    genesInGO <- unlist(strsplit(topGO$geneID, "/"))
+    topGOgenes[[mod]] <- genesInGO
+  }
+}
+
+for (mod in names(topGOgenes)) {
+  genes <- intersect(topGOgenes[[mod]], colnames(datExpr))
+  if (length(genes) < 2) next
+
+  # Get GO ID and description
+  ego <- goResults[[mod]]
+  topGO <- ego@result[1, ]
+  go_id <- topGO$ID
+  go_desc <- topGO$Description
+
+  # Create expression subset and heatmap
+  exprSubset <- datExpr[, genes, drop = FALSE]
+  pheatmap(log10(t(exprSubset) + 1),
+           main = paste("Module", mod, "-", go_id, "\n", go_desc),
+           scale = "none", fontsize = 8,
+           border_color = NA)
+}
+```
+
+```{r, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+# Create a new workbook
+wb <- createWorkbook()
+
+for (mod in names(goResults)) {
+  ego <- goResults[[mod]]
+  if (is.null(ego) || nrow(ego@result) == 0) next
+
+  sheet_name <- substr(mod, 1, 31)  # Excel sheet name limit
+  addWorksheet(wb, sheetName = sheet_name)
+  writeData(wb, sheet = sheet_name, x = ego@result)
+}
+
+saveWorkbook(wb, file = File_export_GO_xlsx, overwrite = TRUE)
+```
+
+[Download GO export](`r File_export_GO_xlsx`)
+
+# Visualization of Hub Gene Networks
+
+This section visualizes the gene co-expression network structure of the hub genes from each module. To reduce noise and improve clarity, we first construct a Topological Overlap Matrix (TOM) from the expression of selected hub genes. We then create a graph object using `igraph` and visualize it with customized node sizes and labels.
+
+```{r hub-gene-network-functions, echo=TRUE, message=FALSE, warning=FALSE, results='markup'}
+maxNodes <- 50  # or 100, or set as a function parameter
+
+plot_module_network <- function(module_genes, datExpr, softPower, module_name, threshold = 0.05, numHubs = 1) {
+  # Check if the module has any genes
+  if(length(module_genes) == 0) {
+    cat(sprintf("Module %s has no genes. Skipping.\n", module_name))
+    return(NULL)
+  }
+  # Subset the expression data to only include genes in the module
+  exprSubset <- datExpr[, module_genes, drop = FALSE]
+  # Check if the expression subset is empty
+  if(ncol(exprSubset) == 0) {
+    cat(sprintf("Module %s has an empty expression subset. Skipping.\n", module_name))
+    return(NULL)
+  }
+  # Compute the adjacency matrix and then the Topological Overlap Matrix (TOM)
+  adjacencyMat <- adjacency(exprSubset, power = softPower, type = "unsigned")
+  TOM <- TOMsimilarity(adjacencyMat)
+  # Check if TOM is empty
+  if(nrow(TOM) == 0 || ncol(TOM) == 0) {
+    cat(sprintf("TOM for module %s is empty. Skipping.\n", module_name))
+    return(NULL)
+  }
+  # Ensure the TOM matrix has row and column names
+  if(is.null(rownames(TOM))) {
+    rownames(TOM) <- module_genes
+  }
+  if(is.null(colnames(TOM))) {
+    colnames(TOM) <- module_genes
+  }
+  # Compute intramodular connectivity (kWithin)
+  kWithin <- apply(TOM, 1, sum)
+  kWithin_sorted <- sort(kWithin, decreasing = TRUE)
+  
+  # Limit number of nodes for visualization
+  topGenes <- names(kWithin_sorted)[1:min(maxNodes, length(kWithin_sorted))]
+  
+  # Subset TOM and recalculate hub genes
+  TOM <- TOM[topGenes, topGenes]
+  hubGenes <- names(kWithin_sorted)[names(kWithin_sorted) %in% topGenes][1:numHubs]
+  
+  # Apply a threshold to TOM values to remove weak connections
+  tom_values <- TOM[lower.tri(TOM)]  # extract lower triangle excluding diagonal
+  # Compute the 75th percentile (3rd quartile)
+  quantile_tom <- quantile(tom_values, probs = 0.75, na.rm = TRUE)
+  TOM_thresholded <- TOM
+  TOM_thresholded[TOM_thresholded < quantile_tom] <- 0
+  
+  # Create a graph from the thresholded TOM
+  g <- graph.adjacency(TOM_thresholded, mode = "undirected", weighted = TRUE, diag = FALSE)
+  # Remove isolated nodes (nodes with zero degree)
+  g <- delete.vertices(g, which(degree(g) == 0))
+  
+  if (vcount(g) == 0) {
+    cat("Module", module_name, "has no edges after thresholding.\n")
+    return(NULL)
+  }
+  
+  # Prepare node data frame
+  nodes <- data.frame(name = V(g)$name, stringsAsFactors = FALSE)
+  if(nrow(nodes) == 0) {
+    cat(sprintf("No nodes remain in the graph for module %s. Skipping.\n", module_name))
+    return(NULL)
+  }
+  nodes$id <- 0:(nrow(nodes) - 1)
+  # Add a label column: only label nodes if they are identified as hub genes
+  nodes$group <- ifelse(nodes$name %in% hubGenes, "Hub", "Other")
+  nodes$label <- ifelse(nodes$name %in% hubGenes, nodes$name, "")
+  
+  # Create edge data frame from the igraph object
+  edgelist <- igraph::as_data_frame(g, what = "edges")
+  edgelist$source <- match(edgelist$from, nodes$name) - 1
+  edgelist$target <- match(edgelist$to, nodes$name) - 1
+  
+  # Generate the interactive network plot using networkD3's forceNetwork()
+  color_scale <- JS("d3.scaleOrdinal().domain(['Hub', 'Other']).range(['#FF5733', '#d3d3d3'])")
+
+  networkPlot <- forceNetwork(
+    Links = edgelist, Nodes = nodes,
+    Source = "source", Target = "target",
+    NodeID = "label",
+    Group = "group",
+    opacity = 0.9, zoom = TRUE,
+    fontSize = 16, linkDistance = 100,
+    colourScale = color_scale
+  )
+  
+  cat(sprintf("### Interactive Network for Module %s\n\n", module_name))
+  return(networkPlot)
+}
+
+# Example loop to generate networks for each module (excluding the 'grey' module)
+modules <- unique(moduleColors)
+for (mod in modules) {
+  if (mod == "grey") next  # Skip unassigned genes
+  module_genes <- colnames(datExpr)[moduleColors == mod]
+  cat("Plotting network for module:", mod, "\n")
+  networkPlot <- plot_module_network(module_genes,
+                                     datExpr, softPower,
+                                     module_name = mod,
+                                     threshold = 0.4,
+                                     numHubs = 10)
+  if (!is.null(networkPlot)) print(networkPlot)
+}
+```
+
+This figure illustrates the connectivity of hub genes based on the topological overlap matrix. Nodes highlighted in orange represent hub genes, and edge connections represent co-expression similarity above the specified TOM threshold.
+
+
+# Conclusion
+
+This analysis identified co-expression modules, correlated them with sample traits, extracted hub genes, and performed GO enrichment with expression heatmaps. The workflow can be reused for multiple datasets by simply updating the input paths and parameters.
