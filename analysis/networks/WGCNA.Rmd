@@ -225,7 +225,7 @@ for (mod in modules) {
     module = mod,
     kME = geneModuleMembership[inModule, modCol],
     kME_pvalue = MMPvalue[inModule, modCol],
-    top_trait = topTraits[mod]
+    top_trait = topTraits[modCol]
   )
   
   df <- df[order(-df$kME), ]
