@@ -17,6 +17,8 @@ output:
 bibliography: ../references.bib
 ---
 
+### [Back to the main page](../Analysis_Report_RNAseq.html)
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, results = 'hide')
 source("/etc/rstudio/Rprofile.site")
@@ -42,10 +44,10 @@ percentage_low_counts <- 100
 # Introduction
 
 This report demonstrates a full WGCNA (Weighted Gene Co-expression Network Analysis) pipeline. WGCNA is used to:
-- Identify modules (clusters) of co-expressed genes from high-dimensional gene expression data.
-- Relate these gene modules to external sample traits (e.g., treatment group, phenotype).
-- Identify hub genes (highly connected genes) within each module.
-- Explore the biological functions of these modules via Gene Ontology (GO) enrichment analysis.
+* Identify modules (clusters) of co-expressed genes from high-dimensional gene expression data.
+* Relate these gene modules to external sample traits (e.g., treatment group, phenotype).
+* Identify hub genes (highly connected genes) within each module.
+* Explore the biological functions of these modules via Gene Ontology (GO) enrichment analysis.
 
 Each section below includes an explanation of the steps performed.
 
@@ -396,17 +398,18 @@ plot_module_network <- function(module_genes, datExpr, softPower, module_name, t
 
 # Example loop to generate networks for each module (excluding the 'grey' module)
 modules <- unique(moduleColors)
-for (mod in modules) {
-  if (mod == "grey") next  # Skip unassigned genes
-  module_genes <- colnames(datExpr)[moduleColors == mod]
-  cat("Plotting network for module:", mod, "\n")
-  networkPlot <- plot_module_network(module_genes,
-                                     datExpr, softPower,
-                                     module_name = mod,
-                                     threshold = 0.4,
-                                     numHubs = 10)
-  if (!is.null(networkPlot)) print(networkPlot)
-}
+```
+
+### Top network for module: turquoise
+
+```{r hub-gene-network-turquoise, echo=TRUE, message=FALSE, warning=FALSE, results='asis'}
+mod <- "turquoise"
+plot_module_network(module_genes = colnames(datExpr)[moduleColors == mod],
+                    datExpr = datExpr,
+                    softPower = softPower,
+                    module_name = mod,
+                    threshold = 0.4,
+                    numHubs = 10)
 ```
 
 This figure illustrates the connectivity of hub genes based on the topological overlap matrix. Nodes highlighted in orange represent hub genes, and edge connections represent co-expression similarity above the specified TOM threshold.
