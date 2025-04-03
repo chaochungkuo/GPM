@@ -1,0 +1,274 @@
+---
+title: "Protein-protein interaction analysis by STRING DB"
+author:
+PROJECT_AUTHORS
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+    code_folding: hide
+---
+
+```{r DNPTGF_vs_TGF-setup, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+source("/etc/rstudio/Rprofile.site")
+library(igraph)
+library(STRINGdb)
+library(viridis)
+library(tidyverse)
+library(DT)
+library(tidygraph)
+library(data.table)
+library(ggVennDiagram)
+library(ggraph)
+# library(clusterProfiler)
+library(ggplot2)
+library(tidyr)
+# library(data.table)
+library(openxlsx)
+library(kableExtra)
+options(warn = -1)
+
+Tag_this_analysis <- "stringdb"
+
+CUTOFF_ADJP <- 0.05
+CUTOFF_FC <- 0
+
+extract_de_genes <- function(filename, direction = FALSE) {
+  degenes <- fread(filename)[, c("gene_name", "log2FoldChange", "padj")]
+
+  if (direction == "up") {
+    degenes <- degenes[degenes$log2FoldChange >= CUTOFF_FC]
+  } else if (direction == "down") {
+    degenes <- degenes[degenes$log2FoldChange <= CUTOFF_FC * -1]
+  }
+  return(unique(unlist(degenes$gene_name[degenes$padj < CUTOFF_ADJP & (degenes$log2FoldChange >= CUTOFF_FC | degenes$log2FoldChange <= CUTOFF_FC * -1)])))
+}
+
+generate_venn <- function(label1, label2, title, direction = FALSE) {
+  genes <- list(
+    label1 = extract_de_genes(paste0("DGEA_", label1, "_genes_stats.csv"), direction = direction),
+    label2 = extract_de_genes(paste0("DGEA_", label2, "_genes_stats.csv"), direction = direction)
+  )
+  # names(genes) <- c(gsub("_", "", label1),
+  #                   gsub("_", "", label2))
+  names(genes) <- c(label1, label2)
+  # plot(euler(genes), quantities = TRUE)
+  p <- gplots::venn(genes, show.plot = F)
+  f <- ggVennDiagram(genes) + ggtitle(title) + scale_x_continuous(expand = expansion(mult = .3)) + theme(plot.title = element_text(hjust = 0.5))
+  plot(f)
+  return(attributes(p)$intersections)
+}
+
+get_degenes <- function(sheetname) {
+  stat <- read.xlsx(DGEA_export, sheet = sheetname)
+  de_genes <- stat$gene_symbol[stat$Significant=="Yes"]
+  de_genes <- unique(de_genes)
+  return(de_genes)
+}
+
+initial_stringDB <- function(input_genes) {
+  # Initialize STRINGdb for Homo sapiens (species ID 9606)
+  string_db <- STRINGdb$new(
+    version = "12.0",        # STRING version (use latest available)
+    species = 10116,          # NCBI taxonomy ID for Homo sapiens
+    score_threshold = 400,   # Confidence score threshold (range: 0-1000)
+    input_directory = ""     # Default; can specify if needed
+  )
+  # Create a data frame with your gene symbols
+  gene_df <- data.frame(gene_symbol = input_genes)
+  # Map gene symbols to STRING IDs
+  mapped_genes <- string_db$map(gene_df, "gene_symbol", removeUnmappedRows = TRUE )
+  # Extract STRING IDs
+  string_ids <- mapped_genes$STRING_id
+  # Get interactions for the mapped genes
+  interactions <- string_db$get_interactions(string_ids)
+  interactions <- interactions[duplicated(interactions), ]
+  # Rename for 'from' mappings
+  mapped_genes_from <- mapped_genes %>%
+    dplyr::rename(from = STRING_id, from_gene = gene_symbol)
+  # Rename for 'to' mappings
+  mapped_genes_to <- mapped_genes %>%
+    dplyr::rename(to = STRING_id, to_gene = gene_symbol)
+  # Merge 'from' gene symbols
+  interactions_named <- interactions %>%
+    left_join(mapped_genes_from, by = "from")
+  # Merge 'to' gene symbols
+  interactions_named <- interactions_named %>%
+    left_join(mapped_genes_to, by = "to")
+  # Select and arrange the necessary columns
+  interactions_named <- interactions_named %>%
+    dplyr::select(from_gene, to_gene, combined_score) %>%
+    dplyr::arrange(desc(combined_score))
+  
+  # Create an interactive datatable
+  dtable <- datatable(
+                interactions_named,
+                options = list(
+                  pageLength = 10,                 # Number of rows per page
+                  autoWidth = TRUE,                # Automatic column width
+                  dom = 'Bfrtip',                  # Define the table control elements to appear
+                  buttons = c('copy', 'csv', 'excel', 'pdf', 'print')  # Buttons for downloading
+                ),
+                rownames = FALSE,                  # Do not display row names
+                extensions = 'Buttons',            # Enable Buttons extension
+              ) %>%
+                formatRound(columns = 'combined_score', digits = 0)  # Round combined_score to 2 decimal places
+  # Create an igraph object from the interactions
+  unique_vertices <- mapped_genes[, c(2,1)] %>% distinct(STRING_id, .keep_all = TRUE)
+  network <- graph_from_data_frame(
+    d = interactions,
+    vertices = unique_vertices,
+    directed = FALSE
+  )
+  
+  # Simplify the network (remove multiple edges)
+  network <- igraph::simplify(network, remove.multiple = TRUE, remove.loops = FALSE,
+                              edge.attr.comb = list(combined_score = "max", "ignore"))
+  # Calculate the total combined_score for each node
+  node_strength <- strength(network, mode = "all", weights = E(network)$combined_score)
+  # Add the node_strength as a vertex attribute
+  V(network)$strength <- node_strength
+  graph <- as_tbl_graph(network)
+  # Plot the network using ggraph
+  fig1 <- ggraph(graph, layout = "fr") +  # Fruchterman-Reingold layout
+            # Map edge color to combined_score and set a fixed width
+            geom_edge_link(aes(color = combined_score), alpha = 0.8) +
+            # Set node size based on strength and color as a fixed color
+            geom_node_point(aes(size = strength), color = "orange") +
+            # Add gene symbol labels with repelling to avoid overlap
+            geom_node_text(aes(label = gene_symbol), repel = TRUE, size = 3) +
+            # Apply a viridis color scale for edges
+            scale_color_viridis(option = "C", name = "Combined Score") +
+            # Adjust the size scale for better visibility
+            scale_size_continuous(range = c(2, 10), name = "Node Strength") +
+            # Remove background and axes for a cleaner look
+            theme_void() +
+            # Add a title to the plot
+            ggtitle("STRING Protein-Protein Interaction Network") +
+            # Enhance plot title aesthetics
+            theme(
+              plot.title = element_text(hjust = 0.5, size = 10, face = "bold")
+            )
+  # Identify clusters in the network
+  clusters <- clusters(network)
+  largest_cluster <- which.max(clusters$csize)  # Find the largest cluster
+  
+  # Filter the network to include only the largest component
+  major_cluster_nodes <- V(network)[clusters$membership == largest_cluster]
+  major_cluster_network <- induced_subgraph(network, major_cluster_nodes)
+  
+  # Recalculate node strength for the filtered network
+  node_strength_major <- strength(major_cluster_network, mode = "all", weights = E(major_cluster_network)$combined_score)
+  V(major_cluster_network)$strength <- node_strength_major
+  
+  # Convert to a tidygraph format for plotting with ggraph
+  graph_major <- as_tbl_graph(major_cluster_network)
+  
+  # Plot the major cluster network using ggraph
+  fig2 <- ggraph(graph_major, layout = "fr") +
+            geom_edge_link(aes(color = combined_score), alpha = 0.8) +
+            geom_node_point(aes(size = strength), color = "orange") +
+            geom_node_text(aes(label = gene_symbol), repel = TRUE, size = 3) +
+            scale_color_viridis(option = "C", name = "Combined Score") +
+            scale_size_continuous(range = c(2, 10), name = "Node Strength") +
+            theme_void() +
+            ggtitle("Major Cluster in STRING Protein-Protein Interaction Network") +
+            theme(
+              plot.title = element_text(hjust = 0.5, size = 10, face = "bold")
+            )
+  
+  node_strength_df <- data.frame(
+    STRING_id = V(network)$name,
+    gene_symbol = V(network)$gene_symbol,
+    node_strength = V(network)$strength,
+    stringsAsFactors = FALSE
+  ) %>%
+    arrange(desc(node_strength))
+  # Create an interactive datatable
+  nodes <- datatable(
+              node_strength_df,
+              options = list(
+                pageLength = 10,                 # Number of rows per page
+                autoWidth = TRUE,                # Automatic column width
+                dom = 'Bfrtip',                  # Define the table control elements to appear
+                buttons = c('copy', 'csv', 'excel', 'pdf', 'print')  # Buttons for downloading
+              ),
+              rownames = FALSE,                  # Do not display row names
+              extensions = 'Buttons',            # Enable Buttons extension
+              caption = htmltools::tags$caption(
+                style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
+                'Table: Gene Nodes Ranked by Strength'
+              )
+            ) %>%
+              formatRound(columns = 'node_strength', digits = 0)  # Round node_strength to 2 decimal places
+
+  return(list("table"=dtable, "fig1"=fig1, "fig2"=fig2, "nodes"=nodes))
+}
+```
+
+### [Back to front page](../Analysis_Report_RNAseq.html)
+
+This report includes the following steps:
+
+1. Filtering the DE genes Up in TGFvsControl AND Down in TGFDNPvsTGF
+2. Further check the fold changes of those genes inÂ DNPvsControl
+3. Characterizing this list of genes
+    * GO analysis
+    * STRING network
+
+## Venn diagram
+
+```{r, echo=TRUE, results="hide", warning=FALSE, message=FALSE}
+DGEA_export <- "../DGEA/DGEA_MultiFactor_export.xlsx"
+genes <- list(
+  WD = get_degenes("WD_Statistics"),
+  TAA = get_degenes("TAA_Statistics"),
+  WDTAA = get_degenes("WDTAA_Statistics")
+)
+f <- ggVennDiagram(genes) + scale_x_continuous(expand = expansion(mult = .3)) + 
+  scale_fill_gradient(low = "#F4FAFE", high = "#4981BF")
+plot(f)
+```
+
+# STRING network of DE genes in WD
+
+```{r WD, echo=TRUE, results="asis", warning=FALSE, message=FALSE}
+input_genes <- genes[["WD"]]
+res <- initial_stringDB(input_genes)
+```
+
+### Interactions
+
+```{r, echo=TRUE, results="asis", warning=FALSE, message=FALSE}
+res$table
+```
+
+### Networks
+
+```{r, echo=TRUE, results="asis", warning=FALSE, message=FALSE}
+res$fig1
+```
+
+### Majoy cluster
+
+```{r, echo=TRUE, results="asis", warning=FALSE, message=FALSE}
+res$fig2
+```
+
+### Nodes
+
+```{r, echo=TRUE, results="asis", warning=FALSE, message=FALSE}
+res$nodes
+```
+
+# R session information
+
+```{r session, echo=FALSE, results='markup', warning=FALSE, message=TRUE}
+sessionInfo()
+```
