@@ -9,8 +9,20 @@
 # Define the boolean variable for running fastq_screen
 run_fastq_screen=true  # Set to true or false as needed
 
-# Get the nummber of jobs as ncors - 10 or 1
-NJOBS=$(( $(nproc) - 10 > 0 ? $(nproc) - 10 : 1 ))
+# Get total logical cores and reserve 10 (minimum 1)
+TOTAL_CORES=$(nproc)
+AVAILABLE_CORES=$(( TOTAL_CORES - 10 > 0 ? TOTAL_CORES - 10 : 1 ))
+# Get CPU idle percentage (average over 1 second)
+IDLE_PCT=$(mpstat 1 1 | awk '/Average:/ && $12 ~ /[0-9.]+/ { print $12 }')
+# Calculate estimated idle CPUs (rounded down)
+IDLE_CPUS=$(awk -v idle_pct="$IDLE_PCT" -v cores="$AVAILABLE_CORES" \
+    'BEGIN { print int(idle_pct * cores / 100) }')
+echo "Total cores      : $TOTAL_CORES"
+echo "Usable cores     : $AVAILABLE_CORES (total - 10)"
+echo "Idle %           : $IDLE_PCT"
+echo "Estimated idle CPUs : $IDLE_CPUS"
+# Calculate 1/3 of NJOBS (rounded down)
+THIRDJOBS=$(( IDLE_CPUS / 3 ))
 
 # Please execute this command in the directory OUTPUT_DIR
 bcl-convert --bcl-input-directory PROJECT_BCL_PATH \
@@ -18,20 +30,20 @@ bcl-convert --bcl-input-directory PROJECT_BCL_PATH \
   --sample-sheet ./samplesheet_bclconvert.csv \
   --bcl-sampleproject-subdirectories true \
   --no-lane-splitting true \
-  --bcl-num-conversion-threads $NJOBS \
-  --bcl-num-compression-threads $NJOBS \
-  --bcl-num-decompression-threads $NJOBS
+  --bcl-num-conversion-threads $THIRDJOBS \
+  --bcl-num-compression-threads $THIRDJOBS \
+  --bcl-num-decompression-threads $THIRDJOBS
 
 
 ###### Running FASTQC ######################################
 mkdir -p ./fastqc
-find * -maxdepth 2 -name "*.fastq.gz" | parallel -j $NJOBS "fastqc {} -o ./fastqc"
+find * -maxdepth 2 -name "*.fastq.gz" | parallel -j $IDLE_CPUS "fastqc {} -o ./fastqc"
 
 ###### Running fastq_screen (Conditional Execution) ########
 if [ "$run_fastq_screen" = true ]; then
   echo "Running fastq_screen..."
   mkdir -p ./fastq_screen
-  find * -maxdepth 2 -name "*.fastq.gz" | parallel -j $NJOBS "fastq_screen --outdir ./fastq_screen {}"
+  find * -maxdepth 2 -name "*.fastq.gz" | parallel -j $IDLE_CPUS "fastq_screen --outdir ./fastq_screen {}"
 else
   echo "Skipping fastq_screen as run_fastq_screen is set to false."
 fi
