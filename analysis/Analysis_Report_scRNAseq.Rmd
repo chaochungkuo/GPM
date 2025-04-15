@@ -27,7 +27,8 @@ DIR_base <- "PROJECT_PROJECT_PATH/"
 DIR_project <- paste0(DIR_base, "analysis/")
 DIR_nfcore <- paste0(DIR_base, "nfcore_scRNAseq/")
 DIR_count <- paste0(DIR_nfcore, "results/cellranger/count/")
-DIR_count_published <- "EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/cellranger/count/"
+DIR_count_published <- "EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/nfcore_scRNAseq/results/cellranger/count/"
+DIR_save <- "EXPORT_URL/PROJECT_PROJECT_NAME/3_Reports/analysis/scRNAseq_pipeline/save/"
 ```
 
 ![](RMD_INSTITUTE_LOGO)
@@ -67,7 +68,7 @@ Please make sure that you store these data in a lab-wise level. Please refer to 
 
 # Method description
 
-FASTQ files were generated using cellranger mkfastq (10x Genomics). The generated FASTQ files are analyzed by nfcore/scrnaseq pipeline (version 2.5.1) with cellranger aligner. This report was generated using custom scripts in R version 4.2.2. 
+FASTQ files were generated using cellranger mkfastq (10x Genomics). The generated FASTQ files are analyzed by nfcore/scrnaseq pipeline (version 4.0.0) with cellranger aligner. This report was generated using custom scripts in R version 4.3.3.
 
 # Reports of cellranger
 
@@ -76,7 +77,7 @@ samples <- list.dirs(path = DIR_count, full.names = F, recursive = F)
 summaryFiles <- vector(mode="list", length=length(samples))
 names(summaryFiles) <- samples
 for (i in 1:length(samples)) {
-  summaryFiles[[i]] <- paste0(DIR_count_published,samples[[i]],"nfcore_scRNAseq/results/outs/web_summary.html")
+  summaryFiles[[i]] <- paste0(DIR_count_published,samples[[i]],/outs/web_summary.html")
 }
 ```
 
@@ -87,6 +88,12 @@ for( i in 1:length(samples)){
   cat("\n")
 }
 ```
+
+# Basic Analyses
+
+### [QC of scRNA-seq](scRNAseq_pipeline/preprocessing/1_quality_control.html)
+### [Normalization & Clustering of scRNA-seq](scRNAseq_pipeline/preprocessing/2_normalization.html)
+### [Download save/adata.h5ad](`r DIR_save`)
 
 # References
 

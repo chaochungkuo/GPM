@@ -223,7 +223,7 @@ def compute_outliers(
 
     for key in qc_dict.keys():
         if f"{key}_outlier" not in df.columns:
-            df[f"{key}_outlier"] = False
+            df.loc[:, f"{key}_outlier"] = False
 
         if key in max_only:
             max_flag = True
@@ -235,7 +235,10 @@ def compute_outliers(
         else:
             log_flag = False
 
-        df[f"{key}_outlier"] = _compute_outliers(
+        # df[f"{key}_outlier"] = _compute_outliers(
+        #     df[key], qc_dict[key], max_flag, log_flag
+        # )
+        df.loc[:, f"{key}_outlier"] = _compute_outliers(
             df[key], qc_dict[key], max_flag, log_flag
         )
 

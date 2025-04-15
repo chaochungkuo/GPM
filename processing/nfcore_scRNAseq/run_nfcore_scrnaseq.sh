@@ -11,8 +11,7 @@ PATH_NEXTFLOW run nf-core/scrnaseq -r 4.0.0 -profile docker -resume \
     --cellranger_index REFDATA_CELLRANGER/refdata-gex-GRCh38-2020-A \
     --aligner cellranger  \
     --protocol 10XV3 \
-    --skip_cellbender \
-    --multiqc_title PROJECT_PROJECT_NAME
+    --skip_cellbender
 
 
 # Options for --genome:
