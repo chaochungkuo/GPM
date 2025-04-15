@@ -33,7 +33,7 @@ from gpm.exports import (
     owncloud_export,
 )
 from gpm.project_ini_struc import tags_GPM
-
+import subprocess
 
 class GPM:
     """A class for a genomic project."""
@@ -349,6 +349,15 @@ class GPM:
                 self.profile["Analysis"]["analysis_path"], copy_file
             )
             self.copy_file(source_file, target_file)
+        try:
+            command = (
+                "conda activate R4.3 && "
+                "Rscript -e \"rmarkdown::render('" + target_file + "', output_format = 'html_document')\" && "
+                "conda deactivate"
+            )
+            subprocess.run(command, shell=True, executable="/bin/bash")
+        except:
+            pass
 
     def show_analysis_list(self):
         """
