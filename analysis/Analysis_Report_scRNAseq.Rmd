@@ -84,7 +84,7 @@ for (i in 1:length(samples)) {
 ```{r, echo=FALSE, results="asis"}
 for( i in 1:length(samples)){
   cat("\n")
-  cat("## ", "[",samples[[i]],"]","(",summaryFiles[[i]],")\n", sep="") # Create links to the
+  cat("### ", "[",samples[[i]],"]","(",summaryFiles[[i]],")\n", sep="") # Create links to the
   cat("\n")
 }
 ```
