@@ -5,7 +5,10 @@ import click
 import configparser
 from gpm import CONFIG_LIST
 import pandas as pd
-
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
+import os
 
 def get_gpmdata_path():
     """
@@ -207,4 +210,107 @@ def author_list2string(authors_list, format):
             authors.append("  - "+au)
         authors = "\\n\",\n    \"".join(authors)
     return authors
-        
+
+def check_links_in_html(html_content, base_url=None):
+    """
+    Check all links (relative or absolute) in the given HTML content.
+
+    Args:
+        html_content (str): HTML text as a string.
+        base_url (str, optional): The base URL or file path to resolve relative links.
+
+    Returns:
+        list of dict: List containing link info with status.
+    """
+    soup = BeautifulSoup(html_content, 'html.parser')
+    links = [a.get('href') for a in soup.find_all('a', href=True)]
+
+    results = []
+
+    for link in links:
+        if not link:
+            continue
+
+        # Handle relative URLs
+        full_url = urljoin(base_url, link) if base_url else link
+
+        # Check if it's a local file
+        parsed = urlparse(full_url)
+        if parsed.scheme in ('http', 'https'):
+            try:
+                response = requests.head(full_url, allow_redirects=True, timeout=5)
+                status = 'OK' if response.status_code < 400 else f'Error {response.status_code}'
+            except Exception as e:
+                status = f'Failed ({e})'
+        else:
+            # Assume it's a local file path
+            local_path = parsed.path
+            if os.path.exists(local_path):
+                status = 'OK'
+            else:
+                status = 'File Not Found'
+
+        results.append({
+            'link': link,
+            'resolved_link': full_url,
+            'status': status,
+        })
+
+    return results
+
+def find_all_linked_htmls(start_html, visited=None):
+    """
+    Recursively find all HTML files linked from the start HTML file, 
+    handling relative paths properly.
+
+    Args:
+        start_html (str): Starting HTML file path or URL.
+        visited (set, optional): Set of visited HTML files.
+
+    Returns:
+        set: All reachable HTML file paths or URLs.
+    """
+    if visited is None:
+        visited = set()
+
+    if start_html in visited:
+        return visited
+
+    print(f"Visiting: {start_html}")
+    visited.add(start_html)
+
+    parsed = urlparse(start_html)
+
+    # Load HTML content
+    try:
+        if parsed.scheme in ('http', 'https'):
+            response = requests.get(start_html, timeout=5)
+            response.raise_for_status()
+            html_content = response.text
+            base_for_links = start_html  # URL base
+        else:
+            local_path = parsed.path
+            with open(local_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            base_for_links = 'file://' + os.path.dirname(os.path.abspath(local_path)) + '/'  # Local base
+    except Exception as e:
+        print(f"Failed to open {start_html}: {e}")
+        return visited
+
+    # Parse and find links
+    soup = BeautifulSoup(html_content, 'html.parser')
+    links = [a.get('href') for a in soup.find_all('a', href=True)]
+
+    for link in links:
+        if not link:
+            continue
+
+        # Resolve link relative to the current page
+        resolved_link = urljoin(base_for_links, link)
+
+        # Only process HTML files
+        if resolved_link.endswith(('.html', '.htm')):
+            if resolved_link not in visited:
+                find_all_linked_htmls(resolved_link, visited=visited)
+
+    return visited
