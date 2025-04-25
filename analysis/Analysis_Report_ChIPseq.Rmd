@@ -73,6 +73,7 @@ Please make sure that you store these data in a lab-wise level. Please refer to 
 
 FASTQ files were generated using bcl2fastq (Illumina). To facilitate reproducible analysis, samples were processed using the publicly available [nf-core/ChIP-Seq pipeline](https://nf-co.re/chipseq/) version 2.0.0 [@ewels2020nf] implemented in Nextflow 23.10.1 [@di2017nextflow] using Docker 24.0.7 [@merkel2014docker] with the minimal command. In brief, lane-level reads were trimmed using Trim Galore 0.6.7 [@felix_krueger_2021_5127899] and aligned to the human genome (GRCh38.v44) using BWA 0.7.17 [@li2010fast]. Peaking calling was performed by MACS2 2.2.7 [@zhang2008model]. All analysis was performed using custom scripts in R version 4.2.2. 
 
+<!-- inserting points -->
 
 # References
 

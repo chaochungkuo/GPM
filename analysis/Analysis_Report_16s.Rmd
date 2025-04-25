@@ -78,6 +78,7 @@ Please make sure that you store these data in a lab-wise level. Please refer to 
 
 FASTQ files were generated using bcl2fastq (Illumina). To facilitate reproducible analysis, samples were processed using the publicly available nf-core/ampliseq pipeline version 2.12.0 [@Straub_Blackwell_Langarica-Fuentes_Peltzer_Nahnsen_Kleindienst_2020]. The pipeline was executed with Nextflow v24.10.3 [@di2017nextflow] using Docker 20.10.12 [@merkel2014docker] with the minimal command. In breif, the sequencing reads are quality controlled with FastQC and then trimmed with Cutadapt. Amplicon sequence variants were inferred with DADA2. Taxonomic classification were achieved with DADA2 and QIIME2. Absolute and relative feature/taxa count tables and plots, plots alpha rarefaction curves, computes alpha and beta diversity indices and plots were produced with QIIME2. SILVA was applied as reference taxomomy.
 
+<!-- inserting points -->
 
 # References
 

@@ -75,6 +75,8 @@ The assemblies are annotated by Prokka[@Seemann2014-ic].
 
 [Assembly quality report](EXPORT_URL/PROJECT_PROJECT_NAME/2_Processed_data/Prokka)
 
+<!-- inserting points -->
+
 # References
 
 <div id="refs"></div>
