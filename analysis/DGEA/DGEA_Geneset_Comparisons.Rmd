@@ -23,152 +23,78 @@ library(data.table)
 library(ggplot2)
 library(ggpubr)
 library(ggVennDiagram)
-library(UpSetR)
+library(openxlsx)
 library(DT)
-library(knitr)
-
-# source("report_functions.R")
-# load("data.RData")
 
 CUTOFF_ADJP <- 0.05
 CUTOFF_FC <- 1
 COUNTER <- 0 # Counter to avoid the colliding of chunk names
 
-
 Tag_this_analysis <- "DGEA_Geneset_Comparisons"
 
 extract_de_genes <- function(filename, direction = FALSE) {
-  degenes <- fread(filename)[, c("gene_name", "log2FoldChange", "padj")]
-
+  degenes <- fread(filename)[, c("gene_symbol", "log2FoldChange", "padj")]
   if (direction == "up") {
     degenes <- degenes[degenes$log2FoldChange >= CUTOFF_FC]
   } else if (direction == "down") {
     degenes <- degenes[degenes$log2FoldChange <= CUTOFF_FC * -1]
   }
-  return(unique(unlist(degenes$gene_name[degenes$padj < CUTOFF_ADJP & (degenes$log2FoldChange >= CUTOFF_FC | degenes$log2FoldChange <= CUTOFF_FC * -1)])))
+  return(unique(unlist(degenes$gene_symbol[degenes$padj < CUTOFF_ADJP])))
 }
-
-generate_venn <- function(label1, label2, title, direction = FALSE) {
-  genes <- list(
-    label1 = extract_de_genes(paste0("DGEA_", label1, "_genes_stats.csv"), direction = direction),
-    label2 = extract_de_genes(paste0("DGEA_", label2, "_genes_stats.csv"), direction = direction)
+venn_diagram <- function(gene_sets, title) {
+  ggVennDiagram(gene_sets, edge_size = 0.5, label_size = 2) +
+  coord_fixed(clip = "off") +
+  scale_fill_gradient(low = "grey", high = "firebrick") +
+  # scale_x_continuous(expand = expansion(mult = 0.3)) +  # Add extra space around X
+  # scale_y_continuous(expand = expansion(mult = 0.3)) +  # Add extra space around Y
+  theme(
+    plot.margin = margin(t = 20, r = 30, b = 20, l = 30)  # Top, right, bottom, left margins (in 'pt')
+  ) +
+  ggtitle(title)
+}
+venn_table <- function(table_name, gene_sets) {
+  # table_name <- paste0(Tag_this_analysis, "_All_DE_genes.xlsx")
+  venn_data <- ggVennDiagram::process_data(Venn(gene_sets))
+  region_info <- venn_region(venn_data)
+  write.xlsx(region_info, file = table_name, asTable = TRUE)
+  region_info$item <- sapply(region_info$item, function(x) paste(x, collapse = ","))
+  datatable(
+    region_info, 
+    plugins = "ellipsis",
+    options = list(
+      columnDefs = list(list(
+        targets = c(2,3),
+        render = JS("$.fn.dataTable.render.ellipsis( 30, false )")
+      ))
+    )
   )
-  # names(genes) <- c(gsub("_", "", label1),
-  #                   gsub("_", "", label2))
-  names(genes) <- c(label1, label2)
-  # plot(euler(genes), quantities = TRUE)
-  p <- gplots::venn(genes, show.plot = F)
-  f <- ggVennDiagram(genes) + ggtitle(title) + scale_x_continuous(expand = expansion(mult = .3)) + theme(plot.title = element_text(hjust = 0.5))
-  plot(f)
-  return(attributes(p)$intersections)
 }
-
-generate_venn3 <- function(label1, label2, label3, title, direction = FALSE) {
-  genes <- list(
-    label1 = extract_de_genes(paste0("DGEA_", label1, "_genes_stats.csv"), direction = direction),
-    label2 = extract_de_genes(paste0("DGEA_", label2, "_genes_stats.csv"), direction = direction),
-    label3 = extract_de_genes(paste0("DGEA_", label3, "_genes_stats.csv"), direction = direction)
-  )
-  # names(genes) <- c(gsub("_", "", label1),
-  #                   gsub("_", "", label2))
-  names(genes) <- c(label1, label2, label3)
-  # plot(euler(genes), quantities = TRUE)
-  p <- gplots::venn(genes, show.plot = F)
-  f <- ggVennDiagram(genes) + ggtitle(title) + scale_x_continuous(expand = expansion(mult = .3)) + theme(plot.title = element_text(hjust = 0.5))
-  plot(f)
-  return(attributes(p)$intersections)
-}
-
-
-venn_2_excel <- function(name, venn_components) {
-  require(openxlsx)
-  names_list <- venn_components
-  sheet_names <- c("A", "B", "C", "D", "E", "G", "H")
-  wb <- openxlsx::createWorkbook()
-  for (i in seq_len(length(venn_components))) {
-    addWorksheet(wb = wb, sheetName = sheet_names[i])
-    writeData(wb = wb, sheet = sheet_names[i], x = names(names_list[i]), startRow = 1, colNames = T, rowNames = T)
-    writeData(wb = wb, sheet = sheet_names[i], x = names_list[[i]], startRow = 2, colNames = T, rowNames = T, name = names(names_list[i]))
-  }
-  saveWorkbook(wb, paste0(name, ".xlsx"), overwrite = TRUE)
-}
-
-
-expand_tables = function(venn_components){
-
-    out = NULL
-    for (i in seq_len(length(venn_components))) {
-      name = names(venn_components[i])
-      knit_expanded <- paste0("\n#### ",i,
-                              "\n```{r '",COUNTER,"',  results='asis', echo=FALSE}\n
-                              datatable(as.data.frame(venn_components[[",i,"]]), colnames =c('",name,"'))\n
-                              \n
-                              ```")
-      out = c(out, knit_expanded)
-      COUNTER = COUNTER + 1
-    }
-    return(out)
-}
-
-
 ```
 
+# All DE genes {.tabset}
 
+## Venn Diagram
 
-### [Back to the main page](../Analysis_Report_RNAseq.html)
-
-## All DE genes
-
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-venn_components <- generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK")
-venn_2_excel("save_name", venn_components)
+```{r, echo=TRUE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+gene_sets <- list(
+  # Generation1 = extract_de_genes("DGEA_Generation1_vs_WT_stat.csv"),
+  Generation2 = extract_de_genes("DGEA_Generation2_vs_WT_stat.csv"),
+  Generation3 = extract_de_genes("DGEA_Generation3_vs_WT_stat.csv"),
+  Generation4 = extract_de_genes("DGEA_Generation4_vs_WT_stat.csv"),
+  Gender = extract_de_genes("DGEA_Female_vs_Male_stat.csv")
+)
+venn_diagram(gene_sets,
+             "Overlap of Genes Across Conditions")
 ```
 
+## Table
 
-<!-- Use if needed to add embedded tables for the venn diagram components -->
-### Tables {.tabset}
-```{r, echo=FALSE}
-venn_tables_rmd = expand_tables(venn_components)
-```
-<!-- Workaround to expand and knit the resulting string -->
-`r paste(knit(text = venn_tables_rmd), collapse = '\n')`
-
-## Up genes
-
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-venn_components <- generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction = "up")
-venn_2_excel("save_name", venn_components)
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+table_name <- paste0(Tag_this_analysis, "_All_DE_genes.xlsx")
+venn_table(table_name, gene_sets)
 ```
 
-<!-- Use if needed to add embedded tables for the venn diagram components -->
-### Tables {.tabset}
-```{r, echo=FALSE}
-venn_tables_rmd = expand_tables(venn_components)
-```
-<!-- Workaround to expand and knit the resulting string -->
-`r paste(knit(text = venn_tables_rmd), collapse = '\n')`
-
-
-## Down genes
-
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
-venn_components = generate_venn3("CSK_vs_SF", "MyoSF_vs_SF", "MyoSF_vs_CSK", direction = "down")
-venn_2_excel("save_name", venn_components)
-```
-
-
-<!-- Use if needed to add embedded tables for the venn diagram components -->
-### Tables {.tabset}
-```{r, echo=FALSE}
-venn_tables_rmd = expand_tables(venn_components)
-```
-<!-- Workaround to expand and knit the resulting string -->
-`r paste(knit(text = venn_tables_rmd), collapse = '\n')`
-
-
-# References
-
-<div id="refs"></div>
+Download the full list [`r table_name`](`r table_name`).
 
 
 # R session information

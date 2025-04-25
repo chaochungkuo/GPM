@@ -32,85 +32,118 @@ options(warn = -1)
 Tag_this_analysis <- "DGEA_heatmap"
 # Define the significance threshold
 padj_threshold <- 0.05
-topN <- 10
 norm_count <- fread("DGEA_All_samples_norm_counts.csv")
 stat_files <- list.files(path = ".", pattern = "DGEA_.*_stat\\.csv$", full.names = TRUE)
+stat_files <- stat_files[-1]
+filter_genes <- function(stat_files, topN) {
+  filtered_genes <- list()
+  # Loop through each file
+  for (stat_file in stat_files) {
+    # print(stat_file)
+    # Read the CSV file
+    data <- fread(stat_file, stringsAsFactors = FALSE)
+    if (is.na(topN)) {
+      sel_data <- data[data$padj < padj_threshold, ]
+    } else {
+      sel_data <- data[order(data$padj, decreasing = FALSE), ][1:topN, ]
+    }
+    # Store only the gene symbols as a character vector
+    filtered_genes[[stat_file]] <- sel_data$gene_symbol
+  }
+  return(filtered_genes)
+}
+generate_hp <- function(target_genes, main, show_rownames, fontsize_row) {
+  data_matrix <- as.data.frame(norm_count[norm_count$gene_name %in% target_genes,])
+  rownames(data_matrix) <- make.unique(data_matrix$gene_name)
+  data_matrix <- as.matrix(data_matrix[,c(-1,-2,-3)])
+  data_matrix <- log10(data_matrix + 1)
+  
+  # Identify WT columns
+  wt_cols <- grep("^WT", colnames(data_matrix), value = TRUE)
+  # Identify other columns
+  other_cols <- setdiff(colnames(data_matrix), wt_cols)
+  # Reorder the data_matrix
+  data_matrix <- data_matrix[, c(wt_cols, other_cols)]
+  
+  # Extract group from column names (everything before first underscore)
+  group <- str_extract(colnames(data_matrix), "^[^_]+")
+  group <- factor(group, levels = c("WT", sort(unique(group[group != "WT"]))))  # Put WT first
+  
+  # Create annotation data frame
+  col_annotations <- data.frame(
+    Group = group,
+    row.names = colnames(data_matrix)
+  )
+  
+  # Define custom colors for each group
+  group_levels <- levels(group)
+  group_colors <- setNames(RColorBrewer::brewer.pal(n = length(group_levels), name = "Set3"), group_levels)
+  
+  annotation_colors <- list(
+    Group = group_colors
+  )
+  
+  # Draw heatmap
+  pheatmap(
+    mat = data_matrix,
+    cluster_rows = TRUE,
+    cluster_cols = FALSE,
+    clustering_distance_rows = "euclidean",
+    clustering_distance_cols = "manhattan",
+    clustering_method = "complete",
+    scale = "none",
+    fontsize = 7,
+    fontsize_row = fontsize_row,
+    fontsize_col = 2,
+    show_rownames = show_rownames,
+    show_colnames = TRUE,
+    legend = TRUE,
+    border_color = NA,
+    angle_col = 45,
+    main = main,
+    annotation_col = col_annotations,
+    annotation_colors = annotation_colors
+  )
+}
 ```
 
 ### [Back to the main page](../Analysis_Report_RNAseq.html)
 
-# Top DE Genes
-
-```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-filtered_genes <- list()
-# Loop through each file
-for (stat_file in stat_files) {
-  # Read the CSV file
-  data <- fread(stat_file, stringsAsFactors = FALSE)
-  if (is.na(topN)) {
-    # Filter genes where padj < threshold
-    sel_data <- data$gene_symbol[data$padj < padj_threshold]
-  } else {
-    # Sort by padj in ascending order and select the top 10
-    sel_data <- data[order(data$padj, decreasing = FALSE), ][1:topN, ]
-  }
-  # Store results in the list
-  filtered_genes[[stat_file]] <- sel_data$gene_symbol
-}
-combined_genes <- unique(unlist(filtered_genes))
-```
+# Combining all DE genes
 
 ```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=8}
-data_matrix <- as.data.frame(norm_count[norm_count$gene_name %in% combined_genes,])
-rownames(data_matrix) <- data_matrix$gene_name
-data_matrix <- as.matrix(data_matrix[,c(-1,-2,-3)])
-data_matrix <- log10(data_matrix + 1)
-
-data_matrix <- data_matrix[, mixedsort(colnames(data_matrix))]
-
-# Define sample groups based on column names
-group <- ifelse(grepl("Control", colnames(data_matrix)), "Control", "NPC")
-# Extract time points (0h, 6h, 24h) using regex
-time <- str_extract(colnames(data_matrix), "\\d+h")
-
-# Create annotation data frame
-col_annotations <- data.frame(
-  Group = factor(group, levels = c("Control", "NPC")),  # Factor with levels
-  Time = factor(time, levels = c("0h", "6h", "24h")),  # Order time points
-  row.names = colnames(data_matrix)  # Assign row names to match columns
-)
-# Define colors for annotations
-annotation_colors <- list(
-  Group = c("Control" = "royalblue", "NPC" = "red4"),
-  Time = c("0h" = "lightgreen", "6h" = "green", "24h" = "darkgreen")
-)
-
-pheatmap(
-  mat = data_matrix,               # Data matrix
-  cluster_rows = TRUE,             # Cluster rows (genes)
-  cluster_cols = FALSE,             # Cluster columns (samples)
-  clustering_distance_rows = "euclidean",  # Distance metric for rows
-  clustering_distance_cols = "manhattan",  # Distance metric for columns
-  clustering_method = "complete",  # Clustering method (hierarchical clustering)
-  fontsize = 7,                # Font size for text
-  fontsize_row = 4,            # Font size for row labels
-  fontsize_col = 6,            # Font size for column labels
-  show_rownames = TRUE,         # Show gene names
-  show_colnames = TRUE,         # Show sample names
-  legend = TRUE,                # Show color legend
-  # legend_breaks = c(-2, 0, 2),  # Custom breakpoints in color scale
-  # legend_labels = c("Low", "Medium", "High"),  # Labels for legend
-  border_color = "NA",       # Border color for heatmap cells
-  # cellwidth = 30,               # Width of each cell
-  # cellheight = 20,              # Height of each cell
-  angle_col = 45,               # Rotate column labels
-  main = paste("Gene Expression of Top", topN, "DE Genes"),  # Title of the heatmap
-  # Add column annotations
-  annotation_col = col_annotations,  
-  annotation_colors = annotation_colors
-)
+filtered_genes <- filter_genes(stat_files, topN=NA)
+combined_genes <- unique(unlist(filtered_genes))
+generate_hp(combined_genes, fontsize_row=2,
+            main="All DE Genes", show_rownames=FALSE)
 ```
 
+# Top 100 DE genes
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=8}
+filtered_genes <- filter_genes(stat_files, topN=100)
+combined_genes <- unique(unlist(filtered_genes))
+generate_hp(combined_genes, fontsize_row=2,
+            main="Top 100 DE genes", show_rownames=FALSE)
+```
+
+# Top 10 DE genes
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=5}
+filtered_genes <- filter_genes(stat_files, topN=10)
+combined_genes <- unique(unlist(filtered_genes))
+generate_hp(combined_genes, fontsize_row=4,
+            main="Top 10 DE genes", show_rownames=TRUE)
+```
+
+# Top DE genes in Generation2 vs WT
+
+```{r, echo=FALSE, results="asis", warning=FALSE, message=FALSE, dpi=600, fig.width=6, fig.height=4}
+filtered_genes <- filter_genes(stat_files, topN=20)
+target_genes <- filtered_genes$`./DGEA_Generation2_vs_WT_stat.csv`
+generate_hp(target_genes, fontsize_row=4,
+            main="Top 20 DE genes in Generation2 vs WT", show_rownames=TRUE)
+```
 
 # GSEA
 
