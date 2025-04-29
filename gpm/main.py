@@ -210,7 +210,7 @@ def report(project_config, report, no_sub_reports, no_validate_links):
     # Render into HTML
     render_rmd_to_html(rmd_file)
     if not no_validate_links:
-        validate_html_links(rmd_file.replace(".Rmd", ".html"))
+        validate_html_links(rmd_file)
     # pm.update_log()
     # pm.write_project_config_file()
 

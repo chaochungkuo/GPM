@@ -96,7 +96,7 @@ def render_rmd_to_html(rmd_file: str) -> None:
     """
     try:
         command = (
-            "conda activate R4.3 && "
+            "source /opt/miniforge3/etc/profile.d/conda.sh && conda activate R4.3 && "
             f"Rscript -e \"rmarkdown::render('{rmd_file}', output_format = 'html_document')\" && "
             "conda deactivate"
         )
