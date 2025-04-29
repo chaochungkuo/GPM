@@ -332,7 +332,7 @@ class GPM:
             os.mkdir(analysis_dir)
         self.profile["Analysis"]["analysis_path"] = analysis_dir
 
-    def add_analysis_report(self, application):
+    def add_main_report(self, application):
         """
         Add the Rmd report according to application type.
 
@@ -349,15 +349,7 @@ class GPM:
                 self.profile["Analysis"]["analysis_path"], copy_file
             )
             self.copy_file(source_file, target_file)
-        try:
-            command = (
-                "conda activate R4.3 && "
-                "Rscript -e \"rmarkdown::render('" + target_file + "', output_format = 'html_document')\" && "
-                "conda deactivate"
-            )
-            subprocess.run(command, shell=True, executable="/bin/bash")
-        except:
-            pass
+
 
     def show_analysis_list(self):
         """

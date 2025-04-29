@@ -2,6 +2,7 @@ import os
 import click
 from gpm.archive import archive_folders
 from gpm.clean import clean_folders
+from gpm.reports import extract_html_titles, inserting_sub_reports, render_rmd_to_html, validate_html_links
 from gpm.helper import get_gpm_config
 from gpm.samplesheet import generate_samples, fastq_dir_to_samplesheet
 from gpm.__version__ import __version__
@@ -125,12 +126,6 @@ def processing(project_config, fastq, processing):
 @main.command()
 @click.argument("project_config")
 @click.option(
-    "-r",
-    "--report",
-    type=click.Choice(get_gpm_config("GPM", "GPM_REPORTS"), case_sensitive=False),
-    help="Define the kind of report for this project.",
-)
-@click.option(
     "-ls",
     "--list",
     "show_list",
@@ -147,9 +142,9 @@ def processing(project_config, fastq, processing):
     default="",
     help="Add the defined analysis template into the project.",
 )
-def analysis(project_config, report, show_list, add_template):
+def analysis(project_config, show_list, add_template):
     """
-    Initiate analyses and reports in an existed project.
+    Initiate analyses in an existed project.
     """
     pm = GPM()
     pm.load_project_config_file(project_config)
@@ -157,13 +152,68 @@ def analysis(project_config, report, show_list, add_template):
     if show_list:
         pm.show_analysis_list()
     else:
-        if report:
-            pm.add_analysis_report(report)
+        # if report:
+        #     pm.add_analysis_report(report)
         if add_template:
             pm.add_analysis_template(add_template)
             # pm.run_analysis_codes(add_template)
         pm.update_log()
         pm.write_project_config_file()
+
+
+@main.command()
+@click.argument("project_config")
+@click.option(
+    "-r",
+    "--report",
+    required=False,
+    default=None,
+    type=click.Choice(get_gpm_config("GPM", "GPM_REPORTS"), case_sensitive=False),
+    help="Define the kind of report for this project. By default, it will be set as the application in the project name.",
+)
+@click.option(
+    "-ns",
+    "--no-sub-reports",
+    "no_sub_reports",
+    required=False,
+    default=False,
+    is_flag=True,
+    help="Not to insert any sub reports into the main reports. By default, this parameter is False and the sub reports will be inserted automatically.",
+)
+@click.option(
+    "-nv",
+    "--no-validate-links",
+    "no_validate_links",
+    required=False,
+    default=False,
+    is_flag=True,
+    help="Not to validate the links recursively. By default, this parameter is False and the all the links will be validated automatically.",
+)
+def report(project_config, report, no_sub_reports, no_validate_links):
+    """
+    Build the main report in an existed project.
+    """
+    pm = GPM()
+    pm.load_project_config_file(project_config)
+    analysis_dir = os.path.join(pm.profile["Project"]["project_path"], "analysis")
+    if not report:
+        report = pm.profile["Project"]["application"]
+    rmd_file = os.path.join(analysis_dir, f"Analysis_Report_{report}.Rmd")
+    if not no_sub_reports:
+        # Iterate the folders to find html reports
+        sub_reports = extract_html_titles(analysis_dir)
+    # Generate the Rmd
+    if not os.path.exists(rmd_file):
+        pm.add_main_report(report)
+    
+    if not no_sub_reports:
+        inserting_sub_reports(analysis_dir, report, sub_reports)
+    # Render into HTML
+    render_rmd_to_html(rmd_file)
+    if not no_validate_links:
+        validate_html_links(rmd_file)
+    # pm.update_log()
+    # pm.write_project_config_file()
 
 
 @main.command()

@@ -37,18 +37,19 @@ Please refer to our [Publication Policy](https://genomics.rwth-aachen.de/service
 
 ***
 
-<!-- 
-# Analyses
 
-### 1. [Quality Control](DNAm_array/1_DNAmArray_QC.html)
-### 2. [Processing](DNAm_array/2_DNAmArray_Processing.html)
-### 3. [Differential Analysis](DNAm_array/3_DNAmArray_Differential_Analysis.html)
-### 4. Functional Analyses on the differential methylated genes
-#### - [](DNAm_array/4_DNAmArray_FunctionalAnalysis_.html)
-### 5. [Zoom-in Visualization](DNAm_array/5_DNAmArray_Visualization.html)
-### 6. [Quantification on Promoter Regions](DNAm_array/6_DNAmArray_GeneQuantification.html)
- -->
+<!-- # Analyses -->
 
+<!-- ### 1. [Quality Control](DNAm_array/1_DNAmArray_QC.html) -->
+<!-- ### 2. [Processing](DNAm_array/2_DNAmArray_Processing.html) -->
+<!-- ### 3. [Differential Analysis](DNAm_array/3_DNAmArray_Differential_Analysis.html) -->
+<!-- ### 4. Functional Analyses on the differential methylated genes -->
+<!-- #### - [](DNAm_array/4_DNAmArray_FunctionalAnalysis_.html) -->
+<!-- ### 5. [Zoom-in Visualization](DNAm_array/5_DNAmArray_Visualization.html) -->
+<!-- ### 6. [Quantification on Promoter Regions](DNAm_array/6_DNAmArray_GeneQuantification.html) -->
+
+
+<!-- inserting points -->
 
 # References
 

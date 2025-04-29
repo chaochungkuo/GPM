@@ -22,7 +22,6 @@ library("readr")
 library(tidyr)
 library(dplyr)
 library(openxlsx)
-library(kableExtra)
 library(data.table)
 options(warn = -1)
 
@@ -94,6 +93,8 @@ Please make sure that you store these data in a lab-wise level. Please refer to 
 # Differential Expression Analysis
 
 ## [Tumor vs Healthy](DEAmiRNA_Tumor_vs_Healthy.html)
+
+<!-- inserting points -->
 
 # Sample Overview
 
