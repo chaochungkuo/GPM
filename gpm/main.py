@@ -196,13 +196,13 @@ def report(project_config, report, no_sub_reports, no_validate_links):
     pm = GPM()
     pm.load_project_config_file(project_config)
     analysis_dir = os.path.join(pm.profile["Project"]["project_path"], "analysis")
+    if not report:
+        report = pm.profile["Project"]["application"]
     rmd_file = os.path.join(analysis_dir, f"Analysis_Report_{report}.Rmd")
     if not no_sub_reports:
         # Iterate the folders to find html reports
         sub_reports = extract_html_titles(analysis_dir)
     # Generate the Rmd
-    if not report:
-        report = pm.profile["Project"]["application"]
     pm.add_main_report(report)
     
     if not no_sub_reports:
