@@ -203,7 +203,8 @@ def report(project_config, report, no_sub_reports, no_validate_links):
         # Iterate the folders to find html reports
         sub_reports = extract_html_titles(analysis_dir)
     # Generate the Rmd
-    pm.add_main_report(report)
+    if not os.path.exists(rmd_file):
+        pm.add_main_report(report)
     
     if not no_sub_reports:
         inserting_sub_reports(analysis_dir, report, sub_reports)
