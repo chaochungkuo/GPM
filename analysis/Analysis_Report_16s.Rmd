@@ -18,7 +18,6 @@ bibliography: references.bib
 ```{r conig, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
 source("/etc/rstudio/Rprofile.site")
 library(knitr)
-library(kableExtra)
 library(stringr)
 library("readr")
 library(tidyr)

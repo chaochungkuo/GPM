@@ -22,7 +22,6 @@ library("readr")
 library(tidyr)
 library(dplyr)
 library(openxlsx)
-library(kableExtra)
 library(data.table)
 options(warn = -1)
 
