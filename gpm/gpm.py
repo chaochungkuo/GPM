@@ -202,7 +202,7 @@ class GPM:
         else:
             click.echo("The given path for raw data doesn't exist.")
             click.echo(raw)
-            sys.exit()
+            sys.exit(1)
         # Check path for output path
         raw_name = path.basename(raw)
         # If run name is repeated
@@ -212,12 +212,12 @@ class GPM:
             click.echo(output)
             click.echo("Please use this:")
             click.echo(path.dirname(output))
-            sys.exit()
+            sys.exit(1)
         # If the run exists, otherwise create a new folder
         if path.exists(path.join(output, raw_name)):
             click.echo("This run exists in the output directory.")
             click.echo(path.join(output, raw_name))
-            sys.exit()
+            sys.exit(1)
         else:
             os.mkdir(path.join(output, raw_name))
         # Copy the method
@@ -267,7 +267,7 @@ class GPM:
         project_path = path.join(current_dir, name)
         if path.exists(project_path):
             print(f"The given project path exists already: {project_path}.")
-            sys.exit()
+            sys.exit(1)
         else:
             os.mkdir(project_path)
         # Update project.ini
