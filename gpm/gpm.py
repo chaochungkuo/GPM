@@ -249,7 +249,7 @@ class GPM:
             ):
                 with open(path.join(output, raw_name, "samplesheet.csv"), "wb") as f:
                     f.write(api_response.content)
-                print("CSV downloaded.")
+                    click.echo(f"Samplesheet downloaded from API for flowcell {flow_cell}.")
             
 
         # Update profile
