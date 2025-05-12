@@ -241,13 +241,12 @@ class GPM:
         if method == "bclconvert":
             flow_cell = get_flowcell_id(raw)
             api_response = query_api(
-                f"https://genomics.rwth-aachen.de/api/samplesheet/flowcell/{flow_cell}"
+                f"https://genomics.rwth-aachen.de/api/get/samplesheet/flowcell/{flow_cell}"
             )
             if (
                 api_response.status_code == 200
-                and api_response.headers.get("Content-Type") == "text/csv"
             ):
-                with open(path.join(output, raw_name, "samplesheet.csv"), "wb") as f:
+                with open(path.join(output, raw_name, "samplesheet_bclconvert.csv"), "wb") as f:
                     f.write(api_response.content)
                     click.echo(f"Samplesheet downloaded from API for flowcell {flow_cell}.")
             
