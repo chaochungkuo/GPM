@@ -1,39 +1,44 @@
-import os
-from os import path
-import sys
-import click
-import glob
 import ast
-import shutil
-from collections import OrderedDict
 import configparser
-import textwrap
+import glob
+import os
 import re
+import shutil
+import subprocess
+import sys
+import textwrap
+from collections import OrderedDict
 from datetime import datetime
-from gpm.helper import (
-    remove_end_slash,
-    get_gpmdata_path,
-    check_project_name,
-    get_dict_from_configs,
-    replace_variables_by_dict,
-    check_analysis_name,
-    copy_samplesheet,
-    get_gpm_config,
-    append_file_to_another,
-    get_authors,
-    author_list2string
-)
-from gpm.messages import show_tree, show_instructions
+from os import path
+
+import click
+
 from gpm import PROJECT_INI_FILE
 from gpm.exports import (
     check_export_directory,
     get_htaccess_path,
     htpasswd_create_user,
-    owncloud_login,
     owncloud_export,
+    owncloud_login,
 )
+from gpm.helper import (
+    append_file_to_another,
+    author_list2string,
+    check_analysis_name,
+    check_project_name,
+    copy_samplesheet,
+    get_authors,
+    get_dict_from_configs,
+    get_flowcell_id,
+    get_gpm_config,
+    get_gpmdata_path,
+    query_api,
+    remove_end_slash,
+    replace_variables_by_dict,
+)
+from gpm.messages import show_instructions, show_tree
 from gpm.project_ini_struc import tags_GPM
-import subprocess
+
 
 class GPM:
     """A class for a genomic project."""
@@ -61,7 +66,9 @@ class GPM:
         """
         filepath = os.path.abspath(filepath)
         if not os.path.exists(filepath):
-            click.echo(f"{filepath} is not found. Please double check the work directory.")
+            click.echo(
+                f"{filepath} is not found. Please double check the work directory."
+            )
             sys.exit()
         config = configparser.ConfigParser()
         config.read(filepath)
@@ -79,7 +86,7 @@ class GPM:
                         value = ast.literal_eval(value)
                     # print(value)
                     self.profile[section][tag] = value
-                    
+
         # Check the project.ini path with symbolic link
         self.prefix = self.symbolic_profile_path(filepath)
         # print("Detected symbolic link:", self.prefix)
@@ -221,12 +228,32 @@ class GPM:
         else:
             os.mkdir(path.join(output, raw_name))
         # Copy the method
-        source_dir = path.join(get_gpmdata_path(), "demultiplex", method)
-        for filename in os.listdir(source_dir):
-            file_path = path.join(source_dir, filename)
-            target_file = path.join(output, raw_name, filename)
-            if path.isfile(file_path):
-                self.copy_file(source=file_path, target=target_file)
+
+        def copy_demultiplex_files():
+            source_dir = path.join(get_gpmdata_path(), "demultiplex", method)
+            for filename in os.listdir(source_dir):
+                file_path = path.join(source_dir, filename)
+                target_file = path.join(output, raw_name, filename)
+                if path.isfile(file_path):
+                    self.copy_file(source=file_path, target=target_file)
+
+        copy_demultiplex_files()
+
+        # For bclconvert, overwrite the samplesheet from API
+        if method == "bclconvert":
+            flow_cell = get_flowcell_id(raw)
+            api_response = query_api(
+                f"https://genomics.rwth-aachen.de/api/samplesheet/flowcell/{flow_cell}"
+            )
+            if (
+                api_response.status_code == 200
+                and api_response.headers.get("Content-Type") == "text/csv"
+            ):
+                with open(path.join(output, raw_name, "samplesheet.csv"), "wb") as f:
+                    f.write(api_response.content)
+                print("CSV downloaded.")
+            
+
         # Update profile
         demultiplex_path = path.join(output, raw_name)
         self.profile["Demultiplexing"]["demultiplex_path"] = demultiplex_path
@@ -349,7 +376,6 @@ class GPM:
                 self.profile["Analysis"]["analysis_path"], copy_file
             )
             self.copy_file(source_file, target_file)
-
 
     def show_analysis_list(self):
         """
@@ -490,7 +516,9 @@ class GPM:
                     # A directory
                     if os.path.isdir(origin_f):
                         target = handle_rename(export_dir, entry)
-                        os.symlink(self.prefix + origin_f, target, target_is_directory=True)
+                        os.symlink(
+                            self.prefix + origin_f, target, target_is_directory=True
+                        )
                     # A file
                     elif os.path.isfile(origin_f):
                         target = handle_rename(export_dir, entry)
@@ -530,23 +558,21 @@ class GPM:
 
     def update_export_report(self, export_dir):
         # Check first Analysis_Report under 3_Reports/analysis
-        pattern = os.path.join(export_dir,
-            "3_Reports/analysis/Analysis_Report_*.html")
+        pattern = os.path.join(export_dir, "3_Reports/analysis/Analysis_Report_*.html")
         matching_files = glob.glob(pattern)
         export_base = self.profile["Export"]["export_URL"]
         if matching_files:
             report_file = os.path.basename(matching_files[0])
-            self.profile["Export"]["report_URL"] = (
-                f"{export_base}/3_Reports/analysis/{report_file}"
-            )
+            self.profile["Export"][
+                "report_URL"
+            ] = f"{export_base}/3_Reports/analysis/{report_file}"
         # Check multiQC report
         else:
-            multiqc = os.path.join(export_dir,
-                "FASTQ/multiqc/multiqc_report.html")
+            multiqc = os.path.join(export_dir, "FASTQ/multiqc/multiqc_report.html")
             if os.path.exists(multiqc):
-                self.profile["Export"]["report_URL"] = (
-                    f"{export_base}/FASTQ/multiqc/multiqc_report.html"
-                )
+                self.profile["Export"][
+                    "report_URL"
+                ] = f"{export_base}/FASTQ/multiqc/multiqc_report.html"
 
     def create_cloud_export(self, export_folder):
         oc = owncloud_login()
@@ -594,11 +620,7 @@ class GPM:
                 fg="bright_green",
             )
         )
-        click.echo(
-            textwrap.dedent(
-                self.wget
-            ).strip()
-        )
+        click.echo(textwrap.dedent(self.wget).strip())
         click.echo("")
 
     def echo_json_info(self) -> None:
@@ -622,7 +644,7 @@ class GPM:
                         'Download command': '{cleaned_command}',
                         """
                     ).strip(),
-                    prefix="  "  # Two spaces
+                    prefix="  ",  # Two spaces
                 ),
                 fg="bright_blue",
             )

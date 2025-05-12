@@ -1,24 +1,28 @@
-import sys
-from os import path, getenv, environ
-import datetime
-import click
 import configparser
-from gpm import CONFIG_LIST
+import datetime
+import http
+import os
+import sys
+from os import environ, getenv, path
+from urllib.parse import urljoin, urlparse
+
+import click
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse
-import os
+from requests.auth import HTTPBasicAuth
+
+from gpm import CONFIG_LIST
+
 
 def get_gpmdata_path():
     """
     Get the GPMDATA path from the environment.
     """
-    if environ.get('GPMDATA'):
+    if environ.get("GPMDATA"):
         gpm_data_location = path.expanduser(getenv("GPMDATA"))
     else:
-        gpm_data_location = path.expanduser(path.join(getenv("HOME"),
-                                                      "gpmdata"))
+        gpm_data_location = path.expanduser(path.join(getenv("HOME"), "gpmdata"))
     return gpm_data_location
 
 
@@ -71,9 +75,9 @@ def get_config_values(config_name):
     User-defined config (*.ini.user) has a higher priority
     than default one (*.ini).
     """
-    config_path = path.join(get_gpmdata_path(), "config/"+config_name+".user")
+    config_path = path.join(get_gpmdata_path(), "config/" + config_name + ".user")
     if not path.exists(config_path):
-        config_path = path.join(get_gpmdata_path(), "config/"+config_name)
+        config_path = path.join(get_gpmdata_path(), "config/" + config_name)
     config = configparser.ConfigParser()
     config.read(config_path)
     combined_dict = {}
@@ -89,9 +93,9 @@ def get_config_section(config_name, section):
     User-defined config (*.ini.user) has a higher priority
     than default one (*.ini).
     """
-    config_path = path.join(get_gpmdata_path(), "config/"+config_name+".user")
+    config_path = path.join(get_gpmdata_path(), "config/" + config_name + ".user")
     if not path.exists(config_path):
-        config_path = path.join(get_gpmdata_path(), "config/"+config_name)
+        config_path = path.join(get_gpmdata_path(), "config/" + config_name)
     config = configparser.ConfigParser()
     config.read(config_path)
     section_dict = dict(config.items(section))
@@ -104,9 +108,9 @@ def get_config_value(config_name, section, item):
     User-defined config (*.ini.user) has a higher priority
     than default one (*.ini).
     """
-    config_path = path.join(get_gpmdata_path(), "config/"+config_name+".user")
+    config_path = path.join(get_gpmdata_path(), "config/" + config_name + ".user")
     if not path.exists(config_path):
-        config_path = path.join(get_gpmdata_path(), "config/"+config_name)
+        config_path = path.join(get_gpmdata_path(), "config/" + config_name)
     config = configparser.ConfigParser()
     config.read(config_path)
     res = config[section][item]
@@ -167,49 +171,53 @@ def copy_samplesheet(source_samplesheet, target_samplesheet):
     try:
         df = pd.read_csv(source_samplesheet)
         df.drop(columns=["fastq1", "fastq2", "strandness"], inplace=True)
-        df[['label1', 'label2']] = df['sample'].str.split('_', expand=True)
+        df[["label1", "label2"]] = df["sample"].str.split("_", expand=True)
         df.to_csv(target_samplesheet, index=False)
     except Exception:
-        warning = "No samplesheet from processing path is available.\n"\
-                  "Please generate the samplesheet.csv manually."
-        click.echo(click.style(warning,
-                   fg='red'))
+        warning = (
+            "No samplesheet from processing path is available.\n"
+            "Please generate the samplesheet.csv manually."
+        )
+        click.echo(click.style(warning, fg="red"))
 
 
 def append_file_to_another(file1, file2):
-    with open(file1, 'r') as source_file:
+    with open(file1, "r") as source_file:
         source_content = source_file.read()
     # Append the content to the destination file
-    with open(file2, 'a') as destination_file:
+    with open(file2, "a") as destination_file:
         destination_file.write(source_content)
+
 
 def get_authors(short_names):
     gpm_authors = get_config_section("gpm.ini", "AUTHORS")
     authors = list(gpm_authors.keys())
     res = []
-    if short_names is not None: # authors are defined
+    if short_names is not None:  # authors are defined
         list_short_names = short_names.split(",")
         for name in list_short_names:
             if name in authors:
                 res.append(gpm_authors[name])
             else:
                 print(f"{name} is not defined in gpm.ini. Skipped.")
-    else: # Not defined and take all available authors
+    else:  # Not defined and take all available authors
         for name in authors:
             res.append(gpm_authors[name])
     return res
 
+
 def author_list2string(authors_list, format):
-    if format=="RMD":
+    if format == "RMD":
         authors = ""
         for au in authors_list:
-            authors += "  - "+au+"\n"
-    elif format=="ipynb":
+            authors += "  - " + au + "\n"
+    elif format == "ipynb":
         authors = []
         for au in authors_list:
-            authors.append("  - "+au)
-        authors = "\\n\",\n    \"".join(authors)
+            authors.append("  - " + au)
+        authors = '\\n",\n    "'.join(authors)
     return authors
+
 
 def check_links_in_html(html_content, base_url=None):
     """
@@ -222,8 +230,8 @@ def check_links_in_html(html_content, base_url=None):
     Returns:
         list of dict: List containing link info with status.
     """
-    soup = BeautifulSoup(html_content, 'html.parser')
-    links = [a.get('href') for a in soup.find_all('a', href=True)]
+    soup = BeautifulSoup(html_content, "html.parser")
+    links = [a.get("href") for a in soup.find_all("a", href=True)]
 
     results = []
 
@@ -236,31 +244,38 @@ def check_links_in_html(html_content, base_url=None):
 
         # Check if it's a local file
         parsed = urlparse(full_url)
-        if parsed.scheme in ('http', 'https'):
+        if parsed.scheme in ("http", "https"):
             try:
                 response = requests.head(full_url, allow_redirects=True, timeout=5)
-                status = 'OK' if response.status_code < 400 else f'Error {response.status_code}'
+                status = (
+                    "OK"
+                    if response.status_code < 400
+                    else f"Error {response.status_code}"
+                )
             except Exception as e:
-                status = f'Failed ({e})'
+                status = f"Failed ({e})"
         else:
             # Assume it's a local file path
             local_path = parsed.path
             if os.path.exists(local_path):
-                status = 'OK'
+                status = "OK"
             else:
-                status = 'File Not Found'
+                status = "File Not Found"
 
-        results.append({
-            'link': link,
-            'resolved_link': full_url,
-            'status': status,
-        })
+        results.append(
+            {
+                "link": link,
+                "resolved_link": full_url,
+                "status": status,
+            }
+        )
 
     return results
 
+
 def find_all_linked_htmls(start_html, visited=None):
     """
-    Recursively find all HTML files linked from the start HTML file, 
+    Recursively find all HTML files linked from the start HTML file,
     handling relative paths properly.
 
     Args:
@@ -283,23 +298,25 @@ def find_all_linked_htmls(start_html, visited=None):
 
     # Load HTML content
     try:
-        if parsed.scheme in ('http', 'https'):
+        if parsed.scheme in ("http", "https"):
             response = requests.get(start_html, timeout=5)
             response.raise_for_status()
             html_content = response.text
             base_for_links = start_html  # URL base
         else:
             local_path = parsed.path
-            with open(local_path, 'r', encoding='utf-8') as f:
+            with open(local_path, "r", encoding="utf-8") as f:
                 html_content = f.read()
-            base_for_links = 'file://' + os.path.dirname(os.path.abspath(local_path)) + '/'  # Local base
+            base_for_links = (
+                "file://" + os.path.dirname(os.path.abspath(local_path)) + "/"
+            )  # Local base
     except Exception as e:
         print(f"Failed to open {start_html}: {e}")
         return visited
 
     # Parse and find links
-    soup = BeautifulSoup(html_content, 'html.parser')
-    links = [a.get('href') for a in soup.find_all('a', href=True)]
+    soup = BeautifulSoup(html_content, "html.parser")
+    links = [a.get("href") for a in soup.find_all("a", href=True)]
 
     for link in links:
         if not link:
@@ -309,8 +326,29 @@ def find_all_linked_htmls(start_html, visited=None):
         resolved_link = urljoin(base_for_links, link)
 
         # Only process HTML files
-        if resolved_link.endswith(('.html', '.htm')):
+        if resolved_link.endswith((".html", ".htm")):
             if resolved_link not in visited:
                 find_all_linked_htmls(resolved_link, visited=visited)
 
     return visited
+
+
+def get_api_creds() -> HTTPBasicAuth | None:
+    api_pass = os.getenv("GPM_PASS")
+    return HTTPBasicAuth("GPM", api_pass) if api_pass else None
+
+
+def query_api(
+    endpoint: str,
+) -> requests.Response:
+    """
+    Query the GPM API with the given URL and parameters.
+    """
+    auth = get_api_creds()
+    response = requests.get(endpoint, auth=auth)
+    if response.status_code != http.HTTPStatus.OK:
+        raise Exception(f"API request failed with status code {response.status_code}")
+    return response
+
+def get_flowcell_id(dir: str) -> str:
+    return os.path.basename(dir).split("_")[-1]
