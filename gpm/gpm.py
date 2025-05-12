@@ -227,17 +227,15 @@ class GPM:
             sys.exit(1)
         else:
             os.mkdir(path.join(output, raw_name))
+
+
         # Copy the method
-
-        def copy_demultiplex_files():
-            source_dir = path.join(get_gpmdata_path(), "demultiplex", method)
-            for filename in os.listdir(source_dir):
-                file_path = path.join(source_dir, filename)
-                target_file = path.join(output, raw_name, filename)
-                if path.isfile(file_path):
-                    self.copy_file(source=file_path, target=target_file)
-
-        copy_demultiplex_files()
+        source_dir = path.join(get_gpmdata_path(), "demultiplex", method)
+        for filename in os.listdir(source_dir):
+            file_path = path.join(source_dir, filename)
+            target_file = path.join(output, raw_name, filename)
+            if path.isfile(file_path):
+                self.copy_file(source=file_path, target=target_file)
 
         # For bclconvert, overwrite the samplesheet from API
         if method == "bclconvert":
