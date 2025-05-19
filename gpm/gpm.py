@@ -243,24 +243,19 @@ class GPM:
                 api_response = query_api(
                     f"https://genomics.rwth-aachen.de/api/get/samplesheet/flowcell/{flow_cell}"
                 )
-                if (
-                    api_response.status_code == 200
-                    and api_response.headers.get("Content-Type") == "text/csv"
-                ):
-                    with open(
-                        path.join(output, raw_name, "samplesheet.csv"), "wb"
-                    ) as f:
-                        f.write(api_response.content)
-                        click.echo(
-                            f"Samplesheet downloaded from API for flowcell {flow_cell}."
-                        )
-                else:
-                    click.echo(
-                        f"Error downloading samplesheet from API for flowcell {flow_cell}."
+                if api_response.status_code != 200:
+                    raise ValueError(
+                        f"Samplesheet from API for flowcell {flow_cell} is not available."
                     )
-                    click.echo(f"Status code: {api_response.status_code}")
+
+                with open(
+                    path.join(output, raw_name, "samplesheet_bclconvert.csv"), "wb"
+                ) as f:
+                    f.write(api_response.content)
                     click.echo(
-                        f"Content-Type: {api_response.headers.get('Content-Type')}"
+                        click.style(
+                            f"\nSamplesheet downloaded from API for flowcell {flow_cell}.",
+                        )
                     )
         except Exception as e:
             click.echo(
