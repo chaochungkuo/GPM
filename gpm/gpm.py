@@ -251,6 +251,9 @@ class GPM:
                     with open(path.join(output, raw_name, "samplesheet.csv"), "wb") as f:
                         f.write(api_response.content)
                         click.echo(f"Samplesheet downloaded from API for flowcell {flow_cell}.")
+                else:
+                    click.echo(f"Error downloading samplesheet from API for flowcell {flow_cell}.")
+                    click.echo(f"Status code: {api_response.status_code}")
         except Exception as e:
             click.echo(f"Error downloading samplesheet from API for samplesheet {flow_cell} with error: {e}")
             
