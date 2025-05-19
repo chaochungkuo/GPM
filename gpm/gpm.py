@@ -242,7 +242,7 @@ class GPM:
             if method == "bclconvert":
                 flow_cell = get_flowcell_id(raw)
                 api_response = query_api(
-                    f"https://genomics.rwth-aachen.de/api/samplesheet/flowcell/{flow_cell}"
+                    f"https://genomics.rwth-aachen.de/api/get/samplesheet/flowcell/{flow_cell}"
                 )
                 if (
                     api_response.status_code == 200
