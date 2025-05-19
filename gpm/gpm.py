@@ -228,7 +228,6 @@ class GPM:
         else:
             os.mkdir(path.join(output, raw_name))
 
-
         # Copy the method
         source_dir = path.join(get_gpmdata_path(), "demultiplex", method)
         for filename in os.listdir(source_dir):
@@ -248,15 +247,25 @@ class GPM:
                     api_response.status_code == 200
                     and api_response.headers.get("Content-Type") == "text/csv"
                 ):
-                    with open(path.join(output, raw_name, "samplesheet.csv"), "wb") as f:
+                    with open(
+                        path.join(output, raw_name, "samplesheet.csv"), "wb"
+                    ) as f:
                         f.write(api_response.content)
-                        click.echo(f"Samplesheet downloaded from API for flowcell {flow_cell}.")
+                        click.echo(
+                            f"Samplesheet downloaded from API for flowcell {flow_cell}."
+                        )
                 else:
-                    click.echo(f"Error downloading samplesheet from API for flowcell {flow_cell}.")
+                    click.echo(
+                        f"Error downloading samplesheet from API for flowcell {flow_cell}."
+                    )
                     click.echo(f"Status code: {api_response.status_code}")
+                    click.echo(
+                        f"Content-Type: {api_response.headers.get('Content-Type')}"
+                    )
         except Exception as e:
-            click.echo(f"Error downloading samplesheet from API for samplesheet {flow_cell} with error: {e}")
-            
+            click.echo(
+                f"Error downloading samplesheet from API for samplesheet {flow_cell} with error: {e}"
+            )
 
         # Update profile
         demultiplex_path = path.join(output, raw_name)
