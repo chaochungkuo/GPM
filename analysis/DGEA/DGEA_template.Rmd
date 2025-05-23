@@ -301,7 +301,7 @@ significant_genes <- res %>%
   filter(padj < config$cutoff_adj_p) %>%
   arrange(padj)
 
-if (nrow(significant_genes) == 0) {
+if (nrow(significant_genes) <= 1) {
   # No significant genes, take top 20 genes with smallest p-values
   significant_genes <- res %>%
     arrange(padj) %>%
@@ -482,7 +482,7 @@ significant_genes <- res %>%
   filter(padj < config$cutoff_adj_p) %>%
   arrange(padj)
 
-if (nrow(significant_genes) == 0) {
+if (nrow(significant_genes) <= 1) {
   # No significant genes, take top 20 genes with smallest p-values
   significant_genes <- res %>%
     arrange(padj) %>%
