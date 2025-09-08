@@ -310,6 +310,6 @@ class CellRangerAutoDiscover(AutoDiscover):
 discover_factory: dict[str, type[AutoDiscover]] = {
     "10x": CellRangerAutoDiscover,
     "Singleron": SingeleronAutoDiscover,
-    "PraseBio": ParseBioAutoDiscover,
+    "ParseBio": ParseBioAutoDiscover,
     "ScaleBio": ScaleBioAutoDiscover,
 }
