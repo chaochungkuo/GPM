@@ -87,24 +87,32 @@ optional.add_argument(
 
 args = parser.parse_args()
 
- 
+
 
 sample_layout = pd.read_csv(args.sample_layout_file, index_col=0)
 
+
 bc1_layout = pd.read_csv(args.bc1_layout_file, index_col=0)
+bc1_stacked = bc1_layout.stack()
+bc1_stacked = bc1_stacked.rename('BC1').reset_index()
+bc1_stacked['Well position'] = bc1_stacked['level_0'] + bc1_stacked['level_1'].astype(str)
+
+
 
 counts_column_names = ['Barcode', 'BarcodeID', 'Count']
 
 counts = pd.read_csv(args.counts_file, names=counts_column_names)
-
  
-
 counts['BC1'] = counts['BarcodeID'].str.split('_', n=1, expand=True).iloc[:, 1]
 
-sample_info = pd.DataFrame({'BC1':bc1_layout.stack(), 'Sample': sample_layout.stack()})
 
-sample_info = pd.merge(sample_info, counts, on ='BC1', how ='left',)
 
- 
+#sample_info = pd.DataFrame({'BC1':bc1_layout.stack(sort=False), 'Sample': sample_layout.stack(sort=False)})
+sample_info = pd.merge(bc1_stacked, sample_layout, on = 'Well position', how ='left')
 
-sample_info[['Barcode', 'Sample']].to_csv(args.barcode_sample_map_file, index=False)
+sample_info = pd.merge(sample_info, counts, on = 'BC1', how ='left')
+#print(sample_info.head())
+
+
+
+sample_info[['Well position',"Barcode",'BarcodeID','TSO Barcode', 'Sample Name']].to_csv(args.barcode_sample_map_file, index=False)

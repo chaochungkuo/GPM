@@ -1,0 +1,10 @@
+[Header]
+FileFormatVersion,2
+
+[BCLConvert_Settings]
+CreateFastqForIndexReads,0
+OverrideCycles,Y151;I8N2;N2I8;Y151
+
+[BCLConvert_Data]
+Sample_ID,index,index2
+dummy,TTTTTTTT,TTTTTTTT
