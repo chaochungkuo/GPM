@@ -11,7 +11,7 @@ library(kneedle)
 library(plotly)
 
 # Read the CSV file (assuming the first column contains barcode counts)
-barcode_counts <- read.csv("demultiplexed_fastqs_counts_all.estimated.csv", header = F, row.names = 1)
+barcode_counts <- read.csv("./demu_dry/demultiplexed_fastqs/demultiplexed_fastqs_counts_all.estimated.csv", header = F, row.names = 1)
 #remove undetermined 
 barcode_counts <- barcode_counts %>% filter(V2 != "Non_sample")
 
