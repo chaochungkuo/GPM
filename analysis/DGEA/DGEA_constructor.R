@@ -16,8 +16,8 @@ salmon_dir = file.path(
   project_base,
   "PROJECT_PROCESSING_METHOD/results/star_salmon/"
 )
-
 dgea_dir = file.path(analysis_dir, "DGEA")
+check_missing_dirs(project_base, analysis_dir, salmon_dir, dgea_dir)
 
 
 ####################################################################
@@ -90,14 +90,7 @@ if ("PROJECT_PROCESSING_METHOD" == "nfcore_RNAseq") {
 # This report is used for an overview of all data without any comparison
 # No Rmd file is generated.
 
-
-save(global_config, file = "DGEA_params.RData")
-
-quarto::quarto_render(
-  input = "DGEA_all.qmd",
-  output_file="All_samples.html"
-)
-
+render_DGEA_all_sample(global_config)
 
 ####################################################################
 # Render DGEA report

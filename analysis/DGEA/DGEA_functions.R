@@ -5,18 +5,33 @@
 render_DGEA_report <- function(config) {
   # Define the file tag based on base_group, target_group, and additional_tag
   config$filetag <- if (!is.null(config$additional_tag)) {
-    paste0(config$target_group, "_vs_", config$base_group, "_", config$additional_tag)
+    paste0(
+      config$target_group,
+      "_vs_",
+      config$base_group,
+      "_",
+      config$additional_tag
+    )
   } else {
     paste0(config$target_group, "_vs_", config$base_group)
   }
   # Save the report-specific configuration
   config$rdata_filename <- paste0("DGEA_", config$filetag, ".RData")
   save(config, file = config$rdata_filename)
-  
+
   # Generate the Quarto file using the `generate_qmd` function
   # The purpose is to make the generated qmd as self-explanatory as possible.
   generate_qmd(config)
 }
+
+render_DGEA_all_sample = function(config) {
+  save(config, file = "DGEA_params.RData")
+  quarto::quarto_render(
+    input = "DGEA_all.qmd",
+    output_file = "All_samples.html"
+  )
+}
+
 
 generate_qmd <- function(config) {
   # Read the R Markdown template
@@ -108,13 +123,13 @@ generate_simple_Rmd <- function(config) {
 generate_markdown_links <- function(folder_path, pattern = "\\.html$") {
   # List all files in the folder matching the pattern
   files <- list.files(path = folder_path, pattern = pattern, full.names = TRUE)
-  
+
   # Check if any files are found
   if (length(files) == 0) {
     message("No files found matching the pattern.")
     return(NULL)
   }
-  
+
   # Generate Markdown links
   links <- sapply(files, function(file) {
     # Extract the file name (without path)
@@ -124,7 +139,31 @@ generate_markdown_links <- function(folder_path, pattern = "\\.html$") {
     # Create a Markdown link
     paste0("### [", display_name, "](", paste0("./DGEA/", file_name), ")")
   })
-  
+
   # Return the list of Markdown links as a character vector
   return(links)
+}
+
+
+####################################################################
+#   Utility functions for integrity checks
+####################################################################
+
+check_missing_dirs <- function(paths) {
+  if (!is.character(paths)) {
+    stop("`paths` must be a character vector.")
+  }
+
+  missing_dirs <- paths[!vapply(paths, dir.exists, logical(1))]
+
+  if (length(missing_dirs) > 0) {
+    message("⚠️ The following directories are missing:")
+    for (d in missing_dirs) {
+      message("  - ", d)
+    }
+  } else {
+    message("✅ All directories exist.")
+  }
+
+  invisible(missing_dirs)
 }
