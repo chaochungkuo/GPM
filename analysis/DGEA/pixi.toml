@@ -1,11 +1,12 @@
 [workspace]
 authors = ["MoSafi2 <mohamed.mabrouk@rwth-aachen.de>"]
 channels = ["conda-forge", "bioconda", "r"]
-name = "jupyter"
+name = "DGEA_RNAseq"
 platforms = ["linux-64"]
 version = "0.1.0"
 
 [tasks]
+
 
 [dependencies]
 jupytext = ">=1.17.3,<2"
