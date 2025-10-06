@@ -1,6 +1,6 @@
 {
-    "positron.r.interpreters.default": "PROJECT_PROJECT_PATH/analysis/.pixi/envs/default/bin/R",
+    "positron.r.interpreters.default": "PROJECT_PROJECT_PATH/analysis/DGEA/.pixi/envs/default/bin/R",
     "positron.r.customBinaries": [
-        "PROJECT_PROJECT_PATH/analysis/.pixi/envs/default/bin/R"
+        "PROJECT_PROJECT_PATH/analysis/DGEA/.pixi/envs/default/bin/R"
     ]
 }
