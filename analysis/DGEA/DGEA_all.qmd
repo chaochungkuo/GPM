@@ -1,23 +1,22 @@
 ---
-params:
-  authors:
-  paired:
 title: "Differential Gene Expression Analysis for All Samples"
 author:
-  - "`r params$authors`"
+  PROJECT_AUTHORS
 date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
-output:
-  html_document:
-    df_print: paged
+format:
+  html:
     toc: true
-    toc_float:
-      toc_collapsed: true
-    toc_depth: 3
-    number_sections: false
+    toc-depth: 3
+    toc-expand: 3
+    toc-location: left
+    html-math-method: katex
+    code-fold: true
+    code-tools: true
+    embed-resources: true
+    page-layout: full
+    html-table-processing: none
     theme: lumen
-    code_download: true
-    code_folding: hide
-bibliography: ../references.bib
+bibliography: references.bib
 ---
 
 ```{r all setup, echo=TRUE, warning=FALSE, message=TRUE}
@@ -57,7 +56,7 @@ txi <- tximport(files, type = "salmon", tx2gene = tx2gene[, c(1, 2)],
 
 # Set up DESeq2 design formula
 if (length_correction) {
-  design_formula <- if (params$paired) ~ batch + group else ~ group
+  design_formula <- if (global_config$paired) ~ batch + group else ~ group
   dds <- DESeqDataSetFromTximport(txi, colData = samplesheet, design = design_formula)
 } else {
   dds <- DESeqDataSetFromMatrix(round(txi$counts), samplesheet, ~ group)

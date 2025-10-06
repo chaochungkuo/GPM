@@ -13,15 +13,15 @@ render_DGEA_report <- function(config) {
   config$rdata_filename <- paste0("DGEA_", config$filetag, ".RData")
   save(config, file = config$rdata_filename)
   
-  # Generate the R Markdown file using the `generate_Rmd` function
-  # The purpose is to make the generated Rmd as self-explanatory as possible.
-  generate_DGEA_Rmd(config)
+  # Generate the Quarto file using the `generate_qmd` function
+  # The purpose is to make the generated qmd as self-explanatory as possible.
+  generate_qmd(config)
 }
 
-generate_DGEA_Rmd <- function(config) {
+generate_qmd <- function(config) {
   # Read the R Markdown template
-  template <- readLines("DGEA_template.Rmd", warn = FALSE)
-  
+  template <- readLines("DGEA_template.qmd", warn = FALSE)
+
   # Create a list of replacements based on config
   # The purpose of this replacement is to make the generated Rmd easy to follow.
   replacements <- list(
@@ -29,22 +29,26 @@ generate_DGEA_Rmd <- function(config) {
     "{{filetag}}" = config$filetag,
     "{{base_group}}" = config$base_group,
     "{{target_group}}" = config$target_group,
-    "{{additional_tag}}" = ifelse(is.null(config$additional_tag), "", config$additional_tag),
+    "{{additional_tag}}" = ifelse(
+      is.null(config$additional_tag),
+      "",
+      config$additional_tag
+    ),
     "{{organism}}" = config$organism
   )
-  
+
   # Replace placeholders with actual values in the template
   for (placeholder in names(replacements)) {
     replacement <- replacements[[placeholder]]
     template <- gsub(placeholder, replacement, template, fixed = TRUE)
   }
-  
+
   # Write the modified content to a new Rmd file
-  rmd_filename <- paste0("DGEA_", config$filetag, ".Rmd")
+  rmd_filename <- paste0("DGEA_", config$filetag, ".qmd")
   writeLines(template, rmd_filename)
-  
+
   # Render the R Markdown file to HTML
-  rmarkdown::render(
+  quarto::quarto_render(
     input = rmd_filename,
     output_file = paste0("DGEA_", config$filetag, ".html")
   )

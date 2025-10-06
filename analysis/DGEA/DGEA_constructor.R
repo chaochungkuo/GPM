@@ -3,51 +3,62 @@
 # library(rmarkdown)
 library(dplyr)
 library(tidyr)
-source("DGEA_functions.R")  # Load custom functions
+source("DGEA_functions.R") # Load custom functions
+
+
+####################################################################
+#   Define Global Paths
+####################################################################
+
+project_base = "PROJECT_PROJECT_PATH/"
+analysis_dir = file.path(project_base, "analysis")
+salmon_dir = file.path(
+  project_base,
+  "PROJECT_PROCESSING_METHOD/results/star_salmon/"
+)
+
+dgea_dir = file.path(analysis_dir, "DGEA")
+
 
 ####################################################################
 #   Load and Prepare Samplesheet (Adjustable)
 ####################################################################
 
 # The sample names are expected to be de in the pattern of Group1_rep1, such as
-# WT_rep1
-# KO_rep1
 
 # Process samplesheet CSV
-samplesheet <- read.csv("../../PROJECT_PROCESSING_METHOD/samplesheet.csv") %>%
+samplesheet <- read.csv(file.path(
+  project_base,
+  "PROJECT_PROCESSING_METHOD/samplesheet.csv"
+)) %>%
   dplyr::select(-2, -3, -4) %>% # dropping unneeded columns
   separate(sample, into = c("group", "id"), sep = "_", remove = FALSE) %>% # split sample names into 2 columns
-  dplyr::mutate(sample_copy = sample) %>%    # Create a copy of the sample column
+  dplyr::mutate(sample_copy = sample) %>% # Create a copy of the sample column
   tibble::column_to_rownames(var = "sample_copy") # Make sample_copy as rownames
 
 
 ####################################################################
 #   Define Global Configuration as a List (Adjustable)
 ####################################################################
-project_base = "PROJECT_PROJECT_PATH/"
-analysis_dir = file.path(project_base, "analysis")
-dgea_dir = file.path(analysis_dir, "DGEA")
-salmon_dir = file.path(project_base, "PROJECT_PROCESSING_METHOD/results/star_salmon/")
 # Global configuration list containing project paths and parameters
 global_config <- list(
   # Add samplesheet to the global configuration
   samplesheet = samplesheet,
-  
   # Project Paths
   project_base = project_base,
   analysis_dir = analysis_dir,
   dgea_dir = dgea_dir,
   salmon_dir = salmon_dir,
   tx2gene_file = file.path(salmon_dir, "tx2gene.tsv"),
-  
+
   # Run Specifications
   paired = FALSE, # Pairwise comparison or not
-  design_formula = ~ group, # simple comparison by group column
+  design_formula = ~group, # simple comparison by group column
   # design_formula = ~ id + group # pairwise by id and compare by group column
   # design_formula = ~ id + group * treatment # Captures whether the effect of treatment depends on the group
-  norm_spikein_ercc = FALSE, 
-  organism = "PROJECT_PROCESSING_ORGANISM",  # Define organism for GO/GSEA e.g., "hsapiens", "mmusculus", "rnorvegicus"
-  highlighted_genes = NA,                    # e.g., c("Gene1", "Gene2") for highlighting genes in all figures
+  norm_spikein_ercc = FALSE,
+  organism = "PROJECT_PROCESSING_ORGANISM", # Define organism for GO/GSEA e.g., "hsapiens", "mmusculus", "rnorvegicus"
+  highlighted_genes = NA, # e.g., c("Gene1", "Gene2") for highlighting genes in all figures
   go = TRUE,
   gsea = TRUE,
 
@@ -78,20 +89,15 @@ if ("PROJECT_PROCESSING_METHOD" == "nfcore_RNAseq") {
 # Render DGEA for all samples
 # This report is used for an overview of all data without any comparison
 # No Rmd file is generated.
-rmarkdown::render(
-  input = "DGEA_all.Rmd",
-  output_file = paste0("DGEA_All_samples.html"),
-  params = list(filetag = "All_samples",
-                paired = global_config$paired,
-                tx2gene_file = global_config$tx2gene_file,
-                salmon_dir = global_config$salmon_dir,
-                samplesheet = samplesheet,
-                cutoff_adj_p = global_config$cutoff_adj_p,
-                cutoff_log2fc = global_config$cutoff_log2fc,
-                counts_from_abundance = global_config$counts_from_abundance,
-                length_correction = global_config$length_correction,
-                paired = FALSE)
+
+
+save(global_config, file = "DGEA_params.RData")
+
+quarto::quarto_render(
+  input = "DGEA_all.qmd",
+  output_file="All_samples.html"
 )
+
 
 ####################################################################
 # Render DGEA report

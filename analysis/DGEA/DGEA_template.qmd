@@ -16,7 +16,7 @@ format:
     page-layout: full
     html-table-processing: none
     theme: lumen
-bibliography: ../references.bib
+bibliography: references.bib
 ---
 
 ```{r setup_{{filetag}}, echo=TRUE, warning=FALSE, message=FALSE}
