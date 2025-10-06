@@ -20,7 +20,7 @@ bibliography: ../references.bib
 ---
 
 ```{r setup_{{filetag}}, echo=TRUE, warning=FALSE, message=FALSE}
-source("/etc/rstudio/Rprofile.site")
+# source("/etc/rstudio/Rprofile.site")
 # Load libraries
 library(DESeq2)
 library(dplyr)
@@ -732,7 +732,23 @@ datatable(
 
 :::
 
-`r if(go){"# GO Analysis\n\nGO Enrichment Analysis in clusterProfiler [@wu2021clusterprofiler] identifies overrepresented Gene Ontology (GO) terms within a predefined list of differentially expressed genes. This method uses overrepresentation analysis (ORA) with statistical tests such as hypergeometric testing to determine if specific biological processes, cellular components, or molecular functions occur more frequently in the gene set compared to a background set (Here we only use BP). The results depend on the threshold used to define significant genes, making it sensitive to the cutoff criteria applied during differential expression analysis.\n"}`
+
+```{r}
+#| echo: false
+#| results: asif
+
+if (exists("go") && isTRUE(go)){
+  cat("
+  # GO Analysis
+
+  GO Enrichment Analysis in **clusterProfiler** [@wu2021clusterprofiler] identifies overrepresented Gene Ontology (GO) terms within a predefined list of differentially expressed genes.  
+  This method uses **overrepresentation analysis (ORA)** with statistical tests such as the **hypergeometric test** to determine if specific biological processes, cellular components, or molecular functions occur more frequently in the gene set compared to a background set *(Here we only use BP)*.  
+  The results depend on the threshold used to define significant genes, making it sensitive to the cutoff criteria applied during differential expression analysis.
+  ")
+}
+
+```
+
 
 ```{r go-{{filetag}}, echo=go, results="markup", warning=FALSE, message=FALSE, eval=go}
 # Define up- and down-regulated genes

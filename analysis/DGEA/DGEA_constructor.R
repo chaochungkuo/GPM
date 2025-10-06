@@ -1,6 +1,6 @@
 # Load necessary libraries
-source("/etc/rstudio/Rprofile.site")  # Load global RStudio profile
-library(rmarkdown)
+# source("/etc/rstudio/Rprofile.site")  # Load global RStudio profile
+# library(rmarkdown)
 library(dplyr)
 library(tidyr)
 source("DGEA_functions.R")  # Load custom functions
