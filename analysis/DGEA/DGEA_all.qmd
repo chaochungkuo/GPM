@@ -252,6 +252,10 @@ fig
 ## 2D PCA
 
 ```{r ggplot-2d-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+#| out-width: 100%
+#| fig-dpi: 300
+
+
 # Calculate explained variance for PC1 and PC2
 explained_variance <- round(100 * (pca$sdev^2 / sum(pca$sdev^2)), 2)
 explained_variance_text <- paste0(
@@ -296,6 +300,10 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = group, label = sample)) +
 Top 20 genes with highest variance
 
 ```{r ggplot-heatmap, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+#| out-width: 100%
+#| fig-dpi: 300
+
+
 # Log-transform counts
 log_counts <- log10(as.matrix(top_gene_counts) + 1)
 
