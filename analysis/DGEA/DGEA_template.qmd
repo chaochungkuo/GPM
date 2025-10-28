@@ -743,7 +743,7 @@ datatable(
 
 ```{r}
 #| echo: false
-#| results: asif
+#| results: asis
 
 if (exists("go") && isTRUE(go)){
   cat("
