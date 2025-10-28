@@ -19,14 +19,13 @@ format:
 bibliography: references.bib
 ---
 
-```{r all setup, echo=TRUE, warning=FALSE, message=TRUE}
-# source("/etc/rstudio/Rprofile.site")
+```{r all setup, echo=TRUE, warning=FALSE, message=FALSE}
 # Load libraries
 library(DESeq2)
 library(dplyr)
 library(ggplot2)
 library(plotly)
-library(viridis) 
+library(viridis)
 library(DT)
 library(tximport)
 library(data.table)
@@ -47,37 +46,63 @@ Differential gene expression analysis is done with DESEQ2 package in R [@love201
 
 ```{r all DESeq2, echo=TRUE, warning=FALSE, message=FALSE}
 # Load transcript-to-gene mapping
-tx2gene <- fread(tx2gene_file, col.names = c("transcript_id", "gene_id", "gene_name"))
+tx2gene <- fread(
+  config$tx2gene_file,
+  col.names = c("transcript_id", "gene_id", "gene_name")
+)
 # Run DESeq2 Analysis
-files <- file.path(salmon_dir, samplesheet$sample, "quant.sf")
-names(files) <- samplesheet$sample
-txi <- tximport(files, type = "salmon", tx2gene = tx2gene[, c(1, 2)],
-                countsFromAbundance = counts_from_abundance)
+files <- file.path(config$salmon_dir, config$samplesheet$sample, "quant.sf")
+names(files) <- config$samplesheet$sample
+txi <- tximport(
+  files,
+  type = "salmon",
+  tx2gene = tx2gene[, c(1, 2)],
+  countsFromAbundance = config$counts_from_abundance
+)
 
 # Set up DESeq2 design formula
-if (length_correction) {
-  design_formula <- if (global_config$paired) ~ batch + group else ~ group
-  dds <- DESeqDataSetFromTximport(txi, colData = samplesheet, design = design_formula)
+if (config$length_correction) {
+  design_formula <- if (config$paired) ~ batch + group else ~group
+  dds <- DESeqDataSetFromTximport(
+    txi,
+    colData = config$samplesheet,
+    design = config$design_formula
+  )
 } else {
-  dds <- DESeqDataSetFromMatrix(round(txi$counts), samplesheet, ~ group)
+  dds <- DESeqDataSetFromMatrix(round(txi$counts), config$samplesheet, ~group)
 }
 
 # Perform DESeq2 differential expression analysis
 dds <- DESeq(dds)
-res <- results(dds, alpha = cutoff_adj_p)
+res <- results(dds, alpha = config$cutoff_adj_p)
 res <- as.data.frame(res)
 res <- res[complete.cases(res), ]
 res$gene_symbol <- tx2gene$gene_name[match(rownames(res), tx2gene$gene_id)]
 res$gene_id <- rownames(res)
-res$Significant <- ifelse(res$padj < cutoff_adj_p, "Yes", "No")
-res <- res[, c("gene_id", "gene_symbol", "baseMean", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj", "gene_id", "Significant")]
+res$Significant <- ifelse(res$padj < config$cutoff_adj_p, "Yes", "No")
+res <- res[, c(
+  "gene_id",
+  "gene_symbol",
+  "baseMean",
+  "log2FoldChange",
+  "lfcSE",
+  "stat",
+  "pvalue",
+  "padj",
+  "gene_id",
+  "Significant"
+)]
 # Get normalized read counts
-normalized_counts <- counts(dds, normalized=TRUE)
-out_norm <- merge(tx2gene[,-1], rownames_to_column(as.data.frame(normalized_counts), var = "gene_id"),
-                  by.x="gene_id", by.y="gene_id")
+normalized_counts <- counts(dds, normalized = TRUE)
+out_norm <- merge(
+  tx2gene[, -1],
+  rownames_to_column(as.data.frame(normalized_counts), var = "gene_id"),
+  by.x = "gene_id",
+  by.y = "gene_id"
+)
 out_norm <- distinct(out_norm)
 # Calculate PCA on normalized counts
-pca <- prcomp(t(normalized_counts))  # Transpose to have samples as rows
+pca <- prcomp(t(normalized_counts)) # Transpose to have samples as rows
 # Calculate the variance for each gene across samples
 gene_variances <- apply(normalized_counts, 1, var)
 # Get the top 20 genes with the highest variance
@@ -85,34 +110,43 @@ top_geneids <- names(sort(gene_variances, decreasing = TRUE))[1:20]
 top_genes <- tx2gene$gene_name[match(top_geneids, tx2gene$gene_id)]
 # Subset the normalized counts for these top 500 genes
 top_gene_counts <- normalized_counts[top_geneids, ]
-rownames(top_gene_counts) <- top_genes  # Replace row names with gene symbols
+rownames(top_gene_counts) <- top_genes # Replace row names with gene symbols
 
 ```
 
-# Interactive figures {.tabset}
+# Interactive figures 
+::: {.panel-tabset}
 
 ## 3D PCA
 
 ```{r plotly-3d-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Calculate explained variance for PC1, PC2, and PC3
 explained_variance <- round(100 * (pca$sdev^2 / sum(pca$sdev^2)), 2)
-explained_variance_text <- paste0("PC", 1:3, " (", explained_variance[1:3], "%)")
+explained_variance_text <- paste0(
+  "PC",
+  1:3,
+  " (",
+  explained_variance[1:3],
+  "%)"
+)
 
 # Extract scores for the first three principal components
-pca_data <- as.data.frame(pca$x[, 1:3])  # Select only the first 3 PCs
-pca_data$sample <- rownames(pca_data)  # Add sample names as a column
-pca_data$group <- samplesheet$group    # Add group information from samplesheet
+pca_data <- as.data.frame(pca$x[, 1:3]) # Select only the first 3 PCs
+pca_data$sample <- rownames(pca_data) # Add sample names as a column
+pca_data$group <- config$samplesheet$group # Add group information from samplesheet
 
 # Create 3D PCA plot with plotly
 fig <- plot_ly(
   data = pca_data,
-  x = ~PC1, y = ~PC2, z = ~PC3,
+  x = ~PC1,
+  y = ~PC2,
+  z = ~PC3,
   color = ~group,
-  colors = "Dark2",  # Use a color palette suitable for publication
-  text = ~paste("Sample:", sample),  # Add sample names as hover text
+  colors = "Dark2", # Use a color palette suitable for publication
+  text = ~ paste("Sample:", sample), # Add sample names as hover text
   type = "scatter3d",
   mode = "markers",
-  marker = list(size = 9)  # Set marker size for visibility
+  marker = list(size = 9) # Set marker size for visibility
 ) %>%
   layout(
     title = "3D PCA Plot of Samples",
@@ -133,24 +167,30 @@ fig
 ```{r plotly-2d-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Calculate explained variance for PC1 and PC2
 explained_variance <- round(100 * (pca$sdev^2 / sum(pca$sdev^2)), 2)
-explained_variance_text <- paste0("PC", 1:2, " (", explained_variance[1:2], "%)")
+explained_variance_text <- paste0(
+  "PC",
+  1:2,
+  " (",
+  explained_variance[1:2],
+  "%)"
+)
 
 # Extract scores for the first two principal components
-pca_data <- as.data.frame(pca$x[, 1:2])  # Select only the first 2 PCs
-pca_data$sample <- rownames(pca_data)  # Add sample names as a column
-pca_data$group <- samplesheet$group    # Add group information from samplesheet
+pca_data <- as.data.frame(pca$x[, 1:2]) # Select only the first 2 PCs
+pca_data$sample <- rownames(pca_data) # Add sample names as a column
+pca_data$group <- config$samplesheet$group # Add group information from samplesheet
 
 # Create 2D PCA plot with plotly
 fig <- plot_ly(
   data = pca_data,
-  x = ~PC1, 
+  x = ~PC1,
   y = ~PC2,
   color = ~group,
-  colors = "Dark2",  # Use a color palette suitable for publication
-  text = ~paste("Sample:", sample),  # Add sample names as hover text
+  colors = "Dark2", # Use a color palette suitable for publication
+  text = ~ paste("Sample:", sample), # Add sample names as hover text
   type = "scatter",
   mode = "markers",
-  marker = list(size = 12)  # Set marker size for visibility
+  marker = list(size = 12) # Set marker size for visibility
 ) %>%
   layout(
     title = "2D PCA Plot of Samples",
@@ -178,10 +218,10 @@ top_gene_counts_ordered <- top_gene_counts[ordered_rows, ]
 # Create interactive heatmap with plotly and Viridis color scale
 fig <- plot_ly(
   x = colnames(top_gene_counts_ordered),
-  y = rownames(top_gene_counts_ordered),  # Use gene symbols as row labels
+  y = rownames(top_gene_counts_ordered), # Use gene symbols as row labels
   z = log10(as.matrix(top_gene_counts_ordered) + 1),
   type = "heatmap",
-  colors = viridis(256),  # Use Viridis color scale for more professional appearance
+  colors = viridis(256), # Use Viridis color scale for more professional appearance
   colorbar = list(title = "Expression Level (log10)"),
   showscale = TRUE
 ) %>%
@@ -195,24 +235,39 @@ fig <- plot_ly(
 fig
 ```
 
-# Static figures {.tabset}
+:::
+
+# Static figures
+
+::: {.panel-tabset}
 
 ## 2D PCA
 
 ```{r ggplot-2d-pca, echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 # Calculate explained variance for PC1 and PC2
 explained_variance <- round(100 * (pca$sdev^2 / sum(pca$sdev^2)), 2)
-explained_variance_text <- paste0("PC", 1:2, " (", explained_variance[1:2], "%)")
+explained_variance_text <- paste0(
+  "PC",
+  1:2,
+  " (",
+  explained_variance[1:2],
+  "%)"
+)
 
 # Extract scores for the first two principal components
-pca_data <- as.data.frame(pca$x[, 1:2])  # Get first two PCs
+pca_data <- as.data.frame(pca$x[, 1:2]) # Get first two PCs
 pca_data$sample <- rownames(pca_data)
-pca_data$group <- samplesheet$group  # Add group information from samplesheet
+pca_data$group <- config$samplesheet$group # Add group information from samplesheet
 
 # Create 2D PCA plot with repelled annotations
 ggplot(pca_data, aes(x = PC1, y = PC2, color = group, label = sample)) +
-  geom_point(size = 3) +  # Set point size for visibility
-  geom_text_repel(size = 3, max.overlaps = 10, box.padding = 0.3, point.padding = 0.2) +  # Repelled text labels
+  geom_point(size = 3) + # Set point size for visibility
+  geom_text_repel(
+    size = 3,
+    max.overlaps = 10,
+    box.padding = 0.3,
+    point.padding = 0.2
+  ) + # Repelled text labels
   labs(
     title = "2D PCA Plot of Samples",
     x = explained_variance_text[1],
@@ -249,8 +304,8 @@ colnames(heatmap_data) <- c("Gene", "Sample", "Expression")
 
 # Create heatmap with ggplot
 ggplot(heatmap_data, aes(x = Sample, y = Gene, fill = Expression)) +
-  geom_tile(color = NA) +  # Remove tile borders for cleaner look
-  scale_fill_viridis(name = "Expression Level (log10)", option = "viridis") +  # Use Viridis color scale
+  geom_tile(color = NA) + # Remove tile borders for cleaner look
+  scale_fill_viridis(name = "Expression Level (log10)", option = "viridis") + # Use Viridis color scale
   labs(
     title = "Heatmap of Top 20 Genes with Highest Variance",
     x = "Samples",
@@ -260,12 +315,15 @@ ggplot(heatmap_data, aes(x = Sample, y = Gene, fill = Expression)) +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1),
-    axis.text.y = element_text(size = 6),  # Adjust y-axis text size for readability
+    axis.text.y = element_text(size = 6), # Adjust y-axis text size for readability
     axis.title = element_text(size = 12),
     legend.title = element_text(size = 10),
     legend.text = element_text(size = 8)
   )
 ```
+
+:::
+
 # Export
 
 ```{r all export, echo=TRUE, results='markup', warning=FALSE, message=TRUE}
@@ -273,7 +331,7 @@ ggplot(heatmap_data, aes(x = Sample, y = Gene, fill = Expression)) +
 wb <- createWorkbook()
 # Add each data frame as a new sheet
 addWorksheet(wb, "Samplesheets")
-writeData(wb, "Samplesheets", samplesheet)
+writeData(wb, "Samplesheets", config$samplesheet)
 addWorksheet(wb, "Norm. counts")
 writeData(wb, "Norm. counts", out_norm)
 # Save the workbook
@@ -282,9 +340,9 @@ saveWorkbook(wb, "DGEA_All_samples_export.xlsx", overwrite = TRUE)
 
 # Samplesheet
 
-```{r all Samplesheet, layout="l-body-outset", echo=FALSE, results='asis', warning=FALSE, message=FALSE}
+```{r all Samplesheet,  echo=FALSE, results='asis', warning=FALSE, message=FALSE}
 datatable(
-  samplesheet,
+  config$samplesheet,
   filter = 'top',
   extensions = c("Buttons"),
   options = list(
@@ -293,10 +351,10 @@ datatable(
     searchHighlight = FALSE,
     buttons = c('copy', 'csv', 'excel', 'print'),
     scrollX = TRUE,
-    pageLength = -1,        # Show all rows
-    paging = FALSE,         # Disable pagination
+    pageLength = -1, # Show all rows
+    paging = FALSE, # Disable pagination
     columnDefs = list(
-      list(className = 'dt-left', targets = "_all")  # Left-align all columns
+      list(className = 'dt-left', targets = "_all") # Left-align all columns
     )
   ),
   rownames = FALSE
