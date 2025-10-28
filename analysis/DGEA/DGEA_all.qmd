@@ -74,6 +74,14 @@ if (config$length_correction) {
 
 # Perform DESeq2 differential expression analysis
 dds <- DESeq(dds)
+
+if (config$norm_spikein_ercc) {
+  ercc = fread("thermofisher_LSG_manuals_cms_095046.txt")
+  non_ercc = !(rownames(dds) %in% paste0(ercc$`ERCC ID`, "_", "gene"))
+  dds = dds[non_ercc, ]
+}
+
+
 res <- results(dds, alpha = config$cutoff_adj_p)
 res <- as.data.frame(res)
 res <- res[complete.cases(res), ]
