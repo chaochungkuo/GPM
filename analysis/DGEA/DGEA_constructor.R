@@ -1,6 +1,4 @@
 # Load necessary libraries
-# source("/etc/rstudio/Rprofile.site")  # Load global RStudio profile
-# library(rmarkdown)
 library(dplyr)
 library(tidyr)
 source("DGEA_functions.R") # Load custom functions
@@ -17,7 +15,7 @@ salmon_dir = file.path(
   "PROJECT_PROCESSING_METHOD/results/star_salmon/"
 )
 dgea_dir = file.path(analysis_dir, "DGEA")
-check_missing_dirs(project_base, analysis_dir, salmon_dir, dgea_dir)
+check_missing_dirs(c(project_base, analysis_dir, salmon_dir, dgea_dir))
 
 
 ####################################################################

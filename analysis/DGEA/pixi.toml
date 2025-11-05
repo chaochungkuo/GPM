@@ -34,6 +34,7 @@ bioconductor-enrichplot = ">=1.26.1,<2"
 r-ggridges = ">=0.5.7,<0.6"
 "bioconductor-org.mm.eg.db" = { version = ">=3.20.0,<4", channel = "bioconda" }
 "bioconductor-org.hs.eg.db" = { version = ">=3.20.0,<4", channel = "bioconda" }
+"bioconductor-go.db" = { version = ">=3.20.0,<4", channel = "bioconda" }
 
 [pypi-dependencies]
 quarto-cli = ">=1.8.25, <2"

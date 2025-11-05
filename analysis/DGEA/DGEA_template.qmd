@@ -20,7 +20,6 @@ bibliography: references.bib
 ---
 
 ```{r setup_{{filetag}}, echo=TRUE, warning=FALSE, message=FALSE}
-# source("/etc/rstudio/Rprofile.site")
 # Load libraries
 library(DESeq2)
 library(dplyr)
