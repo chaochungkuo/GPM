@@ -831,7 +831,7 @@ emapplot(
   pairwise_termsim(go_down),
   showCategory = 5,
   # cex.params = list(category_label = 0.7)
-) + ggtitle(""Enrichment Map - Downregulated Genes"")
+) + ggtitle("Enrichment Map - Downregulated Genes")
 ```
 
 `r if(show_go_down){"An emapplot visualizes the relationships between enriched pathways or gene sets by displaying them as a network graph. In this plot, nodes represent the enriched pathways, while edges (connections) between nodes indicate the degree of gene overlap between the pathways. The size of the nodes reflects the number of genes in each pathway, and the color can represent statistical significance (e.g., p-value). The emapplot helps identify clusters of related pathways, providing insight into how different biological functions or processes are interconnected, making it easier to interpret the overall biological context of the enrichment results."}`
