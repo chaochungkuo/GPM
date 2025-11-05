@@ -685,7 +685,7 @@ pheatmap(
 
 ### Statistics
 
-```{r statistics-{{filetag}}, layout="l-body-outset", echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+```{r statistics-{{filetag}}, echo=TRUE, results='asis', warning=FALSE, message=FALSE}
 datatable(
   res,
   extensions = c("FixedColumns", "Buttons"),
