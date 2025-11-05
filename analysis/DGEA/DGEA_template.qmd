@@ -716,7 +716,7 @@ cat(
 
 ### Samplesheet
 
-```{r Samplesheet-{{filetag}}, layout="l-body-outset", echo=TRUE, results='asis', warning=FALSE, message=FALSE}
+```{r Samplesheet-{{filetag}},  echo=TRUE, results='asis', warning=FALSE, message=FALSE}
 datatable(
   samplesheet,
   filter = 'none',
