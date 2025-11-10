@@ -16,10 +16,12 @@ import click
 from gpm import PROJECT_INI_FILE
 from gpm.exports import (
     check_export_directory,
+    convert_export_structure_to_job_spec,
     get_htaccess_path,
     htpasswd_create_user,
     owncloud_export,
     owncloud_login,
+    submit_export_to_api,
 )
 from gpm.helper import (
     append_file_to_another,
@@ -494,7 +496,7 @@ class GPM:
                             ll[1] = self.replace_variable(ll[1], config_dict, "")
                             self.export_structure.append(ll)
 
-    def export(self, export_dir, tar=False, symlink=True):
+    def export(self, export_dir, tar=False, symlink=True, use_api=False):
         def handle_rename(export_dir, entry):
             # print(os.path.basename(entry[1]))
             if entry[3]:
@@ -508,6 +510,38 @@ class GPM:
         # Load export name to project.ini
         export_name = os.path.basename(export_dir)
         self.update_project_name(export_name)
+        
+        # Handle API export if requested
+        if use_api:
+            try:
+                # Load export config to get export_structure
+                self.load_export_config()
+                
+                # Convert export structure to job spec
+                job_spec = convert_export_structure_to_job_spec(
+                    self.export_structure,
+                    self.profile,
+                    export_dir,
+                    prefix=self.prefix
+                )
+                
+                # Submit to API
+                click.echo(click.style("Submitting export to API...", fg="bright_blue"))
+                job_id, result = submit_export_to_api(job_spec)
+                
+                if job_id:
+                    click.echo(click.style("Export job submitted successfully!", fg="bright_green"))
+                    click.echo(f"Job ID: {job_id}")
+                    if isinstance(result, dict) and "status" in result:
+                        click.echo(f"Status: {result['status']}")
+                    click.echo("You can check the job status using the export engine API.")
+                else:
+                    click.echo(click.style(f"Failed to submit export job: {result}", fg="red"))
+                    click.echo("Continuing with local export...")
+            except Exception as e:
+                click.echo(click.style(f"Error during API export: {str(e)}", fg="red"))
+                click.echo("Continuing with local export...")
+        
         if symlink:
             # Creating soft links of the files
             self.load_export_config()

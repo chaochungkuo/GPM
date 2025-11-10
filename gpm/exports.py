@@ -5,6 +5,8 @@ import click
 import subprocess
 import string
 import random
+import glob
+import requests
 from gpm.helper import get_gpmdata_path, get_gpm_config
 import xtarfile as tarfile
 from tqdm import tqdm
@@ -280,3 +282,197 @@ def get_folder_size(folder_path):
             file_path = os.path.join(dirpath, filename)
             total_size += os.path.getsize(file_path)
     return total_size
+
+
+def determine_host():
+    """
+    Determine the host name from the system using the `hostname` command in Linux.
+
+    Returns:
+        str: Host name (e.g., "nextgen", "nextgen2", "nextgen3")
+    """
+    try:
+        result = subprocess.run(
+            ["hostname"], capture_output=True, text=True, check=True
+        )
+        hostname = result.stdout.strip()
+        # Extract hostname if it contains dots
+        if "." in hostname:
+            hostname = hostname.split(".")[0]
+        return hostname
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        click.echo(click.style("Unable to determine the host name using the `hostname` command", fg="red"))
+        sys.exit(1)
+
+
+def convert_export_structure_to_job_spec(export_structure, profile, export_dir, prefix=""):
+    """
+    Convert GPM's export structure to export_engine's ExportJobSpec format.
+    
+    Args:
+        export_structure: List of export entries, each with [app, source, target_dir, rename]
+        profile: Project profile dictionary
+        export_dir: Target export directory
+        prefix: Symbolic link prefix (for handling symlinks)
+    
+    Returns:
+        dict: ExportJobSpec in the format expected by the export engine API
+    """
+    project_name = profile["Project"]["project_name"]
+    project_path = profile["Project"]["project_path"]
+    
+    # Generate username from project_name (format: date_username_group_institute_application)
+    # Extract the second component (index 1) as username
+    project_parts = project_name.split("_")
+    if len(project_parts) >= 2:
+        username = project_parts[1].lower()
+    else:
+        # Fallback if project_name doesn't match expected format
+        username = project_name.lower()
+    
+    # Generate password using existing function
+    password = generate_password()
+    
+    # Get backend from config or default to ["apache"]
+    try:
+        backends_str = get_gpm_config("EXPORT_ENGINE", "EXPORT_ENGINE_BACKENDS")
+        if isinstance(backends_str, str):
+            backend = [b.strip() for b in backends_str.split(",")]
+        else:
+            backend = backends_str if isinstance(backends_str, list) else ["apache"]
+    except Exception:
+        backend = ["apache"]
+    
+    # Get authors if available
+    authors = []
+    if "authors" in profile["Project"] and profile["Project"]["authors"]:
+        authors_list = profile["Project"]["authors"]
+        if isinstance(authors_list, list):
+            authors = [str(a) for a in authors_list]
+        elif isinstance(authors_list, str):
+            authors = [authors_list]
+    
+    # Determine host
+    host = determine_host()
+    
+    # Convert export structure to FileExport format
+    export_list = []
+    for entry in export_structure:
+        # entry format: [app, source_path, target_dir, rename]
+        if not entry[1]:  # Skip entries without source (folder creation only)
+            continue
+        
+        source_path = entry[1]
+        target_dir = entry[2]
+        rename = entry[3] if len(entry) > 3 else None
+        
+        # Build absolute source path
+        if os.path.isabs(source_path):
+            abs_source = prefix + source_path
+        else:
+            abs_source = prefix + os.path.join(project_path, source_path)
+        
+        # Handle glob patterns
+        if "*" in source_path or "?" in source_path:
+            # Expand glob pattern
+            if os.path.isabs(source_path):
+                glob_pattern = prefix + source_path
+            else:
+                glob_pattern = prefix + os.path.join(project_path, source_path)
+            
+            matching_files = glob.glob(glob_pattern)
+            for matching_file in matching_files:
+                # Only include files (not directories) from glob patterns
+                # This matches the original export behavior
+                if os.path.isfile(matching_file):
+                    # Determine destination filename
+                    if rename:
+                        dest_filename = rename
+                    else:
+                        dest_filename = os.path.basename(matching_file)
+                    
+                    dest_path = os.path.join(target_dir, dest_filename)
+                    
+                    export_list.append({
+                        "source": matching_file,
+                        "destination": dest_path,
+                        "host": host,
+                        "mode": "symlink"
+                    })
+        else:
+            # Single file or directory
+            # Include in spec even if it doesn't exist yet - export engine will handle
+            # Determine destination path
+            if rename:
+                dest_path = os.path.join(target_dir, rename)
+            else:
+                dest_path = os.path.join(target_dir, os.path.basename(abs_source))
+            
+            export_list.append({
+                "source": abs_source,
+                "destination": dest_path,
+                "host": host,
+                "mode": "symlink"
+            })
+    
+    # Create ExportJobSpec dict
+    job_spec = {
+        "project_name": project_name,
+        "export_list": export_list,
+        "backend": backend,
+        "username": username,
+        "password": password,
+    }
+    
+    # Add authors if available
+    if authors:
+        job_spec["authors"] = authors
+    
+    return job_spec
+
+
+def submit_export_to_api(job_spec):
+    """
+    Submit export job specification to the export engine API.
+    
+    Args:
+        job_spec: ExportJobSpec dictionary
+    
+    Returns:
+        tuple: (job_id, status_dict) or (None, error_message) on failure
+    """
+    try:
+        api_url = get_gpm_config("EXPORT_ENGINE", "EXPORT_ENGINE_API_URL")
+        if not api_url:
+            return None, "EXPORT_ENGINE_API_URL not configured in gpm.ini"
+        
+        # Ensure URL doesn't end with /
+        api_url = api_url.rstrip("/")
+        endpoint = f"{api_url}/export"
+        
+        # Make POST request
+        response = requests.post(endpoint, json=job_spec, timeout=30)
+        
+        # Check response
+        if response.status_code == 200 or response.status_code == 201:
+            try:
+                result = response.json()
+                job_id = result.get("job_id")
+                status = result.get("status", "submitted")
+                return job_id, {"status": status, "response": result}
+            except ValueError:
+                # Response is not JSON
+                return None, f"API returned non-JSON response: {response.text}"
+        else:
+            error_msg = f"API request failed with status {response.status_code}"
+            try:
+                error_detail = response.json()
+                error_msg += f": {error_detail}"
+            except ValueError:
+                error_msg += f": {response.text}"
+            return None, error_msg
+            
+    except requests.exceptions.RequestException as e:
+        return None, f"Failed to connect to export engine API: {str(e)}"
+    except Exception as e:
+        return None, f"Unexpected error submitting to API: {str(e)}"

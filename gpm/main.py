@@ -270,7 +270,15 @@ def report(project_config, report, no_sub_reports, no_validate_links):
     default="",
     help="Define the path to BCL folder.",
 )
-def export(export_folder, config, no_cloud, username, bcl, tar, gzip):
+@click.option(
+    "--with-api",
+    "with_api",
+    required=False,
+    default=False,
+    is_flag=True,
+    help="Send export specification to export engine API.",
+)
+def export(export_folder, config, no_cloud, username, bcl, tar, gzip, with_api):
     """
     Export the project to the target folder with symbolic links.
     """
@@ -278,9 +286,9 @@ def export(export_folder, config, no_cloud, username, bcl, tar, gzip):
     pm = GPM()
     if config:  
         pm.load_project_config_file(config)
-        pm.export(export_folder)
+        pm.export(export_folder, use_api=with_api)
     else:
-        pm.export(export_folder, symlink=False)
+        pm.export(export_folder, symlink=False, use_api=with_api)
     if username:
         pm.update_username(username)
     pm.add_htaccess(export_folder)
