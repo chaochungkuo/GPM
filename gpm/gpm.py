@@ -521,7 +521,6 @@ class GPM:
                 job_spec = convert_export_structure_to_job_spec(
                     self.export_structure,
                     self.profile,
-                    export_dir,
                     prefix=self.prefix
                 )
                 

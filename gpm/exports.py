@@ -305,7 +305,7 @@ def determine_host():
         sys.exit(1)
 
 
-def convert_export_structure_to_job_spec(export_structure, profile, export_dir, prefix=""):
+def convert_export_structure_to_job_spec(export_structure, profile, prefix=""):
     """
     Convert GPM's export structure to export_engine's ExportJobSpec format.
     

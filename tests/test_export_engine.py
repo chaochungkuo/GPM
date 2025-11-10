@@ -106,7 +106,7 @@ class TestConvertExportStructureToJobSpec:
     ):
         """Test basic conversion of export structure to job spec."""
         job_spec = convert_export_structure_to_job_spec(
-            mock_export_structure, PROFILE, "/export/dir", prefix=""
+            mock_export_structure, PROFILE, prefix=""
         )
 
         assert job_spec["project_name"] == PROFILE["Project"]["project_name"]
@@ -132,7 +132,7 @@ class TestConvertExportStructureToJobSpec:
 
         export_structure = [["RNAseq", "*.txt", "results", None]]
         job_spec = convert_export_structure_to_job_spec(
-            export_structure, PROFILE, "/export/dir", prefix=str(tmp_path) + "/"
+            export_structure, PROFILE, prefix=str(tmp_path) + "/"
         )
 
         assert len(job_spec["export_list"]) == 2
@@ -147,7 +147,7 @@ class TestConvertExportStructureToJobSpec:
 
         export_structure = [["RNAseq", str(test_file), "results", "renamed.txt"]]
         job_spec = convert_export_structure_to_job_spec(
-            export_structure, PROFILE, "/export/dir", prefix=""
+            export_structure, PROFILE, prefix=""
         )
 
         assert job_spec["export_list"][0]["source"] == str(test_file)
@@ -159,7 +159,7 @@ class TestConvertExportStructureToJobSpec:
         """Test conversion includes authors when available."""
         PROFILE["Project"]["authors"] = ["author1", "author2"]
         job_spec = convert_export_structure_to_job_spec(
-            mock_export_structure, PROFILE, "/export/dir", prefix=""
+            mock_export_structure, PROFILE, prefix=""
         )
 
         assert "authors" in job_spec
@@ -172,7 +172,7 @@ class TestConvertExportStructureToJobSpec:
         mock_common_patches["config"].return_value = "apache,owncloud"
 
         job_spec = convert_export_structure_to_job_spec(
-            mock_export_structure, PROFILE, "/export/dir", prefix=""
+            mock_export_structure, PROFILE, prefix=""
         )
 
         assert job_spec["backend"] == ["apache", "owncloud"]
@@ -183,14 +183,14 @@ class TestConvertExportStructureToJobSpec:
         """Test username extraction from project name."""
         # Test with standard format
         job_spec = convert_export_structure_to_job_spec(
-            mock_export_structure, PROFILE, "/export/dir", prefix=""
+            mock_export_structure, PROFILE, prefix=""
         )
         assert job_spec["username"] == "testuser"
 
         # Test with non-standard format (fallback)
         PROFILE["Project"]["project_name"] = "InvalidName"
         job_spec = convert_export_structure_to_job_spec(
-            mock_export_structure, PROFILE, "/export/dir", prefix=""
+            mock_export_structure, PROFILE, prefix=""
         )
         assert job_spec["username"] == "invalidname"
 
@@ -228,7 +228,7 @@ class TestSubmitExportToAPI:
         mock_response.status_code = 201
         mock_response.json.return_value = {"job_id": "job123", "status": "submitted"}
         mock_api_patches["post"].return_value = mock_response
-
+    
         job_id, result = submit_export_to_api(mock_job_spec)
 
         assert job_id == "job123"
