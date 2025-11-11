@@ -17,8 +17,10 @@ from gpm import PROJECT_INI_FILE
 from gpm.exports import (
     check_export_directory,
     convert_export_structure_to_job_spec,
+    extract_credentials_from_completion,
     get_htaccess_path,
     htpasswd_create_user,
+    monitor_job_via_websocket,
     owncloud_export,
     owncloud_login,
     submit_export_to_api,
@@ -84,7 +86,7 @@ class GPM:
                 section_dict = config[section]
                 for tag in tags_GPM[section]:
                     value = section_dict.get(tag)
-                    if "[" in value and "]" in value:
+                    if value and "[" in value and "]" in value:
                         value = ast.literal_eval(value)
                     # print(value)
                     self.profile[section][tag] = value
@@ -510,37 +512,118 @@ class GPM:
         # Load export name to project.ini
         export_name = os.path.basename(export_dir)
         self.update_project_name(export_name)
-        
+
         # Handle API export if requested
         if use_api:
             try:
                 # Load export config to get export_structure
                 self.load_export_config()
-                
+
                 # Convert export structure to job spec
                 job_spec = convert_export_structure_to_job_spec(
-                    self.export_structure,
-                    self.profile,
-                    prefix=self.prefix
+                    self.export_structure, self.profile, prefix=self.prefix
                 )
-                
+
                 # Submit to API
                 click.echo(click.style("Submitting export to API...", fg="bright_blue"))
                 job_id, result = submit_export_to_api(job_spec)
-                
+
                 if job_id:
-                    click.echo(click.style("Export job submitted successfully!", fg="bright_green"))
+                    click.echo(
+                        click.style(
+                            "Export job submitted successfully!", fg="bright_green"
+                        )
+                    )
                     click.echo(f"Job ID: {job_id}")
-                    if isinstance(result, dict) and "status" in result:
-                        click.echo(f"Status: {result['status']}")
-                    click.echo("You can check the job status using the export engine API.")
+
+                    # Get API URL for WebSocket monitoring
+                    try:
+                        api_url_config = get_gpm_config(
+                            "EXPORT_ENGINE", "EXPORT_ENGINE_API_URL"
+                        )
+                        if api_url_config and isinstance(api_url_config, str):
+                            api_url = api_url_config
+                        else:
+                            api_url = "http://localhost:8000"
+                    except Exception:
+                        api_url = "http://localhost:8000"
+
+                    # Get timeout from config if available
+                    timeout = None
+                    try:
+                        timeout_str = get_gpm_config(
+                            "EXPORT_ENGINE", "EXPORT_ENGINE_MONITOR_TIMEOUT"
+                        )
+                        if timeout_str and isinstance(timeout_str, str):
+                            timeout = float(timeout_str)
+                    except Exception:
+                        timeout = None
+
+                    # Monitor job via WebSocket
+                    click.echo(
+                        click.style(
+                            "\nStarting real-time monitoring...", fg="bright_blue"
+                        )
+                    )
+                    completion_data = monitor_job_via_websocket(
+                        job_id, api_url, timeout=timeout
+                    )
+
+                    if completion_data:
+                        # Extract credentials from completion message
+                        credentials = extract_credentials_from_completion(
+                            completion_data
+                        )
+
+                        # Update profile with extracted credentials
+                        if credentials.get("username"):
+                            self.profile["Export"]["export_user"] = credentials[
+                                "username"
+                            ]
+                        if credentials.get("password"):
+                            self.profile["Export"]["export_password"] = credentials[
+                                "password"
+                            ]
+                        if credentials.get("export_URL"):
+                            self.profile["Export"]["export_URL"] = credentials[
+                                "export_URL"
+                            ]
+                        if credentials.get("report_URL"):
+                            self.profile["Export"]["report_URL"] = credentials[
+                                "report_URL"
+                            ]
+                        if credentials.get("download_url"):
+                            self.profile["Export"]["download_url"] = credentials[
+                                "download_url"
+                            ]
+
+                        click.echo(
+                            click.style(
+                                "\nExport completed successfully!", fg="bright_green"
+                            )
+                        )
+                    else:
+                        click.echo(
+                            click.style(
+                                "\nMonitoring ended. Job may still be processing.",
+                                fg="yellow",
+                            )
+                        )
+                        click.echo(
+                            "You can check the job status using the export engine API."
+                        )
                 else:
-                    click.echo(click.style(f"Failed to submit export job: {result}", fg="red"))
+                    click.echo(
+                        click.style(f"Failed to submit export job: {result}", fg="red")
+                    )
                     click.echo("Continuing with local export...")
+            except KeyboardInterrupt:
+                click.echo(click.style("\nExport interrupted by user", fg="yellow"))
+                raise
             except Exception as e:
                 click.echo(click.style(f"Error during API export: {str(e)}", fg="red"))
                 click.echo("Continuing with local export...")
-        
+
         if symlink:
             # Creating soft links of the files
             self.load_export_config()
