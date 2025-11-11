@@ -41,6 +41,34 @@ def determine_host():
         sys.exit(1)
 
 
+def determine_report_section(dest_path: str) -> str:
+    """
+    Determine the appropriate report_section based on the destination path.
+
+    Maps destination paths to ReportSection enum values:
+    - Paths containing '1_Raw_data' → 'raw'
+    - Paths containing '2_Processed_data' → 'processed'
+    - Paths containing '3_Reports' → 'reports'
+    - All other paths → 'general' (default)
+
+    Args:
+        dest_path: Destination path (string)
+
+    Returns:
+        str: Report section value ('raw', 'processed', 'reports', or 'general')
+    """
+    dest_path_lower = dest_path.lower()
+    
+    if "1_raw_data" in dest_path_lower:
+        return "raw"
+    elif "2_processed_data" in dest_path_lower:
+        return "processed"
+    elif "3_reports" in dest_path_lower:
+        return "reports"
+    else:
+        return "general"
+
+
 def convert_export_structure_to_job_spec(export_structure, profile, prefix=""):
     """
     Convert GPM's export structure to export_engine's ExportJobSpec format.
@@ -137,6 +165,7 @@ def convert_export_structure_to_job_spec(export_structure, profile, prefix=""):
                             "project": project_name,
                             "mode": "symlink",
                             "include_in_report": True,
+                            "report_section": determine_report_section(dest_path),
                         }
                     )
         else:
@@ -156,6 +185,7 @@ def convert_export_structure_to_job_spec(export_structure, profile, prefix=""):
                     "project": project_name,
                     "include_in_report": True,
                     "mode": "symlink",
+                    "report_section": determine_report_section(dest_path),
                 }
             )
 
@@ -413,7 +443,18 @@ def monitor_job_via_websocket(
                 if formatted_msg:
                     click.echo(click.style(formatted_msg, fg="bright_blue"))
                 if msg:
-                    click.echo(click.style(msg, fg="bright_blue"))
+                    click.echo(
+                        click.style(
+                            "\nPlease use the following information for submitting in MS Planner:",
+                            fg="bright_green",
+                        )
+                    )
+                    click.echo(
+                        click.style(
+                            msg,
+                            fg="bright_green",
+                        )
+                    )
             else:
                 # For other messages, display formatted_message if available, else message
                 if formatted_msg:
