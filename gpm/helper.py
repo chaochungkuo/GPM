@@ -334,7 +334,7 @@ def find_all_linked_htmls(start_html, visited=None):
     return visited
 
 
-def get_api_creds() -> HTTPBasicAuth | None:
+def get_api_creds():
     api_pass = os.getenv("GPM_PASS")
     return HTTPBasicAuth("GPM", api_pass) if api_pass else None
 
