@@ -21,7 +21,7 @@ import websocket
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from gpm.exports import (
+from gpm.api_export import (
     _convert_api_url_to_ws_url,
     extract_credentials_from_completion,
     monitor_job_via_websocket,
@@ -101,9 +101,9 @@ class TestExtractCredentialsFromCompletion:
 class TestMonitorJobViaWebsocket:
     """Tests for WebSocket monitoring function."""
 
-    @patch("gpm.exports.websocket.WebSocketApp")
-    @patch("gpm.exports.get_gpm_config")
-    @patch("gpm.exports.click.echo")
+    @patch("gpm.api_export.websocket.WebSocketApp")
+    @patch("gpm.api_export.get_gpm_config")
+    @patch("gpm.api_export.click.echo")
     def test_successful_monitoring_flow(self, mock_echo, mock_config, mock_ws_class):
         """Test successful WebSocket monitoring with full job lifecycle."""
         # Setup mocks
@@ -211,9 +211,9 @@ class TestMonitorJobViaWebsocket:
         assert credentials["username"] == "testuser"
         assert credentials["password"] == "testpass"
 
-    @patch("gpm.exports.websocket.WebSocketApp")
-    @patch("gpm.exports.get_gpm_config")
-    @patch("gpm.exports.click.echo")
+    @patch("gpm.api_export.websocket.WebSocketApp")
+    @patch("gpm.api_export.get_gpm_config")
+    @patch("gpm.api_export.click.echo")
     def test_websocket_connection_failure(self, mock_echo, mock_config, mock_ws_class):
         """Test WebSocket connection failure handling."""
         mock_config.side_effect = lambda section, key: {
@@ -257,9 +257,9 @@ class TestMonitorJobViaWebsocket:
         ]
         assert len(error_calls) > 0
 
-    @patch("gpm.exports.websocket.WebSocketApp")
-    @patch("gpm.exports.get_gpm_config")
-    @patch("gpm.exports.click.echo")
+    @patch("gpm.api_export.websocket.WebSocketApp")
+    @patch("gpm.api_export.get_gpm_config")
+    @patch("gpm.api_export.click.echo")
     def test_job_failure_notification(self, mock_echo, mock_config, mock_ws_class):
         """Test handling of job failure notification."""
         mock_config.side_effect = lambda section, key: {
@@ -318,9 +318,9 @@ class TestMonitorJobViaWebsocket:
         ]
         assert len(error_calls) > 0
 
-    @patch("gpm.exports.websocket.WebSocketApp")
-    @patch("gpm.exports.get_gpm_config")
-    @patch("gpm.exports.click.echo")
+    @patch("gpm.api_export.websocket.WebSocketApp")
+    @patch("gpm.api_export.get_gpm_config")
+    @patch("gpm.api_export.click.echo")
     def test_already_completed_job(self, mock_echo, mock_config, mock_ws_class):
         """Test handling of already completed job (server sends final message immediately)."""
         mock_config.side_effect = lambda section, key: {
@@ -383,9 +383,9 @@ class TestMonitorJobViaWebsocket:
         assert credentials["username"] == "testuser"
         assert credentials["password"] == "testpass"
 
-    @patch("gpm.exports.websocket.WebSocketApp")
-    @patch("gpm.exports.get_gpm_config")
-    @patch("gpm.exports.click.echo")
+    @patch("gpm.api_export.websocket.WebSocketApp")
+    @patch("gpm.api_export.get_gpm_config")
+    @patch("gpm.api_export.click.echo")
     def test_ping_pong_keepalive(self, mock_echo, mock_config, mock_ws_class):
         """Test ping/pong keepalive message handling."""
         mock_config.side_effect = lambda section, key: {

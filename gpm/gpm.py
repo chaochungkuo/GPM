@@ -14,16 +14,18 @@ from os import path
 import click
 
 from gpm import PROJECT_INI_FILE
-from gpm.exports import (
-    check_export_directory,
+from gpm.api_export import (
     convert_export_structure_to_job_spec,
     extract_credentials_from_completion,
+    monitor_job_via_websocket,
+    submit_export_to_api,
+)
+from gpm.exports import (
+    check_export_directory,
     get_htaccess_path,
     htpasswd_create_user,
-    monitor_job_via_websocket,
     owncloud_export,
     owncloud_login,
-    submit_export_to_api,
 )
 from gpm.helper import (
     append_file_to_another,

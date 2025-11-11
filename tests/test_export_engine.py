@@ -9,9 +9,9 @@ Tests cover:
 """
 
 import os
+import subprocess
 import sys
 from unittest.mock import Mock, patch
-import subprocess
 
 import pytest
 import requests
@@ -19,9 +19,9 @@ import requests
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from gpm.exports import (
-    determine_host,
+from gpm.api_export import (
     convert_export_structure_to_job_spec,
+    determine_host,
     submit_export_to_api,
 )
 
@@ -42,7 +42,7 @@ PROFILE = {
 @pytest.fixture
 def mock_subprocess_run():
     """Fixture for mocking subprocess.run."""
-    with patch("gpm.exports.subprocess.run") as mock_run:
+    with patch("gpm.api_export.subprocess.run") as mock_run:
         yield mock_run
 
 
@@ -55,21 +55,20 @@ class TestDetermineHost:
         result = determine_host()
         assert result == "nextgen"
 
-
     def test_determine_host_with_domain(self, mock_subprocess_run):
         """Test hostname extraction when domain is present."""
-        mock_subprocess_run.return_value = Mock(stdout="nextgen2.example.com\n", returncode=0)
+        mock_subprocess_run.return_value = Mock(
+            stdout="nextgen2.example.com\n", returncode=0
+        )
         result = determine_host()
         assert result == "nextgen2"
 
-    @patch("gpm.exports.sys.exit")
+    @patch("gpm.api_export.sys.exit")
     def test_determine_host_error(self, mock_exit, mock_subprocess_run):
         """Test error handling when hostname command fails."""
         mock_subprocess_run.side_effect = subprocess.CalledProcessError(1, "hostname")
         determine_host()
         mock_exit.assert_called_once_with(1)
-
-
 
 
 @pytest.fixture
@@ -85,9 +84,9 @@ def mock_export_structure(tmp_path):
 @pytest.fixture
 def mock_common_patches():
     """Fixture that patches common dependencies with default values."""
-    with patch("gpm.exports.generate_password") as mock_password, \
-         patch("gpm.exports.get_gpm_config") as mock_config, \
-         patch("gpm.exports.determine_host") as mock_host:
+    with patch("gpm.exports.generate_password") as mock_password, patch(
+        "gpm.api_export.get_gpm_config"
+    ) as mock_config, patch("gpm.api_export.determine_host") as mock_host:
         mock_password.return_value = DEFAULT_PASSWORD
         mock_config.return_value = DEFAULT_BACKEND
         mock_host.return_value = DEFAULT_HOST
@@ -110,17 +109,18 @@ class TestConvertExportStructureToJobSpec:
         )
 
         assert job_spec["project_name"] == PROFILE["Project"]["project_name"]
-        assert job_spec["username"] == PROFILE["Project"]["project_name"].split("_")[1].lower()
+        assert (
+            job_spec["username"]
+            == PROFILE["Project"]["project_name"].split("_")[1].lower()
+        )
         assert job_spec["password"] == DEFAULT_PASSWORD
         assert job_spec["backend"] == [DEFAULT_BACKEND]
         assert len(job_spec["export_list"]) == 1
         assert job_spec["export_list"][0]["mode"] == "symlink"
         assert job_spec["export_list"][0]["host"] == DEFAULT_HOST
 
-    @patch("gpm.exports.glob.glob")
-    def test_convert_with_glob_pattern(
-        self, mock_glob, mock_common_patches, tmp_path
-    ):
+    @patch("gpm.api_export.glob.glob")
+    def test_convert_with_glob_pattern(self, mock_glob, mock_common_patches, tmp_path):
         """Test conversion with glob patterns in source paths."""
         # Create test files
         file1 = tmp_path / "file1.txt"
@@ -138,9 +138,7 @@ class TestConvertExportStructureToJobSpec:
         assert len(job_spec["export_list"]) == 2
         assert all(entry["mode"] == "symlink" for entry in job_spec["export_list"])
 
-    def test_convert_with_absolute_path(
-        self, mock_common_patches, tmp_path
-    ):
+    def test_convert_with_absolute_path(self, mock_common_patches, tmp_path):
         """Test conversion with absolute source paths."""
         test_file = tmp_path / "absolute_file.txt"
         test_file.write_text("content")
@@ -153,9 +151,7 @@ class TestConvertExportStructureToJobSpec:
         assert job_spec["export_list"][0]["source"] == str(test_file)
         assert job_spec["export_list"][0]["destination"] == "results/renamed.txt"
 
-    def test_convert_with_authors(
-        self, mock_common_patches, mock_export_structure
-    ):
+    def test_convert_with_authors(self, mock_common_patches, mock_export_structure):
         """Test conversion includes authors when available."""
         PROFILE["Project"]["authors"] = ["author1", "author2"]
         job_spec = convert_export_structure_to_job_spec(
@@ -210,8 +206,9 @@ def mock_job_spec():
 @pytest.fixture
 def mock_api_patches():
     """Fixture that patches API-related dependencies."""
-    with patch("gpm.exports.get_gpm_config") as mock_config, \
-         patch("gpm.exports.requests.post") as mock_post:
+    with patch("gpm.api_export.get_gpm_config") as mock_config, patch(
+        "gpm.api_export.requests.post"
+    ) as mock_post:
         mock_config.return_value = DEFAULT_API_URL
         yield {
             "config": mock_config,
@@ -228,7 +225,7 @@ class TestSubmitExportToAPI:
         mock_response.status_code = 201
         mock_response.json.return_value = {"job_id": "job123", "status": "submitted"}
         mock_api_patches["post"].return_value = mock_response
-    
+
         job_id, result = submit_export_to_api(mock_job_spec)
 
         assert job_id == "job123"
@@ -254,14 +251,16 @@ class TestSubmitExportToAPI:
 
     def test_submit_connection_error(self, mock_api_patches, mock_job_spec):
         """Test connection error handling."""
-        mock_api_patches["post"].side_effect = requests.exceptions.ConnectionError("Connection refused")
+        mock_api_patches["post"].side_effect = requests.exceptions.ConnectionError(
+            "Connection refused"
+        )
 
         job_id, error = submit_export_to_api(mock_job_spec)
 
         assert job_id is None
         assert "Failed to connect" in error
 
-    @patch("gpm.exports.get_gpm_config")
+    @patch("gpm.api_export.get_gpm_config")
     def test_submit_missing_config(self, mock_config, mock_job_spec):
         """Test handling when API URL is not configured."""
         mock_config.return_value = None
@@ -293,10 +292,11 @@ def mock_gpm():
 @pytest.fixture
 def mock_export_patches():
     """Fixture that patches export-related dependencies."""
-    with patch("gpm.gpm.check_export_directory") as mock_check_dir, \
-         patch("gpm.gpm.convert_export_structure_to_job_spec") as mock_convert, \
-         patch("gpm.gpm.submit_export_to_api") as mock_submit, \
-         patch("gpm.gpm.click.echo") as mock_echo:
+    with patch("gpm.gpm.check_export_directory") as mock_check_dir, patch(
+        "gpm.gpm.convert_export_structure_to_job_spec"
+    ) as mock_convert, patch("gpm.gpm.submit_export_to_api") as mock_submit, patch(
+        "gpm.gpm.click.echo"
+    ) as mock_echo:
         mock_check_dir.return_value = None
         yield {
             "check_dir": mock_check_dir,
@@ -309,9 +309,7 @@ def mock_export_patches():
 class TestExportIntegration:
     """Integration tests for export() method with API support."""
 
-    def test_export_with_api_success(
-        self, mock_export_patches, mock_gpm, tmp_path
-    ):
+    def test_export_with_api_success(self, mock_export_patches, mock_gpm, tmp_path):
         """Test export with API flag when submission succeeds."""
         export_dir = str(tmp_path / "export")
         mock_export_patches["convert"].return_value = {"project_name": "test"}
@@ -322,12 +320,12 @@ class TestExportIntegration:
         mock_export_patches["convert"].assert_called_once()
         mock_export_patches["submit"].assert_called_once()
         # Verify success message was printed
-        assert any("successfully" in str(call).lower() 
-                   for call in mock_export_patches["echo"].call_args_list)
+        assert any(
+            "successfully" in str(call).lower()
+            for call in mock_export_patches["echo"].call_args_list
+        )
 
-    def test_export_with_api_error(
-        self, mock_export_patches, mock_gpm, tmp_path
-    ):
+    def test_export_with_api_error(self, mock_export_patches, mock_gpm, tmp_path):
         """Test export with API flag when submission fails."""
         export_dir = str(tmp_path / "export")
         mock_export_patches["convert"].return_value = {"project_name": "test"}
@@ -337,6 +335,7 @@ class TestExportIntegration:
 
         mock_export_patches["submit"].assert_called_once()
         # Verify error message was printed
-        assert any("failed" in str(call).lower() 
-                   for call in mock_export_patches["echo"].call_args_list)
-
+        assert any(
+            "failed" in str(call).lower()
+            for call in mock_export_patches["echo"].call_args_list
+        )
