@@ -19,6 +19,7 @@ def get_gpmdata_path():
     """
     Get the GPMDATA path from the environment.
     """
+    environ["GPMDATA"] = "/home/mmabrouk/Documents/Projects/gpmdata/"
     if environ.get("GPMDATA"):
         gpm_data_location = path.expanduser(getenv("GPMDATA"))
     else:
@@ -347,8 +348,11 @@ def query_api(
     auth = get_api_creds()
     response = requests.get(endpoint, auth=auth)
     if response.status_code != http.HTTPStatus.OK:
-        raise Exception(f"API request failed with status code {response.status_code} for {endpoint} and {auth}")
+        raise Exception(
+            f"API request failed with status code {response.status_code} for {endpoint} and {auth}"
+        )
     return response
+
 
 def get_flowcell_id(dir: str) -> str:
     return os.path.basename(dir).split("_")[-1][1:]

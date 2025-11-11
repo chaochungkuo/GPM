@@ -406,10 +406,12 @@ def convert_export_structure_to_job_spec(export_structure, profile, prefix=""):
 
                     export_list.append(
                         {
-                            "source": matching_file,
-                            "destination": dest_path,
+                            "src": matching_file,
+                            "dest": dest_path,
                             "host": host,
+                            "project": project_name,
                             "mode": "symlink",
+                            "include_in_report": True,
                         }
                     )
         else:
@@ -423,9 +425,11 @@ def convert_export_structure_to_job_spec(export_structure, profile, prefix=""):
 
             export_list.append(
                 {
-                    "source": abs_source,
-                    "destination": dest_path,
+                    "src": abs_source,
+                    "dest": dest_path,
                     "host": host,
+                    "project": project_name,
+                    "include_in_report": True,
                     "mode": "symlink",
                 }
             )
