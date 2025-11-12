@@ -19,7 +19,6 @@ def get_gpmdata_path():
     """
     Get the GPMDATA path from the environment.
     """
-    environ["GPMDATA"] = "/home/mmabrouk/Documents/Projects/gpmdata/"
     if environ.get("GPMDATA"):
         gpm_data_location = path.expanduser(getenv("GPMDATA"))
     else:
