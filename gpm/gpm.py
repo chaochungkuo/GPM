@@ -14,6 +14,12 @@ from os import path
 import click
 
 from gpm import PROJECT_INI_FILE
+from gpm.api_export import (
+    convert_export_structure_to_job_spec,
+    extract_credentials_from_completion,
+    monitor_job_via_websocket,
+    submit_export_to_api,
+)
 from gpm.exports import (
     check_export_directory,
     get_htaccess_path,
@@ -82,7 +88,7 @@ class GPM:
                 section_dict = config[section]
                 for tag in tags_GPM[section]:
                     value = section_dict.get(tag)
-                    if "[" in value and "]" in value:
+                    if value and "[" in value and "]" in value:
                         value = ast.literal_eval(value)
                     # print(value)
                     self.profile[section][tag] = value
@@ -494,55 +500,216 @@ class GPM:
                             ll[1] = self.replace_variable(ll[1], config_dict, "")
                             self.export_structure.append(ll)
 
-    def export(self, export_dir, tar=False, symlink=True):
-        def handle_rename(export_dir, entry):
-            # print(os.path.basename(entry[1]))
-            if entry[3]:
-                target = os.path.join(export_dir, entry[2], entry[3])
-            else:
-                target = os.path.join(export_dir, entry[2], os.path.basename(entry[1]))
-            return target
+    def _handle_rename(self, export_dir, entry):
+        """
+        Helper function to determine the target path for an export entry.
 
-        export_dir = os.path.abspath(export_dir)
+        :param export_dir: The export directory path.
+        :type export_dir: str
+        :param entry: Export entry with structure [app, source, target_dir, rename]
+        :type entry: list
+        :return: Target path for the export entry.
+        :rtype: str
+        """
+        if entry[3]:
+            target = os.path.join(export_dir, entry[2], entry[3])
+        else:
+            target = os.path.join(export_dir, entry[2], os.path.basename(entry[1]))
+        return target
+
+    def _export_via_api(self, export_dir):
+        """
+        Handle export via API scenario.
+
+        :param export_dir: The export directory path.
+        :type export_dir: str
+        :return: True if export was successful and should return early, False otherwise.
+        :rtype: bool
+        """
+        try:
+            # Load export config to get export_structure
+            self.load_export_config()
+
+            # Convert export structure to job spec
+            job_spec = convert_export_structure_to_job_spec(
+                self.export_structure, self.profile, prefix=self.prefix
+            )
+
+            # Submit to API
+            click.echo(click.style("Submitting export to API...", fg="bright_blue"))
+            job_id, result = submit_export_to_api(job_spec)
+
+            if job_id:
+                click.echo(
+                    click.style("Export job submitted successfully!", fg="bright_green")
+                )
+                click.echo(f"Job ID: {job_id}")
+
+                # Get API URL for WebSocket monitoring
+                try:
+                    api_url_config = get_gpm_config(
+                        "EXPORT_ENGINE", "EXPORT_ENGINE_API_URL"
+                    )
+                    if api_url_config and isinstance(api_url_config, str):
+                        api_url = api_url_config
+                    else:
+                        api_url = "http://genomics.rwth-aachen.de:9500"
+                except Exception:
+                    api_url = "http://genomics.rwth-aachen.de:9500"
+
+                # Get timeout from config if available
+                timeout = None
+                try:
+                    timeout_str = get_gpm_config(
+                        "EXPORT_ENGINE", "EXPORT_ENGINE_MONITOR_TIMEOUT"
+                    )
+                    if timeout_str and isinstance(timeout_str, str):
+                        timeout = float(timeout_str)
+                except Exception:
+                    timeout = None
+
+                # Monitor job via WebSocket
+                click.echo(
+                    click.style("\nStarting real-time monitoring...", fg="bright_blue")
+                )
+                completion_data = monitor_job_via_websocket(
+                    job_id, api_url, timeout=timeout
+                )
+
+                if completion_data:
+                    # Extract credentials from completion message
+                    credentials = extract_credentials_from_completion(completion_data)
+
+                    # Update profile with extracted credentials
+                    if credentials.get("username"):
+                        self.profile["Export"]["export_user"] = credentials["username"]
+                    if credentials.get("password"):
+                        self.profile["Export"]["export_password"] = credentials[
+                            "password"
+                        ]
+                    if credentials.get("export_URL"):
+                        self.profile["Export"]["export_URL"] = credentials["export_URL"]
+                    if credentials.get("report_URL"):
+                        self.profile["Export"]["report_URL"] = credentials["report_URL"]
+                    if credentials.get("download_url"):
+                        self.profile["Export"]["download_url"] = credentials[
+                            "download_url"
+                        ]
+
+                    click.echo(
+                        click.style(
+                            "\nExport completed successfully!", fg="bright_green"
+                        )
+                    )
+                else:
+                    click.echo(
+                        click.style(
+                            "\nMonitoring ended. Job may still be processing.",
+                            fg="yellow",
+                        )
+                    )
+                    click.echo(
+                        "You can check the job status using the export engine API."
+                    )
+                return True
+            else:
+                click.echo(
+                    click.style(f"Failed to submit export job: {result}", fg="red")
+                )
+                click.echo("Continuing with local export...")
+                return False
+        except KeyboardInterrupt:
+            click.echo(click.style("\nExport interrupted by user", fg="yellow"))
+            raise
+        except Exception as e:
+            click.echo(click.style(f"Error during API export: {str(e)}", fg="red"))
+            click.echo("Continuing with local export...")
+            return False
+
+    def _export_via_symlink(self, export_dir):
+        """
+        Handle export via symlink scenario.
+
+        :param export_dir: The export directory path.
+        :type export_dir: str
+        :return: None
+        """
         check_export_directory(export_dir)
+
+        # Creating soft links of the files
+        self.load_export_config()
+        for entry in self.export_structure:
+            if not entry[1]:  # make the folder
+                target = os.path.join(export_dir, entry[2])
+                if not os.path.exists(target):
+                    os.makedirs(target)
+            else:
+                origin_f = os.path.join(
+                    self.profile["Project"]["project_path"], entry[1]
+                )
+                # A directory
+                if os.path.isdir(origin_f):
+                    target = self._handle_rename(export_dir, entry)
+                    os.symlink(self.prefix + origin_f, target, target_is_directory=True)
+                # A file
+                elif os.path.isfile(origin_f):
+                    target = self._handle_rename(export_dir, entry)
+                    os.symlink(
+                        self.prefix + origin_f, target, target_is_directory=False
+                    )
+                # A pattern for many files
+                else:
+                    target_dir = os.path.join(export_dir, entry[2])
+                    if not os.path.exists(target_dir):
+                        os.makedirs(target_dir)
+                    for matching_file in glob.glob(origin_f):
+                        target = os.path.join(
+                            target_dir, os.path.basename(matching_file)
+                        )
+                        os.symlink(matching_file, target, target_is_directory=False)
+
+    def _export_via_tar(self, export_dir):
+        """
+        Handle export via tar archive scenario.
+
+        :param export_dir: The export directory path.
+        :type export_dir: str
+        :return: None
+        """
+        # TODO: Implement tar export functionality
+        click.echo(click.style("Tar export not yet implemented", fg="yellow"))
+        check_export_directory(export_dir)
+
+    def export(self, export_dir, tar=False, symlink=True, use_api=False):
+        """
+        Export project files to the specified directory.
+
+        :param export_dir: The export directory path.
+        :type export_dir: str
+        :param tar: Whether to create a tar archive (not yet implemented).
+        :type tar: bool
+        :param symlink: Whether to create symlinks (default: True).
+        :type symlink: bool
+        :param use_api: Whether to use API export (default: False).
+        :type use_api: bool
+        :return: None
+        """
+        export_dir = os.path.abspath(export_dir)
         # Load export name to project.ini
         export_name = os.path.basename(export_dir)
         self.update_project_name(export_name)
-        if symlink:
-            # Creating soft links of the files
-            self.load_export_config()
-            for entry in self.export_structure:
-                # print(entry)
-                if not entry[1]:  # make the folder
-                    target = os.path.join(export_dir, entry[2])
-                    if not os.path.exists(target):
-                        os.makedirs(target)
-                else:
-                    origin_f = os.path.join(
-                        self.profile["Project"]["project_path"], entry[1]
-                    )
-                    # A directory
-                    if os.path.isdir(origin_f):
-                        target = handle_rename(export_dir, entry)
-                        os.symlink(
-                            self.prefix + origin_f, target, target_is_directory=True
-                        )
-                    # A file
-                    elif os.path.isfile(origin_f):
-                        target = handle_rename(export_dir, entry)
-                        os.symlink(
-                            self.prefix + origin_f, target, target_is_directory=False
-                        )
-                    # A pattern for many files
-                    else:
-                        target_dir = os.path.join(export_dir, entry[2])
-                        if not os.path.exists(target_dir):
-                            os.makedirs(target_dir)
-                        for matching_file in glob.glob(origin_f):
-                            target = os.path.join(
-                                target_dir, os.path.basename(matching_file)
-                            )
-                            os.symlink(matching_file, target, target_is_directory=False)
+
+        # Handle API export if requested
+        if use_api:
+            if self._export_via_api(export_dir):
+                return  # API export completed successfully, exit early
+
+        # Handle tar export if requested
+        if tar:
+            self._export_via_tar(export_dir)
+        # Handle symlink export (default or explicitly requested)
+        elif symlink:
+            self._export_via_symlink(export_dir)
 
     def add_htaccess(self, export_dir):
         htaccess_path = get_htaccess_path()

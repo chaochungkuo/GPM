@@ -1,13 +1,20 @@
 import os
+
 import click
+
+from gpm.__version__ import __version__
 from gpm.archive import archive_folders
 from gpm.clean import clean_folders
-from gpm.reports import extract_html_titles, inserting_sub_reports, render_rmd_to_html, validate_html_links
-from gpm.helper import get_gpm_config
-from gpm.samplesheet import generate_samples, fastq_dir_to_samplesheet
-from gpm.__version__ import __version__
-from gpm.gpm import GPM
 from gpm.exports import check_export_directory, export_empty_folder, tar_exports
+from gpm.gpm import GPM
+from gpm.helper import get_gpm_config
+from gpm.reports import (
+    extract_html_titles,
+    inserting_sub_reports,
+    render_rmd_to_html,
+    validate_html_links,
+)
+from gpm.samplesheet import fastq_dir_to_samplesheet, generate_samples
 
 help_messages = {
     "demultiplex_raw": "Define the folder of BCL files as the "
@@ -30,7 +37,7 @@ help_messages = {
     "--sanitise_name_delimiter all elements before this index "
     "(1-based) will be joined to create final sample name.",
     "from-config": "Define the project.ini to inherit from.",
-    "authors": "Define the authors of the new project according to gpm.ini."
+    "authors": "Define the authors of the new project according to gpm.ini.",
 }
 
 
@@ -82,8 +89,9 @@ def demultiplex(method, raw, output):
     ),
     help="Define the pipeline for this project.",
 )
-@click.option("-a", "--authors", help=help_messages["authors"],
-              required=False, default=None)
+@click.option(
+    "-a", "--authors", help=help_messages["authors"], required=False, default=None
+)
 def init(from_config, fastq, name, processing, authors):
     """
     Initiate a project with GPM by inheriting project.ini for further
@@ -205,7 +213,7 @@ def report(project_config, report, no_sub_reports, no_validate_links):
     # Generate the Rmd
     if not os.path.exists(rmd_file):
         pm.add_main_report(report)
-    
+
     if not no_sub_reports:
         inserting_sub_reports(analysis_dir, report, sub_reports)
     # Render into HTML
@@ -270,17 +278,29 @@ def report(project_config, report, no_sub_reports, no_validate_links):
     default="",
     help="Define the path to BCL folder.",
 )
-def export(export_folder, config, no_cloud, username, bcl, tar, gzip):
+@click.option(
+    "--with-api",
+    "with_api",
+    required=False,
+    default=False,
+    is_flag=True,
+    help="Send export specification to export engine API.",
+)
+def export(export_folder, config, no_cloud, username, bcl, tar, gzip, with_api):
     """
     Export the project to the target folder with symbolic links.
     """
 
     pm = GPM()
-    if config:  
+    if config:
         pm.load_project_config_file(config)
-        pm.export(export_folder)
+        pm.export(export_folder, use_api=with_api)
     else:
-        pm.export(export_folder, symlink=False)
+        pm.export(export_folder, symlink=False, use_api=with_api)
+    if with_api and config:
+        pm.write_project_config_file()
+        return
+
     if username:
         pm.update_username(username)
     pm.add_htaccess(export_folder)
@@ -295,8 +315,7 @@ def export(export_folder, config, no_cloud, username, bcl, tar, gzip):
     if config:
         pm.write_project_config_file()
     if bcl:
-        os.symlink(bcl, os.path.join(export_folder, "BCL"),
-                   target_is_directory=True)
+        os.symlink(bcl, os.path.join(export_folder, "BCL"), target_is_directory=True)
     if tar:
         tar_exports(
             export_folder=export_folder, gzip=gzip, dry_run=False, same_server=False
@@ -343,8 +362,13 @@ def tar_export(export_folder, dry_run, gzip):
     is_flag=True,
     help="Dry run without actual execution.",
 )
-@click.option("-b", "--before-date", "before", default="",
-              help="Filter the folders by the date (YYMMDD) in its name. Any folders after this date will be skipped.")
+@click.option(
+    "-b",
+    "--before-date",
+    "before",
+    default="",
+    help="Filter the folders by the date (YYMMDD) in its name. Any folders after this date will be skipped.",
+)
 # @click.option("-a", "--after-date", "after", default="",
 #               help="Filter the folders by the date in its name.")
 @click.option(
@@ -365,16 +389,19 @@ def tar_export(export_folder, dry_run, gzip):
     is_flag=True,
     help="Keep the folders which contain an empty .keep file in the directory.",
 )
-def clean(target_folders, dry_run, show_each_file, keep_files,before):
+def clean(target_folders, dry_run, show_each_file, keep_files, before):
     """Clean the given folders by deleting the patterns defined in gpm.ini."""
     if len(target_folders) == 1 and not os.path.isdir(target_folders[0]):
         click.echo("No folders is provided.")
     else:
         click.echo("Following files/folders could be cleaned:")
-        clean_folders(target_folders, dry=dry_run,
-                      show_each_file=show_each_file,
-                      keep_files=keep_files,
-                      before=before)
+        clean_folders(
+            target_folders,
+            dry=dry_run,
+            show_each_file=show_each_file,
+            keep_files=keep_files,
+            before=before,
+        )
 
 
 @main.command()

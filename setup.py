@@ -1,10 +1,11 @@
-import sys
 import io
 import os
 import re
-from setuptools import setup, find_packages
-from os import path, makedirs
+import sys
+from os import makedirs, path
 from shutil import copytree
+
+from setuptools import find_packages, setup
 
 #############################################################
 # Get version
@@ -14,15 +15,14 @@ from shutil import copytree
 def read(*names, **kwargs):
     with io.open(
         os.path.join(os.path.dirname(__file__), *names),
-        encoding=kwargs.get("encoding", "utf8")
+        encoding=kwargs.get("encoding", "utf8"),
     ) as fp:
         return fp.read()
 
 
 def find_version(*file_paths):
     version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M)
     if version_match:
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
@@ -36,12 +36,11 @@ current_version = find_version("gpm", "__version__.py")
 
 # if the environment variable is set, use it;
 # otherwise use the home directory as a default
-if os.environ.get('GPMDATA'):
+if os.environ.get("GPMDATA"):
     gpm_data_location = path.expanduser(os.getenv("GPMDATA"))
 else:
-    gpm_data_location = path.expanduser(path.join(os.getenv("HOME"),
-                                                  "gpmdata"))
-print("GPMDATA folder: "+gpm_data_location)
+    gpm_data_location = path.expanduser(path.join(os.getenv("HOME"), "gpmdata"))
+print("GPMDATA folder: " + gpm_data_location)
 sys.stdout.flush()
 
 # Creating Data Path
@@ -73,30 +72,39 @@ for copy_folder in data_folders:
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-short_description = 'GPM (Genomic Project Manager) is a versatile '
-'command-line tool designed for managing and automating bioinformatic '
-'workflows.'
+short_description = "GPM (Genomic Project Manager) is a versatile "
+"command-line tool designed for managing and automating bioinformatic "
+"workflows."
 
 setup(
-    name='gpm',
+    name="gpm",
     version=current_version,
-    author='Chao-Chung Kuo',
-    author_email='chao-chung.kuo@rwth-aachen.de',
+    author="Chao-Chung Kuo",
+    author_email="chao-chung.kuo@rwth-aachen.de",
     description=short_description,
     long_description=long_description,
-    long_description_content_type='text/markdown',
-    url='https://github.com/chaochungkuo/GPM',
+    long_description_content_type="text/markdown",
+    url="https://github.com/chaochungkuo/GPM",
     packages=find_packages(),
     install_requires=[
-        'Click', "pandas", "pyyaml", "xtarfile", "tqdm", "pyocclient", "requests", "beautifulsoup4", "pytest"
+        "Click",
+        "pandas",
+        "pyyaml",
+        "xtarfile",
+        "tqdm",
+        "pyocclient",
+        "requests",
+        "beautifulsoup4",
+        "pytest",
+        "websocket-client",
     ],
     entry_points={
-        'console_scripts': [
-            'gpm=gpm.main:main',
+        "console_scripts": [
+            "gpm=gpm.main:main",
         ],
     },
     classifiers=[
-        'Programming Language :: Python :: 3',
-        'Operating System :: OS Independent',
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent",
     ],
 )

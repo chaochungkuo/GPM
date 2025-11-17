@@ -333,7 +333,7 @@ def find_all_linked_htmls(start_html, visited=None):
     return visited
 
 
-def get_api_creds() -> HTTPBasicAuth | None:
+def get_api_creds():
     api_pass = os.getenv("GPM_PASS")
     return HTTPBasicAuth("GPM", api_pass) if api_pass else None
 
@@ -347,8 +347,11 @@ def query_api(
     auth = get_api_creds()
     response = requests.get(endpoint, auth=auth)
     if response.status_code != http.HTTPStatus.OK:
-        raise Exception(f"API request failed with status code {response.status_code} for {endpoint} and {auth}")
+        raise Exception(
+            f"API request failed with status code {response.status_code} for {endpoint} and {auth}"
+        )
     return response
+
 
 def get_flowcell_id(dir: str) -> str:
     return os.path.basename(dir).split("_")[-1][1:]
