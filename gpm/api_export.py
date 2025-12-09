@@ -376,6 +376,12 @@ def poll_final_message(job_id: str, api_url: str) -> Optional[Dict[str, Any]]:
     return None
 
 
+def monitor_job_via_polling(
+    job_id: str, api_url: str, poll_interval: float = 2.0
+) -> dict[str, Any] | None:
+    pass
+
+
 def monitor_job_via_websocket(
     job_id: str, api_url: str, timeout: Optional[float] = None
 ) -> Optional[Dict[str, Any]]:
