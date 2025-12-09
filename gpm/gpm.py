@@ -574,9 +574,10 @@ class GPM:
                     click.style("\nStarting real-time monitoring...", fg="bright_blue")
                 )
                 completion_notification = poll_final_message(job_id, api_url)
+                print(completion_notification)
                 completion_data = {}
                 completion_data["notification"] = completion_notification
-                if completion_data:
+                if completion_notification:
                     # Extract credentials from completion message
                     credentials = extract_credentials_from_completion(completion_data)
 

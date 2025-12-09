@@ -324,6 +324,30 @@ def poll_final_message(job_id: str, api_url: str) -> Optional[Dict[str, Any]]:
                             "Final message retrieved successfully!", fg="bright_green"
                         )
                     )
+                    notif_type = notification.get("type", "normal")
+                    status = notification.get("status", "")
+                    msg = notification.get("message", "")
+                    formatted_msg = notification.get("formatted_message", "")
+
+                    # Display messages to user
+                    if status == "done":
+                        # For completion messages, display both formatted_message and message
+                        if formatted_msg:
+                            click.echo(click.style(formatted_msg, fg="bright_blue"))
+                        if msg:
+                            click.echo(
+                                click.style(
+                                    "\nPlease use the following information for submitting in MS Planner:",
+                                    fg="bright_green",
+                                )
+                            )
+                            click.echo(
+                                click.style(
+                                    msg,
+                                    fg="bright_green",
+                                )
+                            )
+
                     return notification
                 except (ValueError, json.JSONDecodeError):
                     click.echo(
