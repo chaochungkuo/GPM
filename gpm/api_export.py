@@ -300,7 +300,7 @@ def poll_final_message(job_id: str, api_url: str) -> Optional[Dict[str, Any]]:
     endpoint = f"{api_url}/export/final_message/{job_id}"
 
     # Poll for maximum 60 seconds, every 2 seconds
-    max_duration = 60
+    max_duration = 120
     poll_interval = 2
     start_time = time.time()
 

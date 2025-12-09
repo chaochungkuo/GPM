@@ -18,6 +18,7 @@ from gpm.api_export import (
     convert_export_structure_to_job_spec,
     extract_credentials_from_completion,
     monitor_job_via_websocket,
+    poll_final_message,
     submit_export_to_api,
 )
 from gpm.exports import (
@@ -572,10 +573,9 @@ class GPM:
                 click.echo(
                     click.style("\nStarting real-time monitoring...", fg="bright_blue")
                 )
-                completion_data = monitor_job_via_websocket(
-                    job_id, api_url, timeout=timeout
-                )
-
+                completion_notification = poll_final_message(job_id, api_url)
+                completion_data = {}
+                completion_data["notification"] = completion_notification
                 if completion_data:
                     # Extract credentials from completion message
                     credentials = extract_credentials_from_completion(completion_data)
