@@ -574,7 +574,6 @@ class GPM:
                     click.style("\nStarting real-time monitoring...", fg="bright_blue")
                 )
                 completion_notification = poll_final_message(job_id, api_url)
-                print(completion_notification)
                 completion_data = {}
                 completion_data["notification"] = completion_notification
                 if completion_notification:

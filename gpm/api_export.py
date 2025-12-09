@@ -324,13 +324,12 @@ def poll_final_message(job_id: str, api_url: str) -> Optional[Dict[str, Any]]:
                             "Final message retrieved successfully!", fg="bright_green"
                         )
                     )
-                    notif_type = notification.get("type", "normal")
                     status = notification.get("status", "")
                     msg = notification.get("message", "")
                     formatted_msg = notification.get("formatted_message", "")
 
                     # Display messages to user
-                    if status == "done":
+                    if status == "completed":
                         # For completion messages, display both formatted_message and message
                         if formatted_msg:
                             click.echo(click.style(formatted_msg, fg="bright_blue"))
