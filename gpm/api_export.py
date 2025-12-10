@@ -211,7 +211,7 @@ def convert_export_structure_to_job_spec(export_structure, profile, prefix=""):
         "backend": backend,
         "username": username,
         "password": password,
-        "authors": authors if authors else None,
+        "authors": authors if authors else "",
     }
 
     return job_spec
