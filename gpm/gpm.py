@@ -17,7 +17,6 @@ from gpm import PROJECT_INI_FILE
 from gpm.api_export import (
     convert_export_structure_to_job_spec,
     extract_credentials_from_completion,
-    monitor_job_via_websocket,
     poll_final_message,
     submit_export_to_api,
 )
@@ -45,6 +44,26 @@ from gpm.helper import (
 )
 from gpm.messages import show_instructions, show_tree
 from gpm.project_ini_struc import tags_GPM
+
+
+def parse_export_config(cfg_path, config_dict, profile, replace_variable):
+    """
+    Parse export configuration entries.
+    """
+    export_structure = []
+    with open(cfg_path) as config:
+        for line in config:
+            if line.startswith("#"):
+                continue
+            ll = [le.strip() for le in line.split(";")]
+            if len(ll) == 4:
+                if (
+                    ll[0] == "all"
+                    or ll[0].lower() == profile["Project"]["application"].lower()
+                ):
+                    ll[1] = replace_variable(ll[1], config_dict, "")
+                    export_structure.append(ll)
+    return export_structure
 
 
 class GPM:
@@ -486,20 +505,9 @@ class GPM:
         self.export_structure = []
         config_dict = get_dict_from_configs()
         cfg_path = os.path.join(get_gpmdata_path(), "config/export.config")
-        with open(cfg_path) as config:
-            for line in config:
-                if line.startswith("#"):
-                    continue
-                else:
-                    ll = [le.strip() for le in line.split(";")]
-                    if len(ll) == 4:
-                        if (
-                            ll[0] == "all"
-                            or ll[0].lower()
-                            == self.profile["Project"]["application"].lower()
-                        ):
-                            ll[1] = self.replace_variable(ll[1], config_dict, "")
-                            self.export_structure.append(ll)
+        self.export_structure = parse_export_config(
+            cfg_path, config_dict, self.profile, self.replace_variable
+        )
 
     def _handle_rename(self, export_dir, entry):
         """
