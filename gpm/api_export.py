@@ -140,6 +140,8 @@ def _process_export_entry(entry, project_path, prefix, host, project_name):
         target_dir, rename if rename else os.path.basename(abs_source)
     )
 
+    section = _determine_report_section(dest_path) if entry[0] != "FASTQ" else "raw"
+
     return [
         {
             "src": abs_source,
@@ -148,7 +150,7 @@ def _process_export_entry(entry, project_path, prefix, host, project_name):
             "project": project_name,
             "mode": "symlink",
             "include_in_report": True,
-            "report_section": _determine_report_section(dest_path),
+            "report_section": section,
         }
     ]
 
