@@ -92,7 +92,7 @@ def _get_backend_config():
     return ["apache", "owncloud"]
 
 
-def extract_authors_from_profile(profile):
+def extract_authors_from_profile(profile) -> list[str]:
     authors = []
     if "authors" in profile.get("Project", {}) and profile["Project"]["authors"]:
         authors_list = profile["Project"]["authors"]
@@ -100,6 +100,17 @@ def extract_authors_from_profile(profile):
             authors = [str(a) for a in authors_list]
         elif isinstance(authors_list, str):
             authors = [authors_list]
+
+    if not authors:
+        click.echo(
+            click.style(
+                f"No authors found in profile, using login name  ", fg="bright_blue"
+            )
+        )
+        login_name = os.getlogin()
+        authors = get_gpm_config("AUTHORS", login_name)
+        if isinstance(authors, list):
+            authors = [str(authors[0]) + "," + str(authors[2])]
     return authors
 
 
@@ -199,6 +210,8 @@ def convert_export_structure_to_job_spec(export_structure, profile, prefix=""):
     authors = extract_authors_from_profile(profile)
     host = _determine_host()
 
+    click.echo(click.style(f"Authors: {authors}", fg="bright_blue"))
+
     # Build export list
     export_list = _build_export_list(
         export_structure, project_path, prefix, host, project_name
@@ -213,7 +226,6 @@ def convert_export_structure_to_job_spec(export_structure, profile, prefix=""):
         "password": password,
         "authors": authors if authors else "",
     }
-
     return job_spec
 
 
