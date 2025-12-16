@@ -5,7 +5,7 @@ import subprocess
 import sys
 import time
 from typing import Any, Dict, Optional, Tuple
-
+from pathlib import Path
 import click
 import requests
 
@@ -114,7 +114,7 @@ def extract_authors_from_profile(profile) -> list[str]:
     return authors
 
 
-def _process_export_entry(entry, project_path, prefix, host, project_name):
+def _process_export_entry(entry, project_path, prefix, host, project_name) -> list:
     """
     Process a single export structure entry.
 
@@ -133,6 +133,11 @@ def _process_export_entry(entry, project_path, prefix, host, project_name):
         return []
 
     source_path = entry[1]
+
+    if not Path(source_path).exists():
+        return []
+
+
     target_dir = entry[2]
     rename = entry[3] if len(entry) > 3 else None
 
