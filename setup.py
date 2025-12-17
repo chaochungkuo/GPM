@@ -54,7 +54,7 @@ class PostInstallCommand(install):
     def run(self):
         """Run the standard install, then copy GPMDATA folders."""
         install.run(self)
-        copy_gpmdata_folders()
+        # copy_gpmdata_folders()
 
 
 setup(
