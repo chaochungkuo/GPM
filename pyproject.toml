@@ -1,4 +1,44 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "gpm"
+version = "0.8.0"
+description = "GPM (Genomic Project Manager) is a versatile command-line tool designed for managing and automating bioinformatic workflows."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "See LICENSE file" }
+authors = [{ name = "Chao-Chung Kuo", email = "chao-chung.kuo@rwth-aachen.de" }]
+keywords = [
+    "bioinformatics",
+    "genomics",
+    "workflow",
+    "NGS",
+    "next-generation-sequencing",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "Click>=8.0.0",
+    "pandas>=2.0.0",
+    "pyyaml>=6.0",
+    "xtarfile>=0.1.0",
+    "tqdm>=4.65.0",
+    "pyocclient>=0.1.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "pytest>=7.4.0",
+]
+[project.scripts]
+gpm = "gpm.main:main"
+
+[project.urls]
+Homepage = "https://github.com/chaochungkuo/GPM"
+Documentation = "https://gpm.readthedocs.io/"
+
+[tool.setuptools]
+packages = ["gpm"]

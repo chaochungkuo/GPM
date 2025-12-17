@@ -11,6 +11,39 @@
 - **Comprehensive NGS Application Coverage**: Covering a wide range of Next-Generation Sequencing (NGS) applications, including RNAseq, tRNAseq, mRNAseq, ChIPseq, ATACseq, CLIPseq, ampliseq, scRNAseq, scVDJseq, scATACseq, miRNAseq, BWGS, WES, 16S, MAG, and more.
 - **Ideal for Bioinformatics Services**: A powerful tool for individuals providing bioinformatic services.
 
+## Installation
+
+GPM requires Python 3.12 or higher. We recommend using [UV](https://github.com/astral-sh/uv) for installation:
+
+```bash
+# Install UV if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install GPM
+uv pip install gpm
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/chaochungkuo/GPM.git
+cd GPM
+uv pip install -e .
+```
+
+By default, template data will be copied to `~/gpmdata/`. To use a custom location, set the `GPMDATA` environment variable before installation:
+
+```bash
+export GPMDATA=/preferred/for/gpmdata
+uv pip install gpm
+```
+
+You can verify the installation by running:
+
+```bash
+gpm --help
+```
+
 ## A Short Demo
 
 After installing and configuring GPM on your computer/server, effortlessly complete your project with the following steps:

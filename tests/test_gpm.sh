@@ -1,4 +1,4 @@
-pip install ..
+uv pip install -e ..
 gpm --help
 
 # cd demultiplex

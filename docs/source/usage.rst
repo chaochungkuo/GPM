@@ -6,18 +6,26 @@ Usage
 Installation
 ------------
 
-To use GPM, first install it using pip:
+GPM requires Python 3.12 or higher. We recommend using `UV <https://github.com/astral-sh/uv>`_ for installation:
 
 .. code-block:: console
 
-   $ pip install genomicspm
+   $ uv pip install gpm
+
+Or install from source:
+
+.. code-block:: console
+
+   $ git clone https://github.com/chaochungkuo/GPM.git
+   $ cd GPM
+   $ uv pip install -e .
 
 By default, some template data will be copied under ``~/gpmdata/``. If you want to change this behavior, please define ``GPMDATA``:
 
 .. code-block:: console
 
    $ export GPMDATA=/preferred/for/gpmdata
-   $ pip install genomicspm
+   $ uv pip install gpm
 
 You can test your installation by:
 

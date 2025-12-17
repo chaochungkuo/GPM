@@ -1,110 +1,64 @@
-import io
+"""
+Minimal setup.py for post-install hooks.
+
+NOTE: This file is kept only to handle the post-install data folder copying.
+All package metadata (dependencies, version, etc.) is defined in pyproject.toml.
+This file will be removed in a future version once a pure pyproject.toml solution
+for post-install hooks is available.
+"""
+
 import os
-import re
 import sys
 from os import makedirs, path
 from shutil import copytree
 
-from setuptools import find_packages, setup
-
-#############################################################
-# Get version
-#############################################################
+from setuptools import setup
+from setuptools.command.install import install
 
 
-def read(*names, **kwargs):
-    with io.open(
-        os.path.join(os.path.dirname(__file__), *names),
-        encoding=kwargs.get("encoding", "utf8"),
-    ) as fp:
-        return fp.read()
+def get_gpmdata_path():
+    """Determine the GPMDATA location from environment variable or default to ~/gpmdata."""
+    if os.environ.get("GPMDATA"):
+        gpm_data_location = path.expanduser(os.getenv("GPMDATA"))
+    else:
+        gpm_data_location = path.expanduser(path.join(os.getenv("HOME"), "gpmdata"))
+    return gpm_data_location
 
 
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+def copy_gpmdata_folders():
+    """Copy data folders to GPMDATA location."""
+    gpm_data_location = get_gpmdata_path()
+    print("GPMDATA folder: " + gpm_data_location)
+    sys.stdout.flush()
+    
+    if not path.exists(gpm_data_location):
+        makedirs(gpm_data_location)
+    
+    data_folders = ["config", "demultiplex", "processing", "analysis"]
+    # Get project root (where this setup.py file is located)
+    project_root = path.dirname(path.abspath(__file__))
+    
+    for copy_folder in data_folders:
+        source_path = path.join(project_root, copy_folder)
+        copy_dest_path = path.join(gpm_data_location, copy_folder)
+        if path.exists(source_path) and path.isdir(source_path):
+            copytree(source_path, copy_dest_path, dirs_exist_ok=True)
+        else:
+            print(f"Warning: Source folder '{source_path}' not found. Skipping.")
+            sys.stdout.flush()
 
 
-current_version = find_version("gpm", "__version__.py")
+class PostInstallCommand(install):
+    """Custom install command to run post-install hooks."""
 
-#############################################################
-# GPMDATA path
-#############################################################
+    def run(self):
+        """Run the standard install, then copy GPMDATA folders."""
+        install.run(self)
+        copy_gpmdata_folders()
 
-# if the environment variable is set, use it;
-# otherwise use the home directory as a default
-if os.environ.get("GPMDATA"):
-    gpm_data_location = path.expanduser(os.getenv("GPMDATA"))
-else:
-    gpm_data_location = path.expanduser(path.join(os.getenv("HOME"), "gpmdata"))
-print("GPMDATA folder: " + gpm_data_location)
-sys.stdout.flush()
-
-# Creating Data Path
-if not path.exists(gpm_data_location):
-    makedirs(gpm_data_location)
-
-#############################################################
-# Copying data
-#############################################################
-
-data_folders = ["config", "demultiplex", "processing", "analysis"]
-# GPM Configs
-
-for copy_folder in data_folders:
-    copy_dest_path = path.join(gpm_data_location, copy_folder)
-    copytree(copy_folder, copy_dest_path, dirs_exist_ok=True)
-    # User defined Configs
-    # userconfig = open(path.join(gpm_data_location,fn+".user"), "w")
-    # with open(path.join(config_dir,fn)) as f1:
-    #     for line in f1.readlines():
-    #         print("# "+line, file=userconfig, end="")
-    # userconfig.close()
-
-
-#############################################################
-# Setup function
-#############################################################
-
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
-short_description = "GPM (Genomic Project Manager) is a versatile "
-"command-line tool designed for managing and automating bioinformatic "
-"workflows."
 
 setup(
-    name="gpm",
-    version=current_version,
-    author="Chao-Chung Kuo",
-    author_email="chao-chung.kuo@rwth-aachen.de",
-    description=short_description,
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/chaochungkuo/GPM",
-    packages=find_packages(),
-    install_requires=[
-        "Click",
-        "pandas",
-        "pyyaml",
-        "xtarfile",
-        "tqdm",
-        "pyocclient",
-        "requests",
-        "beautifulsoup4",
-        "pytest",
-        "websocket-client",
-    ],
-    entry_points={
-        "console_scripts": [
-            "gpm=gpm.main:main",
-        ],
+    cmdclass={
+        "install": PostInstallCommand,
     },
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "Operating System :: OS Independent",
-    ],
 )
