@@ -1,0 +1,6 @@
+# Include data folders as package data
+recursive-include config *
+recursive-include demultiplex *
+recursive-include processing *
+recursive-include analysis *
+

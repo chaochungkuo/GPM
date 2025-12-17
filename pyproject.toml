@@ -42,3 +42,4 @@ Documentation = "https://gpm.readthedocs.io/"
 
 [tool.setuptools]
 packages = ["gpm"]
+include-package-data = true

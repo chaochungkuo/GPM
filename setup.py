@@ -9,7 +9,7 @@ for post-install hooks is available.
 
 import os
 import sys
-from os import makedirs, path
+from os import makedirs, path, walk
 from shutil import copytree
 
 from setuptools import setup
@@ -23,6 +23,37 @@ def get_gpmdata_path():
     else:
         gpm_data_location = path.expanduser(path.join(os.getenv("HOME"), "gpmdata"))
     return gpm_data_location
+
+
+def get_data_files():
+    """
+    Collect data files from config, demultiplex, processing, and analysis directories.
+
+    Returns:
+        list: List of tuples (install_directory, [list of files]) for setuptools data_files
+    """
+    data_folders = ["config", "demultiplex", "processing", "analysis"]
+    project_root = path.dirname(path.abspath(__file__))
+    data_files_list = []
+
+    for folder in data_folders:
+        source_path = path.join(project_root, folder)
+        if path.exists(source_path) and path.isdir(source_path):
+            # Collect all files recursively
+            files = []
+            for root, dirs, filenames in walk(source_path):
+                for filename in filenames:
+                    # Get relative path from project root
+                    file_path = path.join(root, filename)
+                    rel_path = path.relpath(file_path, project_root)
+                    files.append(rel_path)
+
+            if files:
+                # Install to share/gpm/{folder}/
+                install_dir = path.join("share", "gpm", folder)
+                data_files_list.append((install_dir, files))
+
+    return data_files_list
 
 
 def copy_gpmdata_folders():
@@ -58,6 +89,7 @@ class PostInstallCommand(install):
 
 
 setup(
+    data_files=get_data_files(),
     cmdclass={
         "install": PostInstallCommand,
     },
