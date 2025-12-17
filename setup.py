@@ -30,14 +30,14 @@ def copy_gpmdata_folders():
     gpm_data_location = get_gpmdata_path()
     print("GPMDATA folder: " + gpm_data_location)
     sys.stdout.flush()
-    
+
     if not path.exists(gpm_data_location):
         makedirs(gpm_data_location)
-    
+
     data_folders = ["config", "demultiplex", "processing", "analysis"]
     # Get project root (where this setup.py file is located)
     project_root = path.dirname(path.abspath(__file__))
-    
+
     for copy_folder in data_folders:
         source_path = path.join(project_root, copy_folder)
         copy_dest_path = path.join(gpm_data_location, copy_folder)
@@ -54,7 +54,7 @@ class PostInstallCommand(install):
     def run(self):
         """Run the standard install, then copy GPMDATA folders."""
         install.run(self)
-        copy_gpmdata_folders()
+        # copy_gpmdata_folders()
 
 
 setup(
